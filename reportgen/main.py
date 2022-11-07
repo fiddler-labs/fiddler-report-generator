@@ -6,7 +6,7 @@ from .output_modules import generate_output
 
 
 def _run_analyses(
-    fiddler_api, analysis_modules: List[Type[BaseAnalysis]]
+    fiddler_api, analysis_modules: List[BaseAnalysis]
 ) -> List[Type[BaseOutput]]:
     output_modules = []
 
@@ -17,13 +17,17 @@ def _run_analyses(
 
 
 def generate_report(
-    fiddler_api, analysis_modules: List[Type[BaseAnalysis]], output_type: OutputTypes
+    fiddler_api,
+    analysis_modules: List[BaseAnalysis],
+    output_type: OutputTypes,
+    output_path=None,
 ):
-
     output_modules = _run_analyses(
         fiddler_api=fiddler_api, analysis_modules=analysis_modules
     )
 
-    generate_output(output_type=output_type, output_modules=output_modules)
+    generate_output(
+        output_type=output_type, output_modules=output_modules, output_path=output_path
+    )
 
     return None

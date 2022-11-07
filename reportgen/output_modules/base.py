@@ -9,13 +9,10 @@ class OutputTypes(enum.Enum):
 
 
 class BaseOutput(ABC):
-    def render(self, api) -> str:
-        pass
-
     @abstractmethod
     def render_pdf(self):
         pass
 
     @abstractmethod
-    def render_docx(self):
+    def render_docx(self, document):
         pass

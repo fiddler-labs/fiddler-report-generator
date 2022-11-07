@@ -7,4 +7,4 @@ class ProjectSummary(BaseAnalysis):
         self.project_id = project_id
 
     def run(self, api):
-        return BasicText(text=str(api.list_models(self.project_id)))
+        return [BasicText(text=str(api.list_models(self.project_id)))]
