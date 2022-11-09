@@ -1,5 +1,7 @@
 from .base import BaseAnalysis
 from ..output_modules import BasicText
+from ..output_modules import BasicTextStyle
+
 
 
 class ProjectSummary(BaseAnalysis):
@@ -7,4 +9,7 @@ class ProjectSummary(BaseAnalysis):
         self.project_id = project_id
 
     def run(self, api):
-        return [BasicText(text=str(api.list_models(self.project_id)))]
+        return [BasicText(text='Project Summary'),
+                BasicText(text='Project Summary', BasicTextStyle(alignment='center')),
+                BasicText(text=str(api.list_models(self.project_id))),
+                ]
