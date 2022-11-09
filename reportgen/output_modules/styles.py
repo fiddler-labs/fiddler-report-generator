@@ -1,5 +1,14 @@
 from dataclasses import dataclass
+import enum
+
+@enum.unique
+class Alignments(enum.Enum):
+    LEFT = 'left'
+    CENTER = 'center'
+    RIGHT =  'right'
 
 @dataclass
 class BasicTextStyle:
-    alignment: str='left'
+    alignment: Alignments=Alignments.LEFT
+    bold: bool=False
+    size: int=14
