@@ -2,9 +2,10 @@ from .base import BaseOutput
 from .styles import BasicTextStyle , Alignments
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt
+from typing import Optional
 
 class BasicText(BaseOutput):
-    def __init__(self, text, style:BasicTextStyle=None):
+    def __init__(self, text:str, style:Optional[BasicTextStyle]=None):
         self.text = text
         if style:
             self.style = style
