@@ -10,6 +10,5 @@ class ProjectSummary(BaseAnalysis):
 
     def run(self, api):
         return [BasicText(text='Project Summary'),
-                BasicText(text='Project Summary', BasicTextStyle(alignment='center')),
-                BasicText(text=str(api.list_models(self.project_id))),
+                BasicText(text='Project Summary', style=BasicTextStyle(alignment='center'))
                 ]
