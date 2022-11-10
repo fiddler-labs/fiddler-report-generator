@@ -5,6 +5,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt
 from docx.shared import Inches
 
+
 class SimpleTextBlock(BaseOutput):
     def __init__(self, text:str, style:Optional[SimpleTextStyle]=None):
         self.text = text
@@ -32,9 +33,11 @@ class SimpleTextBlock(BaseOutput):
         run = paragraph.add_run(self.text)
         run.font.size = Pt(self.style.size)
 
-        if self.style.font_style == 'bold':
+        if self.style.font_style is None:
+            pass
+        elif self.style.font_style == 'bold':
             run.font.bold = True
-        if self.style.font_style == 'italic':
+        elif self.style.font_style == 'italic':
             run.font.italic = True
         else:
             raise ValueError(
@@ -63,5 +66,6 @@ class SimpleImage(BaseOutput):
         pass
 
     def render_docx(self, document):
-        document.add_picture(self.path, width=Inches(self.width))
+        self.width= Inches(self.width) if self.width is not None else self.width
+        document.add_picture(self.path, width=self.width)
 

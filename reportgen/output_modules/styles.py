@@ -3,12 +3,12 @@ from typing import Optional
 
 @dataclass
 class SimpleTextStyle:
-    alignment='left'
-    size: int = 14
-    font_style=None
+    alignment: str='left'
+    size: int=14
+    font_style: str=None
 
 
 @dataclass
 class FormattedTextStyle:
-    alignment='left'
+    alignment: str='left'
     size: int = 14
