@@ -10,4 +10,5 @@ class ProjectSummary(BaseAnalysis):
         return [BasicFigure('fiddler_logo.png'),
                 BasicText(text='Project Summary', style=BasicTextStyle(alignment=Alignments.CENTER, bold=True, size=22)),
                 BasicText(text='Models: ' + str(api.list_models(self.project_id)))
+                StyledText([(text='abs', style=)])
                 ]
