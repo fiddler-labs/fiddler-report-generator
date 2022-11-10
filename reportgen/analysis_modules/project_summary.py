@@ -1,14 +1,13 @@
 from .base import BaseAnalysis
-from ..output_modules import BasicText, BasicFigure
-from ..output_modules import BasicTextStyle, Alignments, FigureStyle
+from ..output_modules import SimpleTextBlock, SimpleTextStyle, FormattedTextBlock, FormattedTextStyle, SimpleImage
 
 class ProjectSummary(BaseAnalysis):
     def __init__(self, project_id):
         self.project_id = project_id
 
     def run(self, api):
-        return [BasicFigure('fiddler_logo.png'),
-                BasicText(text='Project Summary', style=BasicTextStyle(alignment=Alignments.CENTER, bold=True, size=22)),
-                BasicText(text='Models: ' + str(api.list_models(self.project_id)))
-                StyledText([(text='abs', style=)])
+        return [SimpleImage('fiddler_logo.png', width=10),
+                SimpleTextBlock(text='Project Summary', style=FormattedTextStyle(alignment='center', font_style='bold', size=22)),
+                SimpleTextBlock(text='Models: ' + str(api.list_models(self.project_id))),
+                #FormattedTextBlock()
                 ]
