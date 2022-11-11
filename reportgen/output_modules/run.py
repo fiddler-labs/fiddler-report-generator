@@ -13,29 +13,44 @@ class PlainText(FormattedText):
     def __init__(self, text:str):
         self.text = text
 
-    def render_docx(self, document):
+    def render_pdf(self):
         pass
+
+    def render_docx(self, p):
+        p.add_run(self.text)
 
 
 class BoldText(FormattedText):
     def __init__(self, text:str):
         self.text = text
 
-    def render_docx(self, document):
+    def render_pdf(self):
         pass
+
+    def render_docx(self, p):
+        p.add_run(self.text).font.bold = True
 
 
 class ItalicText(FormattedText):
     def __init__(self, text:str):
         self.text = text
 
-    def render_docx(self, document):
+    def render_pdf(self):
         pass
+
+    def render_docx(self, p):
+        p.add_run(self.text).font.italic = True
 
 
 class URL(FormattedText):
-    def __init__(self, text:str):
+    def __init__(self, text:str, url:str):
         self.text = text
+        self.url = url
 
-    def render_docx(self, document):
+    def render_pdf(self):
         pass
+
+    def render_docx(self, p):
+        pass
+        #it seems that python-docx does not have add_hyperlink yet. We can write something manually if needed
+        #p.add_hyperlink(text=self.text, url=self.url)

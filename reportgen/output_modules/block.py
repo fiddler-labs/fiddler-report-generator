@@ -1,6 +1,7 @@
 from .base import BaseOutput
 from .styles import SimpleTextStyle, FormattedTextStyle
-from typing import Optional
+from .run import FormattedText
+from typing import Optional, List
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt
 from docx.shared import Inches
@@ -46,15 +47,17 @@ class SimpleTextBlock(BaseOutput):
 
 
 class FormattedTextBlock(BaseOutput):
-    def __init__(self, run_list, style:Optional[FormattedTextStyle]=None):
-        self.text = text
+    def __init__(self, elements:List[FormattedText], style:Optional[FormattedTextStyle]=None):
+        self.elements = elements
         self.style = style if style else FormattedTextStyle()
 
     def render_pdf(self):
         pass
 
     def render_docx(self, document):
-        pass
+        paragraph = document.add_paragraph()
+        for run_obj in self.elements:
+            run_obj.render_docx(paragraph)
 
 
 class SimpleImage(BaseOutput):
