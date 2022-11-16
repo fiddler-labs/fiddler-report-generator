@@ -1,5 +1,5 @@
 from .base import OutputTypes, BaseOutput
-from .block import SimpleTextBlock, FormattedTextBlock, SimpleImage
+from .blocks import SimpleTextBlock, FormattedTextBlock, SimpleImage
 from .styles import SimpleTextStyle, FormattedTextStyle
 from .generate_output import generate_output
 

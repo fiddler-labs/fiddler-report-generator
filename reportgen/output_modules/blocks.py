@@ -1,6 +1,6 @@
 from .base import BaseOutput
 from .styles import SimpleTextStyle, FormattedTextStyle
-from .run import FormattedText
+from .text_styles import FormattedText
 from typing import Optional, List
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt
