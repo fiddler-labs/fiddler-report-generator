@@ -1,7 +1,9 @@
 from .base import OutputTypes, BaseOutput
-from .basic_text import BasicText
+from .blocks import SimpleTextBlock, FormattedTextBlock, SimpleImage
+from .styles import SimpleTextStyle, FormattedTextStyle
 from .generate_output import generate_output
 
-__all__ = ('OutputTypes', 'BaseOutput', 'generate_output', 'BasicText')
+__all__ = ('OutputTypes', 'BaseOutput', 'generate_output', 'SimpleTextBlock','FormattedTextBlock','SimpleImage',
+           'SimpleTextStyle', 'FormattedTextStyle')
 
 # fiddler header color = rgb(0, 3, 80)
