@@ -74,13 +74,17 @@ class ModelPerformance(BaseAnalysis):
                 print(CM)
 
                 fig, ax = plt.subplots()
-                im = ax.imshow(CM, cmap='Reds')
+                ax.imshow(CM, cmap='Reds')
+                plt.tight_layout()
 
                 tmp_image_file = TempOutputFile()
                 plt.savefig(tmp_image_file.get_path())
                 plt.close(fig)
 
-                output_modules += [SimpleImage(tmp_image_file)]
+                output_modules += [
+                                   FormattedTextBlock([BoldText('Confusion Matrix')]),
+                                   SimpleImage(tmp_image_file, width=4)
+                                  ]
 
         return output_modules
 
