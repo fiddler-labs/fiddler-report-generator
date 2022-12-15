@@ -7,11 +7,11 @@ api = fdl.FiddlerApi(
     url='http://demo.fiddler.ai', org_id='demo', auth_token=os.getenv('fiddler_api_key'),
 )
 
-generate_report(
-    fiddler_api=api,
-    analysis_modules=[ProjectSummary(project_id="imdb_rnn")],
-    output_type=OutputTypes.DOCX,
-)
+# generate_report(
+#     fiddler_api=api,
+#     analysis_modules=[ProjectSummary(project_id="imdb_rnn")],
+#     output_type=OutputTypes.DOCX,
+# )
 
 generate_report(
     fiddler_api=api,

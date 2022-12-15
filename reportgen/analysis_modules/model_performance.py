@@ -1,15 +1,18 @@
 from .base import BaseAnalysis
-from ..output_modules import SimpleTextBlock, FormattedTextBlock, SimpleImage, FormattedTextStyle, SimpleTextStyle
+from ..output_modules import SimpleTextBlock, FormattedTextBlock, SimpleImage, FormattedTextStyle, SimpleTextStyle, TempOutputFile
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 
 import fiddler as fdl
 import numpy as np
+import matplotlib.pyplot as plt
+import os
 
 class ModelPerformance(BaseAnalysis):
     def __init__(self, project_id):
         self.project_id = project_id
 
     def run(self, api):
+
         output_modules = []
         output_modules += [SimpleTextBlock(text='Model Stats',
                                            style=SimpleTextStyle(alignment='center',
@@ -70,6 +73,14 @@ class ModelPerformance(BaseAnalysis):
                 CM[1,1] =scores['Confusion Matrix']['tn']
                 print(CM)
 
+                fig, ax = plt.subplots()
+                im = ax.imshow(CM, cmap='Reds')
+
+                tmp_image_file = TempOutputFile()
+                plt.savefig(tmp_image_file.get_path())
+                plt.close(fig)
+
+                output_modules += [SimpleImage(tmp_image_file)]
 
         return output_modules
 

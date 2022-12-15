@@ -1,7 +1,8 @@
 from .base import BaseOutput
 from .styles import SimpleTextStyle, FormattedTextStyle
 from .text_styles import FormattedText
-from typing import Optional, List
+from .tmp_file import TempOutputFile
+from typing import Optional, List, Union
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Pt
 from docx.shared import Inches
@@ -61,14 +62,23 @@ class FormattedTextBlock(BaseOutput):
 
 
 class SimpleImage(BaseOutput):
-    def __init__(self, path:str, width=None):
-        self.path = path
+    def __init__(self, source:Union[str,TempOutputFile], width=None):
+        self.source = source
         self.width = width
 
     def render_pdf(self):
         pass
 
     def render_docx(self, document):
-        self.width= Inches(self.width) if self.width is not None else self.width
-        document.add_picture(self.path, width=self.width)
+        self.width = Inches(self.width) if self.width is not None else self.width
+
+        if isinstance(self.source, str):
+            document.add_picture(self.source, width=self.width)
+
+        elif isinstance(self.source, TempOutputFile):
+            document.add_picture(self.source.get_path(), width=self.width)
+            #self.source.delete_file()
+        else:
+            "Error: incorrect input type"
+
 
