@@ -77,7 +77,7 @@ class SimpleImage(BaseOutput):
 
         elif isinstance(self.source, TempOutputFile):
             document.add_picture(self.source.get_path(), width=self.width)
-            #self.source.delete_file()
+            self.source.delete_file()
         else:
             "Error: incorrect input type"
 
