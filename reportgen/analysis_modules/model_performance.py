@@ -7,7 +7,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
+
 class ModelPerformance(BaseAnalysis):
+
     def __init__(self, project_id):
         self.project_id = project_id
 
@@ -23,6 +25,7 @@ class ModelPerformance(BaseAnalysis):
 
         for model in models:
             mdl_info = api.get_model_info(self.project_id, model)
+            dataset_obj = api.v2.get_dataset(self.project_id, mdl_info.datasets[0])
 
             if mdl_info.model_task == fdl.ModelTask.BINARY_CLASSIFICATION:
                 model_type = 'binary classification'
@@ -38,11 +41,6 @@ class ModelPerformance(BaseAnalysis):
                 output_modules += [FormattedTextBlock([BoldText('Performance Metrics')],)]
 
                 path = ['scoring', api.v1.org_id, self.project_id, model]
-
-                dataset_obj = api.v2.get_dataset(self.project_id, mdl_info.datasets[0])
-
-                dataset_obj.file_list['tree'][0]['name']
-
                 json_request = {
                         "dataset_name": mdl_info.datasets[0],
                         "source": dataset_obj.file_list['tree'][0]['name']
@@ -127,6 +125,29 @@ class ModelPerformance(BaseAnalysis):
                                    FormattedTextBlock([BoldText('Confusion Matrix')]),
                                    SimpleImage(tmp_image_file, width=4)
                                   ]
+
+
+                ###
+                path = ['model_performance', api.v1.org_id, self.project_id, model]
+                json_request = {
+                    "dataset_name": mdl_info.datasets[0],
+                    "source": dataset_obj.file_list['tree'][0]['name']
+                }
+                roc_response = api.v1._call(path, json_request)['roc_curve']
+                fpr = roc_response['fpr']
+                tpr = roc_response['tpr']
+                thresholds = roc_response['thresholds']
+
+                #matplotlib plot
+
+                print('fpr')
+                print(type(fpr))
+                print(len(fpr))
+
+                print('tpr')
+                print(type(tpr))
+                print(len(tpr))
+
 
         return output_modules
 
