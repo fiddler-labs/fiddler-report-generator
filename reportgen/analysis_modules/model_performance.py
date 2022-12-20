@@ -30,10 +30,12 @@ class ModelPerformance(BaseAnalysis):
             if mdl_info.model_task == fdl.ModelTask.BINARY_CLASSIFICATION:
                 model_type = 'binary classification'
 
+                binary_threshold = 0.5
+
                 output_modules += [
                                     FormattedTextBlock([PlainText('Model: '),
                                                         BoldText(model),
-                                                        ItalicText('   (%s)'%model_type)
+                                                        ItalicText('({})'.format(model_type))
                                                         ]
                                                        )
                                   ]
@@ -47,22 +49,6 @@ class ModelPerformance(BaseAnalysis):
                     }
                 response = api.v1._call(path, json_request)
                 scores = response['scores']
-
-                # output_modules += [
-                #                    FormattedTextBlock([
-                #                                        PlainText('Accuracy: '),
-                #                                        PlainText('%.2f \n'%scores['Accuracy']),
-                #                                        PlainText('Precision: '),
-                #                                        PlainText('%.2f \n'%scores['Precision']),
-                #                                        PlainText('Recall: '),
-                #                                        PlainText('%.2f \n'%scores['Recall']),
-                #                                        PlainText('F1: '),
-                #                                        PlainText('%.2f \n'%scores['F1']),
-                #                                        PlainText('AUC: '),
-                #                                        PlainText('%.2f'%scores['AUC']),
-                #                                        ]
-                #                                        )
-                #                   ]
 
                 output_modules += [
                                    Table(header=['Accuracy', 'Precision', 'Recall', 'F1', 'AUC'],
@@ -123,11 +109,11 @@ class ModelPerformance(BaseAnalysis):
 
                 output_modules += [
                                    FormattedTextBlock([BoldText('Confusion Matrix')]),
-                                   SimpleImage(tmp_image_file, width=4)
+                                   SimpleImage(tmp_image_file, width=3)
                                   ]
 
 
-                ###
+                # ROC
                 path = ['model_performance', api.v1.org_id, self.project_id, model]
                 json_request = {
                     "dataset_name": mdl_info.datasets[0],
@@ -137,17 +123,25 @@ class ModelPerformance(BaseAnalysis):
                 fpr = roc_response['fpr']
                 tpr = roc_response['tpr']
                 thresholds = roc_response['thresholds']
+                res = np.abs(np.array(thresholds) - binary_threshold)
+                threshold_indx = np.argmin(res)
 
-                #matplotlib plot
+                # fig, ax = plt.subplots(figsize=(7, 7))
+                fig, ax = plt.subplots()
+                ax.plot(fpr, tpr)
+                ax.plot(fpr[threshold_indx], tpr[threshold_indx], '.', c='green', ms=18, label='Threshold={:.2f}'.format(binary_threshold))
+                ax.yaxis.grid(True)
+                ax.legend(bbox_to_anchor=(1.0, 1.1), loc='upper right')
+                plt.tight_layout()
 
-                print('fpr')
-                print(type(fpr))
-                print(len(fpr))
+                tmp_image_file = TempOutputFile()
+                plt.savefig(tmp_image_file.get_path())
+                plt.close(fig)
 
-                print('tpr')
-                print(type(tpr))
-                print(len(tpr))
-
+                output_modules += [
+                                   FormattedTextBlock([BoldText('ROC Curve')]),
+                                   SimpleImage(tmp_image_file, width=3)
+                                  ]
 
         return output_modules
 

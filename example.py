@@ -15,8 +15,8 @@ api = fdl.FiddlerApi(
 
 generate_report(
     fiddler_api=api,
-    analysis_modules=[ProjectSummary(project_id="imdb_rnn"),
-                      DatasetSummary(project_id="imdb_rnn"),
+    analysis_modules=[#ProjectSummary(project_id="imdb_rnn"),
+                      #DatasetSummary(project_id="imdb_rnn"),
                       ModelPerformance(project_id="imdb_rnn")
                      ],
     output_type=OutputTypes.DOCX,

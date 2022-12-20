@@ -82,6 +82,9 @@ class SimpleImage(BaseOutput):
         else:
             "Error: incorrect input type"
 
+        run = document.add_paragraph().add_run()
+        run.add_break()
+
 
 class Table(BaseOutput):
     def __init__(self, header: List[str], records: List[Sequence]):
@@ -110,3 +113,6 @@ class Table(BaseOutput):
 
             for i in range(len(self.header)):
                 row_cells[i].text = str(rec[i])
+
+        run = document.add_paragraph().add_run()
+        run.add_break()
