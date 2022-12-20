@@ -2,8 +2,9 @@ from .base import BaseOutput
 from .styles import SimpleTextStyle, FormattedTextStyle
 from .text_styles import FormattedText
 from .tmp_file import TempOutputFile
-from typing import Optional, List, Union
+from typing import Optional, List, Sequence, Union
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.shared import Pt
 from docx.shared import Inches
 
@@ -82,3 +83,30 @@ class SimpleImage(BaseOutput):
             "Error: incorrect input type"
 
 
+class Table(BaseOutput):
+    def __init__(self, header: List[str], records: List[Sequence]):
+        if records:
+            for rec in records:
+                if not len(header) == len(rec):
+                    raise ValueError(
+                        'dimension mismatch between table header and records.'
+                    )
+        self.header = header
+        self.records = records
+
+    def render_pdf(self):
+        pass
+
+    def render_docx(self, document):
+        table = document.add_table(rows=len(self.records), cols=len(self.header))
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        hdr_cells = table.rows[0].cells
+
+        for i, col_name in enumerate(self.header):
+            hdr_cells[i].text = col_name
+
+        for rec in self.records:
+            row_cells = table.add_row().cells
+
+            for i in range(len(self.header)):
+                row_cells[i].text = str(rec[i])

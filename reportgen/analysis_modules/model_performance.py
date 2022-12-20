@@ -1,5 +1,5 @@
 from .base import BaseAnalysis
-from ..output_modules import SimpleTextBlock, FormattedTextBlock, SimpleImage, FormattedTextStyle, SimpleTextStyle, TempOutputFile
+from ..output_modules import SimpleTextBlock, FormattedTextBlock, SimpleImage, FormattedTextStyle, SimpleTextStyle, TempOutputFile, Table
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 
 import fiddler as fdl
@@ -50,21 +50,34 @@ class ModelPerformance(BaseAnalysis):
                 response = api.v1._call(path, json_request)
                 scores = response['scores']
 
+                # output_modules += [
+                #                    FormattedTextBlock([
+                #                                        PlainText('Accuracy: '),
+                #                                        PlainText('%.2f \n'%scores['Accuracy']),
+                #                                        PlainText('Precision: '),
+                #                                        PlainText('%.2f \n'%scores['Precision']),
+                #                                        PlainText('Recall: '),
+                #                                        PlainText('%.2f \n'%scores['Recall']),
+                #                                        PlainText('F1: '),
+                #                                        PlainText('%.2f \n'%scores['F1']),
+                #                                        PlainText('AUC: '),
+                #                                        PlainText('%.2f'%scores['AUC']),
+                #                                        ]
+                #                                        )
+                #                   ]
+
                 output_modules += [
-                                   FormattedTextBlock([
-                                                       PlainText('Accuracy: '),
-                                                       PlainText('%.2f \n'%scores['Accuracy']),
-                                                       PlainText('Precision: '),
-                                                       PlainText('%.2f \n'%scores['Precision']),
-                                                       PlainText('Recall: '),
-                                                       PlainText('%.2f \n'%scores['Recall']),
-                                                       PlainText('F1: '),
-                                                       PlainText('%.2f \n'%scores['F1']),
-                                                       PlainText('AUC: '),
-                                                       PlainText('%.2f'%scores['AUC']),
-                                                       ]
-                                                       )
-                                  ]
+                                   Table(header=['Accuracy', 'Precision', 'Recall', 'F1', 'AUC'],
+                                         records=[(
+                                                   '{: .2f}'.format(scores['Accuracy']),
+                                                   '{: .2f}'.format(scores['Precision']),
+                                                   '{: .2f}'.format(scores['Recall']),
+                                                   '{: .2f}'.format(scores['F1']),
+                                                   '{: .2f}'.format(scores['AUC'])
+                                                   )
+                                                  ]
+                                         )
+                                   ]
 
                 CM = np.zeros((2,2))
                 CM[0,0] = scores['Confusion Matrix']['tp']
