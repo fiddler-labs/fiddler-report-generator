@@ -1,6 +1,6 @@
 import fiddler as fdl
 from .base import BaseAnalysis
-from ..output_modules import SimpleTextBlock, FormattedTextBlock, SimpleImage, FormattedTextStyle, SimpleTextStyle
+from ..output_modules import SimpleTextBlock, FormattedTextBlock, SimpleImage, FormattedTextStyle, SimpleTextStyle, Table
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 
 class DatasetSummary(BaseAnalysis):
@@ -22,12 +22,19 @@ class DatasetSummary(BaseAnalysis):
             dataset = api.v1.get_dataset(self.project_id, dataset_ID, max_rows=30000)
 
             output_modules += [FormattedTextBlock([PlainText('Sources: ')])]
+            #table_rows = []
             for name,df in dataset.items():
-                print(name)
-                print(df.shape[0])
+                #table_rows.append((name, df.shape[0]))
                 output_modules += [
                                    FormattedTextBlock([ItalicText(name), PlainText(' (%d rows)'%df.shape[0])])
                                   ]
+
+            # output_modules += [
+            #                    Table(header=['Sources', 'Number of rows'],
+            #                          records=[table_rows]
+            #                          )
+            #                   ]
+
         return output_modules
 
 
