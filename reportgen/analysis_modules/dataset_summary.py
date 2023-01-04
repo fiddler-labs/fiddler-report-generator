@@ -19,22 +19,24 @@ class DatasetSummary(BaseAnalysis):
             output_modules += [FormattedTextBlock([PlainText('Dataset ID: '), BoldText(dataset_ID)])]
 
             dataset_obj = api.v2.get_dataset(self.project_id, dataset_ID)
-            dataset = api.v1.get_dataset(self.project_id, dataset_ID, max_rows=30000)
 
-            output_modules += [FormattedTextBlock([PlainText('Sources: ')])]
-            #table_rows = []
-            for name,df in dataset.items():
-                #table_rows.append((name, df.shape[0]))
-                output_modules += [
-                                   FormattedTextBlock([ItalicText(name), PlainText(' (%d rows)'%df.shape[0])])
-                                  ]
+            table_rows = []
 
-            # output_modules += [
-            #                    Table(header=['Sources', 'Number of rows'],
-            #                          records=[table_rows]
-            #                          )
-            #                   ]
+            for dataset in dataset_obj.file_list['tree']:
+                source = dataset['name']
 
+                query = f""" SELECT COUNT(*) FROM "{dataset_ID}" WHERE __source_file='{source}' LIMIT 10 """
+                slice_df = api.get_slice(
+                    sql_query=query,
+                    project_id=self.project_id
+                )
+                n_rows = slice_df['count()'][0]
+
+                table_rows.append((source,n_rows))
+
+            output_modules += [Table(header=['Source', 'Size (#Rows)'],
+                                     records=table_rows)
+                               ]
         return output_modules
 
 
