@@ -38,5 +38,3 @@ class DatasetSummary(BaseAnalysis):
                                      records=table_rows)
                                ]
         return output_modules
-
-
