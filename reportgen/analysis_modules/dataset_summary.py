@@ -37,4 +37,5 @@ class DatasetSummary(BaseAnalysis):
             output_modules += [Table(header=['Source', 'Size (#Rows)'],
                                      records=table_rows)
                                ]
+
         return output_modules

@@ -18,8 +18,8 @@ generate_report(
     analysis_modules=[
                       ProjectSummary(project_id="imdb_rnn"),
                       DatasetSummary(project_id="imdb_rnn"),
-                      #ModelPerformance(project_id="imdb_rnn"),
+                      ModelPerformance(project_id="imdb_rnn"),
                      ],
     output_type=OutputTypes.DOCX,
-    output_path='report-1.docx'
+    output_path='report-3.docx'
 )
