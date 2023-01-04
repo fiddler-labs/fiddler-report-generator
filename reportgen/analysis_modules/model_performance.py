@@ -42,7 +42,7 @@ class ModelPerformance(BaseAnalysis):
                 output_modules += BinaryClassifierMetrics(self.project_id, model).run(api)
                 output_modules += [FormattedTextBlock([BoldText('Confusion Matrix')])]
                 output_modules += ConfusionMatrix(self.project_id, model).run(api)
-        
+
                 # # ROC
                 # path = ['model_performance', api.v1.org_id, self.project_id, model]
                 # json_request = {
