@@ -1,6 +1,6 @@
 from .base import BaseAnalysis
 from .performance_metrics import BinaryClassifierMetrics
-from .performance_plots import ConfusionMatrix
+from .performance_plots import ConfusionMatrix, ROC
 from ..output_modules import SimpleTextBlock, FormattedTextBlock, SimpleImage, FormattedTextStyle, SimpleTextStyle, TempOutputFile, Table
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 
@@ -35,43 +35,15 @@ class ModelPerformance(BaseAnalysis):
                                                         BoldText(model),
                                                         ItalicText('({})'.format(model_type))
                                                         ]
-                                                       ),
-                                    FormattedTextBlock([BoldText('Performance Metrics')])
+                                                       )
                                   ]
 
+                output_modules += [FormattedTextBlock([BoldText('Performance Metrics')])]
                 output_modules += BinaryClassifierMetrics(self.project_id, model).run(api)
                 output_modules += [FormattedTextBlock([BoldText('Confusion Matrix')])]
                 output_modules += ConfusionMatrix(self.project_id, model).run(api)
-
-                # # ROC
-                # path = ['model_performance', api.v1.org_id, self.project_id, model]
-                # json_request = {
-                #     "dataset_name": mdl_info.datasets[0],
-                #     "source": dataset_obj.file_list['tree'][0]['name']
-                # }
-                # roc_response = api.v1._call(path, json_request)['roc_curve']
-                # fpr = roc_response['fpr']
-                # tpr = roc_response['tpr']
-                # thresholds = roc_response['thresholds']
-                # res = np.abs(np.array(thresholds) - binary_threshold)
-                # threshold_indx = np.argmin(res)
-                #
-                # # fig, ax = plt.subplots(figsize=(7, 7))
-                # fig, ax = plt.subplots()
-                # ax.plot(fpr, tpr)
-                # ax.plot(fpr[threshold_indx], tpr[threshold_indx], '.', c='green', ms=18, label='Threshold={:.2f}'.format(binary_threshold))
-                # ax.yaxis.grid(True)
-                # ax.legend(bbox_to_anchor=(1.0, 1.1), loc='upper right')
-                # plt.tight_layout()
-                #
-                # tmp_image_file = TempOutputFile()
-                # plt.savefig(tmp_image_file.get_path())
-                # plt.close(fig)
-                #
-                # output_modules += [
-                #                    FormattedTextBlock([BoldText('ROC Curve')]),
-                #                    SimpleImage(tmp_image_file, width=3)
-                #                   ]
+                output_modules += [FormattedTextBlock([BoldText('ROC Curve')])]
+                output_modules += ROC(self.project_id, model).run(api)
 
         return output_modules
 
