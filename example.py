@@ -21,5 +21,5 @@ generate_report(
                       ModelPerformance(project_id="imdb_rnn"),
                      ],
     output_type=OutputTypes.DOCX,
-    output_path='report-3.docx'
+    output_path='report.docx'
 )
