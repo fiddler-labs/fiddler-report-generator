@@ -1,6 +1,6 @@
 import fiddler as fdl
 from .base import BaseAnalysis
-from ..output_modules import SimpleTextBlock, FormattedTextBlock, SimpleImage, FormattedTextStyle, SimpleTextStyle, Table
+from ..output_modules import SimpleTextBlock, FormattedTextBlock, SimpleImage, FormattedTextStyle, SimpleTextStyle, Table, AddBreak
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 
 class DatasetSummary(BaseAnalysis):
@@ -35,7 +35,8 @@ class DatasetSummary(BaseAnalysis):
                 table_rows.append((source,n_rows))
 
             output_modules += [Table(header=['Source', 'Size (#Rows)'],
-                                     records=table_rows)
+                                     records=table_rows),
+                               AddBreak(2),
                                ]
 
         return output_modules

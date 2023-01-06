@@ -69,7 +69,7 @@ class ConfusionMatrix(BaseAnalysis):
         plt.savefig(tmp_image_file.get_path())
         plt.close(fig)
 
-        output_modules = [SimpleImage(tmp_image_file, width=4)]
+        output_modules = [SimpleImage(tmp_image_file, width=3)]
 
         return output_modules
 
@@ -83,6 +83,8 @@ class ROC(BaseAnalysis):
     def run(self, api):
         model_info = api.get_model_info(self.project_id, self.model_id)
         dataset_obj = api.v2.get_dataset(self.project_id, model_info.datasets[0])
+
+        binary_threshold = model_info.binary_classification_threshold
 
         path = ['model_performance', api.v1.org_id, self.project_id, self.model_id]
 
@@ -98,8 +100,7 @@ class ROC(BaseAnalysis):
         res = np.abs(np.array(thresholds) - binary_threshold)
         threshold_indx = np.argmin(res)
 
-        # fig, ax = plt.subplots(figsize=(7, 7))
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(5, 5))
         ax.plot(fpr, tpr)
         ax.plot(fpr[threshold_indx], tpr[threshold_indx], '.', c='green', ms=18,
                 label='Threshold={:.2f}'.format(binary_threshold))
@@ -111,7 +112,7 @@ class ROC(BaseAnalysis):
         plt.savefig(tmp_image_file.get_path())
         plt.close(fig)
 
-        output_modules = [SimpleImage(tmp_image_file, width=4)]
+        output_modules = [SimpleImage(tmp_image_file, width=3)]
 
         return output_modules
 

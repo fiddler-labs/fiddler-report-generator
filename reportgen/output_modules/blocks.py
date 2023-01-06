@@ -82,9 +82,6 @@ class SimpleImage(BaseOutput):
         else:
             "Error: incorrect input type"
 
-        run = document.add_paragraph().add_run()
-        run.add_break()
-
 
 class Table(BaseOutput):
     def __init__(self, header: List[str], records: List[Sequence]):
@@ -114,5 +111,17 @@ class Table(BaseOutput):
             for i in range(len(self.header)):
                 row_cells[i].text = str(rec[i])
 
-        run = document.add_paragraph().add_run()
-        run.add_break()
+
+class AddBreak(BaseOutput):
+    def __init__(self, lines:Optional[int]=None):
+        self.lines = lines if lines else 1
+
+    def render_pdf(self):
+        pass
+
+    def render_docx(self, document):
+        paragraph = document.add_paragraph()
+        run = paragraph.add_run()
+        self.lines = self.lines - 1
+        for line in range(self.lines):
+            run.add_break()
