@@ -1,7 +1,7 @@
 import os
 import fiddler as fdl
 from reportgen import generate_report, OutputTypes
-from reportgen.analysis_modules import ProjectSummary, ModelPerformance, DatasetSummary
+from reportgen.analysis_modules import ProjectSummary, ModelSummary, DatasetSummary
 
 api = fdl.FiddlerApi(
     url='http://demo.fiddler.ai', org_id='demo', auth_token=os.getenv('fiddler_api_key'),
@@ -12,7 +12,7 @@ generate_report(
     analysis_modules=[
                       ProjectSummary(project_id="imdb_rnn"),
                       DatasetSummary(project_id="imdb_rnn"),
-                      ModelPerformance(project_id="imdb_rnn"),
+                      ModelSummary(project_id="imdb_rnn"),
                      ],
     output_type=OutputTypes.DOCX,
     output_path='report-1.docx'

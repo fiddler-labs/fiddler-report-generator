@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import os
 
 
-class ModelPerformance(BaseAnalysis):
+class ModelSummary(BaseAnalysis):
 
     def __init__(self, project_id):
         self.project_id = project_id
@@ -44,6 +44,8 @@ class ModelPerformance(BaseAnalysis):
                 output_modules += [FormattedTextBlock([BoldText('ROC Curve')])]
                 output_modules += ROC(self.project_id, model).run(api)
                 output_modules += [AddBreak(1)]
+
+            #elif: ## Add more model type checks
 
         return output_modules
 
