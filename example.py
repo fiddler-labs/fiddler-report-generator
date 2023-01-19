@@ -15,5 +15,16 @@ generate_report(
                       ModelSummary(project_id="imdb_rnn"),
                      ],
     output_type=OutputTypes.DOCX,
-    output_path='report-1.docx'
+    output_path='report-2.docx'
 )
+
+# generate_report(
+#     fiddler_api=api,
+#     analysis_modules=[
+#                       ProjectSummary(project_id="nlp_multiclass"),
+#                       DatasetSummary(project_id="nlp_multiclass"),
+#                       ModelSummary(project_id="nlp_multiclass"),
+#                      ],
+#     output_type=OutputTypes.DOCX,
+#     output_path='report-nlp-1.docx'
+# )

@@ -16,25 +16,31 @@ class BinaryClassifierMetrics(BaseAnalysis):
 
         path = ['scoring', api.v1.org_id, self.project_id, self.model_id]
 
-        json_request = {
-                "dataset_name": model_info.datasets[0],
-                "source": dataset_obj.file_list['tree'][0]['name']
-            }
-        response = api.v1._call(path, json_request)
+        table_rows = []
+        for dataset in dataset_obj.file_list['tree']:
+            source = dataset['name']
+            json_request = {
+                    "dataset_name": model_info.datasets[0],
+                    "source": source
+                }
+            response = api.v1._call(path, json_request)
 
-        scores = response['scores']
+            scores = response['scores']
+            table_rows.append(
+                (
+                    '{}'.format(source),
+                    '{: .2f}'.format(scores['Accuracy']),
+                    '{: .2f}'.format(scores['Precision']),
+                    '{: .2f}'.format(scores['Recall']),
+                    '{: .2f}'.format(scores['F1']),
+                    '{: .2f}'.format(scores['AUC'])
+                )
+            )
 
         output_modules = [
                             Table(
-                                header=['Accuracy', 'Precision', 'Recall', 'F1', 'AUC'],
-                                records=[(
-                                            '{: .2f}'.format(scores['Accuracy']),
-                                            '{: .2f}'.format(scores['Precision']),
-                                            '{: .2f}'.format(scores['Recall']),
-                                            '{: .2f}'.format(scores['F1']),
-                                            '{: .2f}'.format(scores['AUC'])
-                                            )
-                                         ]
+                                header=['Source', 'Accuracy', 'Precision', 'Recall', 'F1', 'AUC'],
+                                records=table_rows
                                 )
                            ]
         return output_modules

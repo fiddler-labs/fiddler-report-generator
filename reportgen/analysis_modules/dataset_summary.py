@@ -33,10 +33,14 @@ class DatasetSummary(BaseAnalysis):
                 )
                 n_rows = slice_df['count()'][0]
 
-                table_rows.append((source,n_rows))
+                table_rows.append(
+                    (source, n_rows)
+                )
 
-            output_modules += [Table(header=['Source', 'Size (#Rows)'],
-                                     records=table_rows),
+            output_modules += [Table(
+                                     header=['Source', 'Size (#Rows)'],
+                                     records=table_rows
+                                    ),
                                AddBreak(2),
                                ]
 

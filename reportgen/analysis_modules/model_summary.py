@@ -17,24 +17,26 @@ class ModelSummary(BaseAnalysis):
 
     def run(self, api):
         output_modules = []
-        output_modules += [SimpleTextBlock(text='Model Stats',
+        output_modules += [SimpleTextBlock(text='Models',
                                            style=SimpleTextStyle(alignment='center',
                                                                  font_style='bold',
                                                                  size=20))]
 
         models = api.list_models(self.project_id)
         for model in models:
-            model_info = api.get_model_info(self.project_id, model)
+            output_modules += [FormattedTextBlock([PlainText('Model: '),
+                                                   BoldText(model)]
+                                                  )]
 
+            model_info = api.get_model_info(self.project_id, model)
             if model_info.model_task == fdl.ModelTask.BINARY_CLASSIFICATION:
                 model_type = 'binary classification'
-                output_modules += [
-                                    FormattedTextBlock([PlainText('Model: '),
-                                                        BoldText(model),
-                                                        ItalicText('({})'.format(model_type))
+                output_modules += [FormattedTextBlock([
+                                                        PlainText('Model Task: '),
+                                                        ItalicText('{}'.format(model_type))
                                                         ]
-                                                       ),
-                                  ]
+                                                      )]
+                output_modules += [AddBreak(1)]
                 output_modules += [FormattedTextBlock([BoldText('Performance Metrics')])]
                 output_modules += BinaryClassifierMetrics(self.project_id, model).run(api)
                 output_modules += [AddBreak(1)]
