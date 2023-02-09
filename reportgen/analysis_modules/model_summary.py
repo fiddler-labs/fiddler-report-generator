@@ -20,7 +20,7 @@ class ModelSummary(BaseAnalysis):
         output_modules += [SimpleTextBlock(text='Models',
                                            style=SimpleTextStyle(alignment='center',
                                                                  font_style='bold',
-                                                                 size=20))]
+                                                                 size=18))]
 
         models = api.list_models(self.project_id)
         for model in models:
@@ -36,18 +36,17 @@ class ModelSummary(BaseAnalysis):
                                                         ItalicText('{}'.format(model_type))
                                                         ]
                                                       )]
-                output_modules += [AddBreak(1)]
-                output_modules += [FormattedTextBlock([BoldText('Performance Metrics')])]
-                output_modules += BinaryClassifierMetrics(self.project_id, model).run(api)
-                output_modules += [AddBreak(1)]
                 output_modules += [FormattedTextBlock([BoldText('Confusion Matrix')])]
                 output_modules += ConfusionMatrix(self.project_id, model).run(api)
                 output_modules += [AddBreak(1)]
-                output_modules += [FormattedTextBlock([BoldText('ROC Curve')])]
-                output_modules += ROC(self.project_id, model).run(api)
-                output_modules += [AddBreak(1)]
 
-            #elif: ## Add more model type checks
+        output_modules += [FormattedTextBlock([BoldText('Performance Metrics')])]
+        output_modules += BinaryClassifierMetrics(self.project_id, models).run(api)
+        output_modules += [AddBreak(1)]
+
+        output_modules += [FormattedTextBlock([BoldText('ROC Curves')])]
+        output_modules += ROC(self.project_id, models).run(api)
+        output_modules += [AddBreak(1)]
 
         return output_modules
 
