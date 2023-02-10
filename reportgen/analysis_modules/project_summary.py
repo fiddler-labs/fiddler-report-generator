@@ -9,11 +9,11 @@ from typing import Optional, List, Sequence, Union
 
 class ProjectSummary(BaseAnalysis):
     """
-    An analysis module which creates a summary of the models and datasets that exist in a Fiddler project.
+    An analysis module that creates a summary of the models and datasets that exist in a Fiddler project.
     """
     def __init__(self, project_id):
         """
-        :param project_id: The project ID in the Fiddler platform.
+        :param project_id: Project ID in the Fiddler platform.
         """
         self.project_id = project_id
 
