@@ -1,5 +1,6 @@
 from .base import BaseAnalysis
-from ..output_modules import SimpleTextBlock, FormattedTextBlock, SimpleImage, FormattedTextStyle, SimpleTextStyle, TempOutputFile
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 from collections import defaultdict
@@ -9,13 +10,29 @@ import matplotlib.pyplot as plt
 
 
 class ConfusionMatrix(BaseAnalysis):
-
+    """
+       An analysis module that generates a confusion matrix for any data source assigned to a given model.
+    """
     def __init__(self, project_id, model_id):
+        """
+        :param project_id: Project ID in the Fiddler platform.
+        :param model_id: Model ID for which the confusion matrix is generated.
+        """
         self.project_id = project_id
         self.model_id = model_id
 
-    def run(self, api):
+    def run(self, api) -> List[BaseOutput]:
+        """
+        :param api: An instance of Fiddler python client.
+        :return: List of output modules.
+        """
+
         model_info = api.get_model_info(self.project_id, self.model_id)
+        if not model_info.model_task == fdl.ModelTask.BINARY_CLASSIFICATION:
+            raise TypeError(
+                f'Confusion matrices can created for binary classification model only.'
+            )
+
         dataset = model_info.datasets[0]
         dataset_obj = api.v2.get_dataset(self.project_id, dataset)
         path = ['scoring', api.v1.org_id, self.project_id, self.model_id]
@@ -77,73 +94,85 @@ class ConfusionMatrix(BaseAnalysis):
 
 
 class ROC(BaseAnalysis):
-
-    def __init__(self, project_id, model_list: List[str]):
+    """
+       An analysis module that plots ROC curves for a given list of binary classification models in a project.
+    """
+    def __init__(self, project_id, model_list: Optional[List[str]] = None):
+        """
+        :param project_id: Project ID in the Fiddler platform.
+        :param model_list: List of binary classification model names. If None all binary models in the project are plotted.
+        """
         self.project_id = project_id
-        self.models = model_list
+        self.models = model_list if model_list else api.list_models(self.project_id)
 
-    def run(self, api):
+    def run(self, api) -> List[BaseOutput]:
+        """
+        :param api: An instance of Fiddler python client.
+        :return: List of output modules.
+        """
+        output_modules = []
         metrics = {}
         for model_id in self.models:
-            metrics[model_id] = {}
-
             model_info = api.get_model_info(self.project_id, model_id)
-            dataset = model_info.datasets[0]
-            metrics[model_id][dataset] = {}
+            if model_info.model_task == fdl.ModelTask.BINARY_CLASSIFICATION:
+                metrics[model_id] = {}
 
-            dataset_obj = api.v2.get_dataset(self.project_id, dataset)
-            binary_threshold = model_info.binary_classification_threshold
-            path = ['model_performance', api.v1.org_id, self.project_id, model_id]
+                dataset = model_info.datasets[0]
+                metrics[model_id][dataset] = {}
 
-            for source in dataset_obj.file_list['tree']:
-                metrics[model_id][dataset][source['name']] = {}
+                dataset_obj = api.v2.get_dataset(self.project_id, dataset)
+                binary_threshold = model_info.binary_classification_threshold
+                path = ['model_performance', api.v1.org_id, self.project_id, model_id]
 
-                json_request = {
-                        "dataset_name": dataset,
-                        "source": source['name']
-                    }
-                response = api.v1._call(path, json_request)['roc_curve']
-                fpr = response['fpr']
-                tpr = response['tpr']
-                thresholds = response['thresholds']
-                res = np.abs(np.array(thresholds) - binary_threshold)
-                threshold_indx = np.argmin(res)
+                for source in dataset_obj.file_list['tree']:
+                    metrics[model_id][dataset][source['name']] = {}
 
-                metrics[model_id][dataset][source['name']]['fpr'] = fpr
-                metrics[model_id][dataset][source['name']]['tpr'] = tpr
-                metrics[model_id][dataset][source['name']]['threshold_indx'] = threshold_indx
+                    json_request = {
+                            "dataset_name": dataset,
+                            "source": source['name']
+                        }
+                    response = api.v1._call(path, json_request)['roc_curve']
+                    fpr = response['fpr']
+                    tpr = response['tpr']
+                    thresholds = response['thresholds']
+                    res = np.abs(np.array(thresholds) - binary_threshold)
+                    threshold_indx = np.argmin(res)
+
+                    metrics[model_id][dataset][source['name']]['fpr'] = fpr
+                    metrics[model_id][dataset][source['name']]['tpr'] = tpr
+                    metrics[model_id][dataset][source['name']]['threshold_indx'] = threshold_indx
 
         fig, ax = plt.subplots(figsize=(5, 5))
-        for model_id in self.models:
-            for dataset in metrics[model_id]:
-                for source in metrics[model_id][dataset]:
+        if metrics:
+            for model_id in metrics:
+                for dataset in metrics[model_id]:
+                    for source in metrics[model_id][dataset]:
 
-                    threshold_indx = metrics[model_id][dataset][source]['threshold_indx']
-                    ax.plot(metrics[model_id][dataset][source]['fpr'],
-                            metrics[model_id][dataset][source]['tpr'],
-                            label='{}, {} (Thr={:.2f})'.format(model_id, source, binary_threshold)
-                            )
+                        threshold_indx = metrics[model_id][dataset][source]['threshold_indx']
+                        ax.plot(metrics[model_id][dataset][source]['fpr'],
+                                metrics[model_id][dataset][source]['tpr'],
+                                label='{}, {} (Thr={:.2f})'.format(model_id, source, binary_threshold)
+                                )
 
-                    ax.plot(metrics[model_id][dataset][source]['fpr'][threshold_indx],
-                            metrics[model_id][dataset][source]['tpr'][threshold_indx],
-                            '.',
-                            c='black',
-                            ms=15
-                            )
+                        ax.plot(metrics[model_id][dataset][source]['fpr'][threshold_indx],
+                                metrics[model_id][dataset][source]['tpr'][threshold_indx],
+                                '.',
+                                c='black',
+                                ms=15
+                                )
 
-        ax.yaxis.grid(True)
-        ax.xaxis.grid(True)
-        ax.set_aspect('equal')
-        ax.legend(bbox_to_anchor=(0, 1.02, 1, 0), loc='lower left', mode='expand')
+            ax.yaxis.grid(True)
+            ax.xaxis.grid(True)
+            ax.set_aspect('equal')
+            ax.legend(bbox_to_anchor=(0, 1.02, 1, 0), loc='lower left', mode='expand')
 
-        plt.xlabel("False Positive Rate")
-        plt.ylabel("True Positive Rate")
-        plt.tight_layout()
+            plt.xlabel("False Positive Rate")
+            plt.ylabel("True Positive Rate")
+            plt.tight_layout()
 
-        tmp_image_file = TempOutputFile()
-        plt.savefig(tmp_image_file.get_path())
-        plt.close(fig)
-
-        output_modules = [SimpleImage(tmp_image_file, width=3)]
+            tmp_image_file = TempOutputFile()
+            plt.savefig(tmp_image_file.get_path())
+            plt.close(fig)
+        output_modules += [SimpleImage(tmp_image_file, width=3)]
         return output_modules
 
