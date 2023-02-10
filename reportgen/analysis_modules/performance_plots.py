@@ -26,7 +26,6 @@ class ConfusionMatrix(BaseAnalysis):
         :param api: An instance of Fiddler python client.
         :return: List of output modules.
         """
-
         model_info = api.get_model_info(self.project_id, self.model_id)
         if not model_info.model_task == fdl.ModelTask.BINARY_CLASSIFICATION:
             raise TypeError(
@@ -103,13 +102,16 @@ class ROC(BaseAnalysis):
         :param model_list: List of binary classification model names. If None all binary models in the project are plotted.
         """
         self.project_id = project_id
-        self.models = model_list if model_list else api.list_models(self.project_id)
+        self.models = model_list
 
     def run(self, api) -> List[BaseOutput]:
         """
         :param api: An instance of Fiddler python client.
         :return: List of output modules.
         """
+        if self.models is None:
+            self.models = api.list_models(self.project_id)
+
         output_modules = []
         metrics = {}
         for model_id in self.models:

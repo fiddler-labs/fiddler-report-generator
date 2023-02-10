@@ -1,5 +1,6 @@
 from .base import BaseAnalysis
-from ..output_modules import SimpleTextBlock, FormattedTextBlock, FormattedTextStyle, SimpleTextStyle, Table
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 import fiddler as fdl
@@ -9,15 +10,22 @@ class BinaryClassifierMetrics(BaseAnalysis):
     """
        An analysis module that creates a table of performance metrics for a given list of binary classification models.
     """
-    def __init__(self, project_id, model_list: List[str]):
+    def __init__(self, project_id, model_list: Optional[List[str]] = None):
         """
         :param project_id: Project ID in the Fiddler platform.
         :param model_list: List of binary classification model names. If None all models in the project are used.
         """
         self.project_id = project_id
-        self.models = model_list if model_list else api.list_models(self.project_id)
+        self.models = model_list
 
-    def run(self, api):
+    def run(self, api) -> List[BaseOutput]:
+        """
+        :param api: An instance of Fiddler python client.
+        :return: List of output modules.
+        """
+        if self.models is None:
+            self.models = api.list_models(self.project_id)
+
         table_rows = []
 
         for model_id in self.models:
