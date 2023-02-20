@@ -2,7 +2,7 @@ from .base import BaseAnalysis
 from .performance_metrics import BinaryClassifierMetrics
 from .performance_plots import ConfusionMatrix, ROC
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, AddPageBreak
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 import fiddler as fdl
@@ -70,6 +70,8 @@ class ModelEvaluation(BaseAnalysis):
                 #output_modules += [FormattedTextBlock([BoldText('Confusion Matrix')])]
                 output_modules += ConfusionMatrix(self.project_id, model).run(api)
                 output_modules += [AddBreak(1)]
+
+        output_modules += [AddPageBreak()]
         return output_modules
 
 

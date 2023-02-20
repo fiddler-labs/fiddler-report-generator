@@ -2,7 +2,7 @@ from .base import BaseAnalysis
 from .dataset_summary import DatasetSummary
 from .model_summary import ModelSummary
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, AddPageBreak
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 
@@ -49,5 +49,6 @@ class ProjectSummary(BaseAnalysis):
 
         output_modules += DatasetSummary(self.project_id).run(api)
         output_modules += ModelSummary(self.project_id).run(api)
+        output_modules += [AddPageBreak()]
 
         return output_modules

@@ -4,6 +4,7 @@ from .text_styles import FormattedText
 from .tmp_file import TempOutputFile
 from typing import Optional, List, Sequence, Union
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_BREAK
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.shared import Pt
 from docx.shared import Inches
@@ -125,3 +126,15 @@ class AddBreak(BaseOutput):
         self.lines = self.lines - 1
         for line in range(self.lines):
             run.add_break()
+
+
+class AddPageBreak(BaseOutput):
+    def __init__(self):
+        pass
+
+    def render_pdf(self):
+        pass
+
+    def render_docx(self, document):
+        paragraph = document.add_paragraph()
+        paragraph.add_run().add_break(WD_BREAK.PAGE)
