@@ -7,8 +7,36 @@ from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 import fiddler as fdl
 import numpy as np
+from collections import defaultdict
 import matplotlib.pyplot as plt
 import os
+
+
+def _binary_classification_evaluations(project_id: str, model_list: List[str], api):
+    output_modules = []
+    output_modules += [SimpleTextBlock(text='Performance Summary',
+                                       style=SimpleTextStyle(alignment='center',
+                                                             font_style='bold',
+                                                             size=18))]
+    output_modules += BinaryClassifierMetrics(project_id, model_list).run(api)
+    output_modules += [AddBreak(2)]
+    output_modules += [SimpleTextBlock(text='Performance Charts',
+                                       style=SimpleTextStyle(alignment='center',
+                                                             font_style='bold',
+                                                             size=18))]
+    output_modules += [AddBreak(1)]
+    output_modules += [FormattedTextBlock([BoldText('ROC Curves')])]
+    output_modules += ROC(project_id, model_list).run(api)
+    output_modules += [AddBreak(2)]
+
+    output_modules += [FormattedTextBlock([BoldText('Model Confusion Matrices')])]
+    for model in model_list:
+        output_modules += [FormattedTextBlock([PlainText('Model: '),
+                                               BoldText(model)]
+                                              )]
+        output_modules += ConfusionMatrix(project_id, model).run(api)
+        output_modules += [AddBreak(1)]
+    return output_modules
 
 
 class ModelEvaluation(BaseAnalysis):
@@ -37,39 +65,22 @@ class ModelEvaluation(BaseAnalysis):
                                                                  font_style='bold',
                                                                  size=22))]
 
-        output_modules += [SimpleTextBlock(text='Performance Summary',
-                                           style=SimpleTextStyle(alignment='center',
-                                                                 font_style='bold',
-                                                                 size=18))]
-
-        binary_classification_models = []
+        models_by_type = defaultdict(list)
         for model_id in self.models:
             model_info = api.get_model_info(self.project_id, model_id)
-            if model_info.model_task == fdl.ModelTask.BINARY_CLASSIFICATION:
-                binary_classification_models.append(model_id)
+            models_by_type[model_info.model_task].append(model_id)
 
-        output_modules += BinaryClassifierMetrics(self.project_id, binary_classification_models).run(api)
-        output_modules += [AddBreak(2)]
+        for model_type in models_by_type:
+            if model_type == fdl.ModelTask.BINARY_CLASSIFICATION:
+                output_modules += _binary_classification_evaluations(self.project_id, models_by_type[model_type], api)
 
-        output_modules += [SimpleTextBlock(text='Performance Charts',
-                                           style=SimpleTextStyle(alignment='center',
-                                                                 font_style='bold',
-                                                                 size=18))]
-        output_modules += [AddBreak(1)]
-        output_modules += [FormattedTextBlock([BoldText('ROC Curves')])]
-        output_modules += ROC(self.project_id, binary_classification_models).run(api)
-        output_modules += [AddBreak(2)]
+            elif model_type == fdl.ModelTask.MULTICLASS_CLASSIFICATION:
+                print("Model evaluations are not implemented yet")
 
-        for model in binary_classification_models:
-            output_modules += [FormattedTextBlock([PlainText('Model: '),
-                                                   BoldText(model)]
-                                                  )]
+            elif model_type == fdl.ModelTask.REGRESSION:
+                print("Model evaluations are not implemented yet")
 
-            model_info = api.get_model_info(self.project_id, model)
-            if model_info.model_task == fdl.ModelTask.BINARY_CLASSIFICATION:
-                #output_modules += [FormattedTextBlock([BoldText('Confusion Matrix')])]
-                output_modules += ConfusionMatrix(self.project_id, model).run(api)
-                output_modules += [AddBreak(1)]
+            elif model_type == fdl.ModelTask.RANKING:
+                print("Model evaluations are not implemented yet")
+
         return output_modules
-
-
