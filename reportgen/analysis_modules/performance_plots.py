@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-class ConfusionMatrix(BaseAnalysis):
+class ConfusionMatrixBinary(BaseAnalysis):
     """
        An analysis module that generates a confusion matrix for any data source assigned to a given model.
     """
@@ -177,4 +177,5 @@ class ROC(BaseAnalysis):
             plt.close(fig)
         output_modules += [SimpleImage(tmp_image_file, width=3)]
         return output_modules
+
 

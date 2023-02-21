@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from reportgen import generate_report, OutputTypes
 from reportgen.analysis_modules import ProjectSummary, ModelSummary, DatasetSummary, \
-    ModelEvaluation, SegmentAnalysis, PerformanceTimeSeries, Segment
+                                       ModelEvaluation, PerformanceTimeSeries, Segment
 
 api = fdl.FiddlerApi(
     url='http://demo.fiddler.ai', org_id='demo', auth_token=os.getenv('fiddler_api_key'),
@@ -27,14 +27,14 @@ generate_report(
                                             metric='Precision',
                                             interval_length='7D',
                                             ),
-                      #
-                      PerformanceTimeSeries(project_id="lending",
-                                            model_id='logreg_all',
-                                            metric='Accuracy',
-                                            start=datetime.today() - timedelta(weeks=6),
-                                            interval_length='H',
-                                            segment= Segment.categorical('geography', mode='')
-                                            )
+                      # #
+                      # PerformanceTimeSeries(project_id="lending",
+                      #                       model_id='logreg_all',
+                      #                       metric='Accuracy',
+                      #                       start=datetime.today() - timedelta(weeks=6),
+                      #                       interval_length='H',
+                      #                       segment= Segment.categorical('geography', mode='')
+                      #                       )
 
                      ],
     output_type=OutputTypes.DOCX,
