@@ -177,5 +177,3 @@ class ROC(BaseAnalysis):
             plt.close(fig)
         output_modules += [SimpleImage(tmp_image_file, width=3)]
         return output_modules
-
-

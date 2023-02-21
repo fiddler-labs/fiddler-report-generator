@@ -2,9 +2,7 @@ from .base import BaseAnalysis
 from .performance_metrics import BinaryClassifierMetrics
 from .performance_plots import ConfusionMatrixBinary, ROC
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, AddPageBreak
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile,  AddPageBreak
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 import fiddler as fdl
