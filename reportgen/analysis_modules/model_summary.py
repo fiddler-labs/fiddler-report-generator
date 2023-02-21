@@ -39,11 +39,8 @@ class ModelSummary(BaseAnalysis):
         table_rows = []
         for model in models:
             model_info = api.get_model_info(self.project_id, model)
-            if model_info.model_task == fdl.ModelTask.BINARY_CLASSIFICATION:
-                model_type = 'binary classification'
-
             table_rows.append(
-                                (model, model_type)
+                                (model, model_info.model_task.value)
                              )
 
         output_modules += [Table(
