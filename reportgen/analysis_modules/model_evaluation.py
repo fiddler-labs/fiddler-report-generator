@@ -1,6 +1,6 @@
 from .base import BaseAnalysis
 from .performance_metrics import BinaryClassifierMetrics
-from .performance_plots import ConfusionMatrix, ROC
+from .performance_plots import ConfusionMatrixBinary, ROC
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
                              FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
@@ -34,7 +34,7 @@ def _binary_classification_evaluations(project_id: str, model_list: List[str], a
         output_modules += [FormattedTextBlock([PlainText('Model: '),
                                                BoldText(model)]
                                               )]
-        output_modules += ConfusionMatrix(project_id, model).run(api)
+        output_modules += ConfusionMatrixBinary(project_id, model).run(api)
         output_modules += [AddBreak(1)]
     return output_modules
 

@@ -1,6 +1,5 @@
 from .base import BaseAnalysis
 from .performance_metrics import BinaryClassifierMetrics
-from .performance_plots import ConfusionMatrix, ROC
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
                              FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
