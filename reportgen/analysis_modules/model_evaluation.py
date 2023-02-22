@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 import os
 
 
-def _binary_classification_evaluations(project_id: str, model_list: List[str], api):
+def binary_classification_evaluations(project_id: str, model_list: List[str], api):
     output_modules = []
     output_modules += [SimpleTextBlock(text='Performance Summary',
                                        style=SimpleTextStyle(alignment='center',

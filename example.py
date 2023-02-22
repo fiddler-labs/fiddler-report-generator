@@ -13,28 +13,28 @@ api = fdl.FiddlerApi(
 generate_report(
     fiddler_api=api,
     analysis_modules=[
-                      ProjectSummary(project_id="lending"),
-                      ModelEvaluation(project_id="lending"),
+                      #ProjectSummary(project_id="lending"),
+                      #ModelEvaluation(project_id="lending"),
 
-                      PerformanceTimeSeries(project_id="lending",
-                                            model_id='logreg_all',
-                                            metric='Accuracy', #AUC #Precision
-                                            interval_length='D',
-                                            ),
-
-                      PerformanceTimeSeries(project_id="lending",
-                                            model_id='logreg_all',
-                                            metric='Precision',
-                                            interval_length='7D',
-                                            ),
-                      # #
                       # PerformanceTimeSeries(project_id="lending",
                       #                       model_id='logreg_all',
-                      #                       metric='Accuracy',
-                      #                       start=datetime.today() - timedelta(weeks=6),
-                      #                       interval_length='H',
-                      #                       segment= Segment.categorical('geography', mode='')
-                      #                       )
+                      #                       metric='Accuracy', #AUC #Precision
+                      #                       interval_length='D',
+                      #                       ),
+                      #
+                      # PerformanceTimeSeries(project_id="lending",
+                      #                       model_id='logreg_all',
+                      #                       metric='Precision',
+                      #                       interval_length='7D',
+                      #                       ),
+
+                      PerformanceTimeSeries(project_id="lending",
+                                            model_id='logreg_all',
+                                            metric='Accuracy',
+                                            start=datetime.today() - timedelta(weeks=6),
+                                            interval_length='3d',
+                                            segments=Segment.categorical('home_ownership', mode='all')
+                                            )
 
                      ],
     output_type=OutputTypes.DOCX,
