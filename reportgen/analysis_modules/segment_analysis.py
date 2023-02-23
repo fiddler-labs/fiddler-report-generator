@@ -1,11 +1,13 @@
 from .base import BaseAnalysis
 from .performance_metrics import BinaryClassifierMetrics
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table
-from ..output_modules.text_styles import PlainText, BoldText, ItalicText
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, LinePlot,\
+                             PlainText, BoldText, ItalicText
+#from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 
 import fiddler as fdl
+from fiddler.utils.exceptions import JSONException
 import numpy as np
 import pandas as pd
 import enum
@@ -94,7 +96,7 @@ class PerformanceTimeSeries(BaseAnalysis):
                 raise ValueError(f"Feature name {segment.feature} does not exists.")
 
             if not slice_df.dtypes[segment.feature] == 'category':
-                raise ValueError(f"categorical segmentations is applied to the non-categorical feature {segment.feature}.")
+                raise ValueError(f"Categorical segmentations is applied to the non-categorical feature {segment.feature}.")
 
             query = f""" SELECT DISTINCT {segment.feature} FROM {dataset}."{self.model_id}" """
             slice_df = api.get_slice(sql_query=query, project_id=self.project_id)
@@ -130,7 +132,6 @@ class PerformanceTimeSeries(BaseAnalysis):
     def _get_segment_score(self, api, dataset: str, time_interval: pd.Interval, segment_predicate: Optional[str] = None):
         sql_query = self._get_sql_query(dataset, time_interval, segment_predicate)
         print(sql_query)
-
         path = ['scoring', api.v1.org_id]
         json_request = {
             "project": self.project_id,
@@ -144,53 +145,34 @@ class PerformanceTimeSeries(BaseAnalysis):
         stop = self.stop if self.stop else self._get_stop_time(api)
         intervals = pd.interval_range(start, stop, freq=self.interval_length, closed='both')
         segment_predicates = self._get_segment_predicates(api, self.dataset_id, self.segments) if self.segments else {}
-        scores = defaultdict(list)
 
+        scores = defaultdict(list)
         for interval in intervals:
-            segment_scores = self._get_segment_score(api, self.dataset_id, interval)
-            scores[self.dataset_id + '_all'].append(segment_scores[self.metric])
+            try:
+                segment_scores = self._get_segment_score(api, self.dataset_id, interval)
+                scores[self.dataset_id + '_all'].append(segment_scores[self.metric])
+            except JSONException as e:
+                print(e)
+                scores[self.dataset_id + '_all'].append(np.NaN)
 
             for segment in segment_predicates:
-                segment_scores = self._get_segment_score(api, self.dataset_id, interval, segment_predicates[segment])
-                scores[self.dataset_id + '_' + segment].append(segment_scores[self.metric])
+                try:
+                    segment_scores = self._get_segment_score(api, self.dataset_id, interval, segment_predicates[segment])
+                    scores[self.dataset_id + '_' + segment].append(segment_scores[self.metric])
+                except JSONException as e:
+                    print(e)
+                    scores[self.dataset_id + '_' + segment].append(np.NaN)
 
-        print(scores)
+        for segment in scores:
+            print(segment, scores[segment])
 
         output_modules = []
         output_modules += [FormattedTextBlock([BoldText('Segment Time Series')])]
         output_modules += [FormattedTextBlock([BoldText('Metric:'),
                                                PlainText({self.metric})])]
+        output_modules += [LinePlot()]
 
-        # fig, ax = plt.subplots(figsize=(12, 8))
-        # plt.rc('font', size=18)
-        #
-        # for plot in scores:
-        #     ax.plot(scores[plot],
-        #             '.-',
-        #             ms=15,
-        #             label= 'All production events'
-        #             )
-        #
-        #     plt.xticks(range(len(intervals)), [interval.left for interval in intervals], rotation=90)
-        #     plt.ylim((0.0, 1.0))
-        #
-        #     ax.yaxis.grid(True)
-        #     #ax.xaxis.grid(True)
-        #     ax.legend(bbox_to_anchor=(0, 1.02, 1, 0), loc='lower left', mode='expand')
-        #
-        #     plt.xlabel("Time", fontsize=16)
-        #     plt.ylabel(self.metric, fontsize=16)
-        #
-        #     plt.setp(ax.get_xticklabels(), fontsize=12)
-        #     plt.setp(ax.get_yticklabels(), fontsize=12)
-        #
-        #     plt.tight_layout()
-        #
-        #     tmp_image_file = TempOutputFile()
-        #     plt.savefig(tmp_image_file.get_path())
-        #     plt.close(fig)
-        #
-        # output_modules += [SimpleImage(tmp_image_file, width=6)]
+
         output_modules += [AddBreak(2)]
         return output_modules
 

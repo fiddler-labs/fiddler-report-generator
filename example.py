@@ -31,8 +31,9 @@ generate_report(
                       PerformanceTimeSeries(project_id="lending",
                                             model_id='logreg_all',
                                             metric='Accuracy',
-                                            start=datetime.today() - timedelta(weeks=6),
-                                            interval_length='3d',
+                                            # start='datetime.today() - timedelta(weeks=8),',
+                                            start='30-12-22',
+                                            interval_length='D',
                                             segments=Segment.categorical('home_ownership', mode='all')
                                             )
 
