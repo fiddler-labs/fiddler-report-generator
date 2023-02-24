@@ -131,7 +131,7 @@ class PerformanceTimeSeries(BaseAnalysis):
 
     def _get_segment_score(self, api, dataset: str, time_interval: pd.Interval, segment_predicate: Optional[str] = None):
         sql_query = self._get_sql_query(dataset, time_interval, segment_predicate)
-        print(sql_query)
+        #print(sql_query)
         path = ['scoring', api.v1.org_id]
         json_request = {
             "project": self.project_id,
@@ -163,49 +163,18 @@ class PerformanceTimeSeries(BaseAnalysis):
                     print(e)
                     scores[self.dataset_id + '_' + segment].append(np.NaN)
 
-        for segment in scores:
-            print(segment, scores[segment])
-
         output_modules = []
         output_modules += [FormattedTextBlock([BoldText('Segment Time Series')])]
         output_modules += [FormattedTextBlock([BoldText('Metric:'),
                                                PlainText({self.metric})])]
-        output_modules += [LinePlot()]
-
+        output_modules += [LinePlot(scores,
+                                    xlabel='Time Interval',
+                                    ylabel=self.metric,
+                                    xticks=[interval.left for interval in intervals],
+                                    legend_title=f"{self.segments.type.value} segmentation "
+                                                 f"on feature '{self.segments.feature}'" if self.segments else None,
+                                    ylim=(0, 1)
+                                    )]
 
         output_modules += [AddBreak(2)]
-        return output_modules
-
-
-class SegmentAnalysis(BaseAnalysis):
-    """
-       An analysis module that generates analysis on different segments of data.
-    """
-    def __init__(self, project_id, model_id, dataset_id='production', segment=None):
-        self.project_id = project_id
-        self.model_id = model_id
-        self.dataset_id = dataset_id
-        self.segment = segment
-
-    def get_slice(self, api, segment):
-        query = f""" SELECT * FROM {self.dataset_id}."{self.model_id}" """
-        if segment:
-            where_clause = 'WHERE ' + 'AND '.join(segment)
-            query += where_clause
-        query += f""" LIMIT 20 """
-
-        print(query)
-        slice_df = api.get_slice(
-            sql_query=query,
-            project_id=self.project_id
-        )
-
-        return slice_df
-
-    def run(self, api) -> List[BaseOutput]:
-        slice_df = self.get_slice(api, self.segment)
-        print(slice_df)
-        print(slice_df.dtypes)
-
-        output_modules = []
         return output_modules
