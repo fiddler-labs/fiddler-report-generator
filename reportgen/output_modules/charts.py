@@ -36,6 +36,7 @@ class LinePlot(BaseOutput):
                  xticks=None, yticks=None,
                  label='', legend_title=None,
                  ylim=None,
+                 less_ticks=None,
                  style: Optional[PlotStyle] = None):
         self.style = style if style else PlotStyle()
         self.x = x
@@ -74,6 +75,11 @@ class LinePlot(BaseOutput):
 
         if yticks:
             plt.xticks(range(len(yticks)), yticks, rotation=self.style.yticks_rotation)
+
+        if less_ticks is not None:
+            for index, label in enumerate(ax.xaxis.get_ticklabels()):
+                if index % less_ticks != 0:
+                    label.set_visible(False)
 
         leg = ax.legend(bbox_to_anchor=(0, 1, 1, 0), loc='lower left', mode='expand', title=legend_title)
         leg._legend_box.align = "left"

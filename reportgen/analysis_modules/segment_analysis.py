@@ -100,7 +100,7 @@ class PerformanceTimeSeries(BaseAnalysis):
 
             query = f""" SELECT DISTINCT {segment.feature} FROM {dataset}."{self.model_id}" """
             slice_df = api.get_slice(sql_query=query, project_id=self.project_id)
-            categories = slice_df[segment.feature].values
+            categories = sorted(slice_df[segment.feature].values)
 
             if segment.mode == 'all':
                 for cat in categories:
@@ -164,7 +164,7 @@ class PerformanceTimeSeries(BaseAnalysis):
                     scores[self.dataset_id + '_' + segment].append(np.NaN)
 
         output_modules = []
-        output_modules += [FormattedTextBlock([BoldText('Segment Time Series')])]
+        #output_modules += [FormattedTextBlock([BoldText('Segment Time Series')])]
         output_modules += [FormattedTextBlock([BoldText('Metric:'),
                                                PlainText({self.metric})])]
         output_modules += [LinePlot(scores,
@@ -173,7 +173,8 @@ class PerformanceTimeSeries(BaseAnalysis):
                                     xticks=[interval.left for interval in intervals],
                                     legend_title=f"{self.segments.type.value} segmentation "
                                                  f"on feature '{self.segments.feature}'" if self.segments else None,
-                                    ylim=(0, 1)
+                                    less_ticks=2
+                                    #ylim=(0, 1)
                                     )]
 
         output_modules += [AddBreak(2)]
