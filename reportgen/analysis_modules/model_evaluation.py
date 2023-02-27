@@ -2,7 +2,7 @@ from .base import BaseAnalysis
 from .performance_metrics import BinaryClassifierMetrics
 from .performance_plots import ConfusionMatrixBinary, ROC
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile,  AddPageBreak
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 import fiddler as fdl
@@ -10,33 +10,6 @@ import numpy as np
 from collections import defaultdict
 import matplotlib.pyplot as plt
 import os
-
-
-def _binary_classification_evaluations(project_id: str, model_list: List[str], api):
-    output_modules = []
-    output_modules += [SimpleTextBlock(text='Performance Summary',
-                                       style=SimpleTextStyle(alignment='center',
-                                                             font_style='bold',
-                                                             size=18))]
-    output_modules += BinaryClassifierMetrics(project_id, model_list).run(api)
-    output_modules += [AddBreak(2)]
-    output_modules += [SimpleTextBlock(text='Performance Charts',
-                                       style=SimpleTextStyle(alignment='center',
-                                                             font_style='bold',
-                                                             size=18))]
-    output_modules += [AddBreak(1)]
-    output_modules += [FormattedTextBlock([BoldText('ROC Curves')])]
-    output_modules += ROC(project_id, model_list).run(api)
-    output_modules += [AddBreak(2)]
-
-    output_modules += [FormattedTextBlock([BoldText('Model Confusion Matrices')])]
-    for model in model_list:
-        output_modules += [FormattedTextBlock([PlainText('Model: '),
-                                               BoldText(model)]
-                                              )]
-        output_modules += ConfusionMatrixBinary(project_id, model).run(api)
-        output_modules += [AddBreak(1)]
-    return output_modules
 
 
 class ModelEvaluation(BaseAnalysis):
@@ -50,6 +23,32 @@ class ModelEvaluation(BaseAnalysis):
         """
         self.project_id = project_id
         self.models = model_list
+
+    def _binary_classification_evaluations(self, model_list: List[str], api):
+        output_modules = []
+        output_modules += [SimpleTextBlock(text='Performance Summary',
+                                           style=SimpleTextStyle(alignment='center',
+                                                                 font_style='bold',
+                                                                 size=18))]
+        output_modules += BinaryClassifierMetrics(self.project_id, model_list).run(api)
+        output_modules += [AddBreak(2)]
+        output_modules += [SimpleTextBlock(text='Performance Charts',
+                                           style=SimpleTextStyle(alignment='center',
+                                                                 font_style='bold',
+                                                                 size=18))]
+        output_modules += [AddBreak(1)]
+        output_modules += [FormattedTextBlock([BoldText('ROC Curves')])]
+        output_modules += ROC(self.project_id, model_list).run(api)
+        output_modules += [AddBreak(2)]
+
+        output_modules += [FormattedTextBlock([BoldText('Model Confusion Matrices')])]
+        for model in model_list:
+            output_modules += [FormattedTextBlock([PlainText('Model: '),
+                                                   BoldText(model)]
+                                                  )]
+            output_modules += ConfusionMatrixBinary(self.project_id, model).run(api)
+            output_modules += [AddBreak(1)]
+        return output_modules
 
     def run(self, api) -> List[BaseOutput]:
         """
@@ -72,7 +71,7 @@ class ModelEvaluation(BaseAnalysis):
 
         for model_type in models_by_type:
             if model_type == fdl.ModelTask.BINARY_CLASSIFICATION:
-                output_modules += _binary_classification_evaluations(self.project_id, models_by_type[model_type], api)
+                output_modules += self._binary_classification_evaluations(models_by_type[model_type], api)
 
             elif model_type == fdl.ModelTask.MULTICLASS_CLASSIFICATION:
                 print("Model evaluations are not implemented yet")
@@ -82,5 +81,7 @@ class ModelEvaluation(BaseAnalysis):
 
             elif model_type == fdl.ModelTask.RANKING:
                 print("Model evaluations are not implemented yet")
+
+        output_modules += [AddPageBreak()]
 
         return output_modules
