@@ -164,15 +164,19 @@ class PerformanceTimeSeries(BaseAnalysis):
                     scores[self.dataset_id + '_' + segment].append(np.NaN)
 
         output_modules = []
-        #output_modules += [FormattedTextBlock([BoldText('Segment Time Series')])]
-        output_modules += [FormattedTextBlock([BoldText('Metric:'),
-                                               PlainText({self.metric})])]
+        output_modules += [FormattedTextBlock([BoldText('Performance Time Series')])]
+        output_modules += [FormattedTextBlock([PlainText('Metric:'),
+                                               BoldText({self.metric})])]
+        if self.segments:
+            output_modules += [FormattedTextBlock([PlainText('Segmentation:'),
+                                                   BoldText({self.segments.type})])]
+
         output_modules += [LinePlot(scores,
                                     xlabel='Time Interval',
                                     ylabel=self.metric,
                                     xticks=[interval.left for interval in intervals],
-                                    legend_title=f"{self.segments.type.value} segmentation "
-                                                 f"on feature '{self.segments.feature}'" if self.segments else None,
+                                    legend_title=f"Segments on "
+                                                 f"feature '{self.segments.feature}'" if self.segments else None,
                                     less_ticks=2
                                     #ylim=(0, 1)
                                     )]
