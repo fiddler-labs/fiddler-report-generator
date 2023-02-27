@@ -72,6 +72,24 @@ class PerformanceTimeSeries(BaseAnalysis):
         self.segments = segments
         self.dataset_id = dataset_id
 
+    def _post_init_calls_and_checks(self, api):
+        self.start = self.start if self.start else self._get_start_time(api)
+        self.stop = self.stop if self.stop else self._get_stop_time(api)
+
+        if self.start > self.stop:
+            raise ValueError(f"Invalid time interval: stop time {self.stop} is before start time {self.start}")
+
+        if self.segments:
+            query = f""" SELECT * FROM {self.dataset_id}."{self.model_id}" LIMIT 1 """
+            slice_df = api.get_slice(sql_query=query, project_id=self.project_id)
+
+            if self.segments.feature:
+                if self.segments.feature not in slice_df.columns:
+                    raise ValueError(f"Feature name {self.segments.feature} does not exists.")
+
+                if self.segments.type == SegmentType.CATEGORICAL and not slice_df.dtypes[self.segments.feature] == 'category':
+                    raise ValueError(f"Categorical segmentations is applied to the non-categorical feature {self.segments.feature}.")
+
     def _get_start_time(self, api):
         query = f""" SELECT * FROM {self.dataset_id}."{self.model_id}" """
         query += f"""WHERE """
@@ -89,14 +107,6 @@ class PerformanceTimeSeries(BaseAnalysis):
     def _get_segment_predicates(self, api, dataset: str, segment: Segment):
         segment_predicates = {}
         if segment.type == SegmentType.CATEGORICAL:
-            query = f""" SELECT * FROM {dataset}."{self.model_id}" LIMIT 1 """
-            slice_df = api.get_slice(sql_query=query, project_id=self.project_id)
-
-            if segment.feature not in slice_df.columns:
-                raise ValueError(f"Feature name {segment.feature} does not exists.")
-
-            if not slice_df.dtypes[segment.feature] == 'category':
-                raise ValueError(f"Categorical segmentations is applied to the non-categorical feature {segment.feature}.")
 
             query = f""" SELECT DISTINCT {segment.feature} FROM {dataset}."{self.model_id}" """
             slice_df = api.get_slice(sql_query=query, project_id=self.project_id)
@@ -141,9 +151,9 @@ class PerformanceTimeSeries(BaseAnalysis):
         return response['scores']
 
     def run(self, api) -> List[BaseOutput]:
-        start = self.start if self.start else self._get_start_time(api)
-        stop = self.stop if self.stop else self._get_stop_time(api)
-        intervals = pd.interval_range(start, stop, freq=self.interval_length, closed='both')
+        self._post_init_calls_and_checks(api)
+
+        intervals = pd.interval_range(self.start, self.stop, freq=self.interval_length, closed='both')
         segment_predicates = self._get_segment_predicates(api, self.dataset_id, self.segments) if self.segments else {}
 
         scores = defaultdict(list)
@@ -165,10 +175,10 @@ class PerformanceTimeSeries(BaseAnalysis):
 
         output_modules = []
         output_modules += [FormattedTextBlock([BoldText('Performance Time Series')])]
-        output_modules += [FormattedTextBlock([PlainText('Metric:'),
+        output_modules += [FormattedTextBlock([PlainText('Metric: '),
                                                BoldText({self.metric})])]
         if self.segments:
-            output_modules += [FormattedTextBlock([PlainText('Segmentation:'),
+            output_modules += [FormattedTextBlock([PlainText('Segmentation: '),
                                                    BoldText({self.segments.type})])]
 
         output_modules += [LinePlot(scores,

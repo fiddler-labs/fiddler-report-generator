@@ -19,16 +19,24 @@ generate_report(
                       PerformanceTimeSeries(project_id="bank_churn",
                                             model_id='churn_classifier',
                                             metric='Accuracy',
-                                            interval_length='3D',
-                                            segments=Segment.categorical('geography', mode='all')
+                                            interval_length='4D',
+                                            #segments=Segment.categorical('geography', mode='all')
                                             ),
 
                       PerformanceTimeSeries(project_id="bank_churn",
                                             model_id='churn_classifier',
                                             metric='Accuracy',
-                                            interval_length='3D',
-                                            #segments=Segment.categorical('geography', mode='all')
-                                            ),
+                                            interval_length='4D',
+                                            #start='2023-02-25',
+                                            segments=Segment.categorical('geography', mode='all')
+                                          ),
+
+                      # PerformanceTimeSeries(project_id="bank_churn",
+                      #                       model_id='churn_classifier',
+                      #                       metric='Accuracy',
+                      #                       interval_length='3D',
+                      #                       #segments=Segment.categorical('geography', mode='all')
+                      #                       ),
 
                       # PerformanceTimeSeries(project_id="bank_churn",
                       #                       model_id='churn_classifier',
