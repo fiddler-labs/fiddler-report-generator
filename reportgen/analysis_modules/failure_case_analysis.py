@@ -17,9 +17,10 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 
 EXPLANATIONS_COL_NAME = 'top tokens'
+SKIP_TOKENS = ['a','the','it','and', 'if', 'of', 'an', 'in', 'his', 'her',
+               'but', 'that', 'as', 's', 'he', 'she', 'to', 't', 'or', 'so', 'be']
 
-
-def dataframe_to_table(df, cols, max_str_length=260):
+def dataframe_to_table(df, cols, max_str_length=290):
     df = df[cols]
     for col, type in df.dtypes.items():
         if type == 'object':
@@ -115,7 +116,9 @@ class FailureCaseAnalysis(BaseAnalysis):
 
             s = ''
             for i, token in enumerate(top_tokens):
-                s += f'{token}:{top_impacts[i]:.3f}\n'
+                if token in SKIP_TOKENS:
+                    continue
+                s += f'{token}: {top_impacts[i]:.3f}\n'
             explanation_col.append(s)
         fp_dataframe[EXPLANATIONS_COL_NAME] = explanation_col
         output_modules += [dataframe_to_table(fp_dataframe,
@@ -153,7 +156,9 @@ class FailureCaseAnalysis(BaseAnalysis):
 
             s = ''
             for i, token in enumerate(top_tokens):
-                s += f'{token}:{top_impacts[i]:.3f}\n'
+                if token in SKIP_TOKENS:
+                    continue
+                s += f'{token}: {top_impacts[i]:.3f}\n'
             explanation_col.append(s)
         fn_dataframe[EXPLANATIONS_COL_NAME] = explanation_col
         output_modules += [dataframe_to_table(fn_dataframe,
@@ -172,6 +177,7 @@ class FailureCaseAnalysis(BaseAnalysis):
                                            style=SimpleTextStyle(alignment='center',
                                                                  font_style='bold',
                                                                  size=22))]
+        output_modules += [SimpleTextBlock('Explore prediction examples for which the model was confident but wrong.')]
 
         for model_id in self.models:
             model_info = api.get_model_info(self.project_id, model_id)

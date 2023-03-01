@@ -13,82 +13,87 @@ api = fdl.FiddlerApi(
 # generate_report(
 #     fiddler_api=api,
 #     analysis_modules=[
-                      #ProjectSummary(project_id="bank_churn"),
-                      #ModelEvaluation(project_id="bank_churn"),
-
-                      # PerformanceTimeSeries(project_id="bank_churn",
-                      #                       model_id='churn_classifier',
-                      #                       metric='Accuracy',
-                      #                       interval_length='4D',
-                      #                       #segments=Segment.categorical('geography', mode='all')
-                      #                       ),
-                      #
-                      # PerformanceTimeSeries(project_id="bank_churn",
-                      #                       model_id='churn_classifier',
-                      #                       metric='Accuracy',
-                      #                       interval_length='4D',
-                      #                       #start='2023-02-25',
-                      #                       segments=Segment.categorical('geography', mode='all')
-                      #                     ),
-
-                      # PerformanceTimeSeries(project_id="bank_churn",
-                      #                       model_id='churn_classifier',
-                      #                       metric='Accuracy',
-                      #                       interval_length='3D',
-                      #                       #segments=Segment.categorical('geography', mode='all')
-                      #                       ),
-
-                      # PerformanceTimeSeries(project_id="bank_churn",
-                      #                       model_id='churn_classifier',
-                      #                       metric='Precision',
-                      #                       interval_length='D',
-                      #                       segments=Segment.categorical('geography', mode='all')
-                      #                       ),
-                      #
-                      # PerformanceTimeSeries(project_id="bank_churn",
-                      #                       model_id='churn_classifier',
-                      #                       metric='Recall',
-                      #                       interval_length='D',
-                      #                       segments=Segment.categorical('geography', mode='all')
-                      #                       ),
-                     #
-                     # ],
+#                       ProjectSummary(project_id="lending"),
+#                       ModelEvaluation(project_id="lending"),
+#
+#                       PerformanceTimeSeries(project_id="lending",
+#                                             model_id='logreg_all',
+#                                             metric='Accuracy',
+#                                             interval_length='D',
+#                                             start='01-01-2023',
+#                                             stop='17-01-2023',
+#                                             segments=Segment.categorical('home_ownership')
+#                                             ),
+#
+#                       PerformanceTimeSeries(project_id="lending",
+#                                             model_id='logreg_all',
+#                                             metric='Precision',
+#                                             interval_length='D',
+#                                             start='01-01-2023',
+#                                             stop='17-01-2023',
+#                                             segments=Segment.categorical('home_ownership')
+#                                             ),
+#
+#                       PerformanceTimeSeries(project_id="lending",
+#                                             model_id='logreg_all',
+#                                             metric='Recall',
+#                                             interval_length='D',
+#                                             start='01-01-2023',
+#                                             stop='17-01-2023',
+#                                             segments=Segment.categorical('home_ownership')
+#                                             ),
+#
+#                      ],
 #     output_type=OutputTypes.DOCX,
-#     output_path='report-bank_churn.docx'
+#     output_path='report-lending.docx'
 # )
-
+#
 # generate_report(
 #     fiddler_api=api,
 #     analysis_modules=[
-#                       ProjectSummary(project_id="lending"),
-                      # ModelEvaluation(project_id="lending"),
-                      # FailureCaseAnalysis(project_id="lending", models=['logreg_all']),
-                      #
-                      #
-                      # PerformanceTimeSeries(project_id="lending",
-                      #                       model_id='logreg_all',
-                      #                       metric='Accuracy',
-                      #                       interval_length='5D',
-                      #                       segments=Segment.categorical('home_ownership', mode='all')
-                      #                       ),
-                      #
-                      # PerformanceTimeSeries(project_id="lending",
-                      #                       model_id='logreg_all',
-                      #                       metric='Recall',
-                      #                       interval_length='D',
-                      #                       segments=Segment.categorical('home_ownership', mode='all')
-                      #                       ),
-                      #
-                      # PerformanceTimeSeries(project_id="lending",
-                      #                       model_id='logreg_all',
-                      #                       metric='Precision',
-                      #                       interval_length='D',
-                      #                       segments=Segment.categorical('home_ownership', mode='all')
-                      #                       ),
-                     # ],
+#                       ProjectSummary(project_id="bank_churn"),
+#                       ModelEvaluation(project_id="bank_churn"),
+#
+#                       PerformanceTimeSeries(project_id="bank_churn",
+#                                             model_id='churn_classifier',
+#                                             metric='Accuracy',
+#                                             interval_length='D',
+#                                             segments=Segment.categorical('geography'),
+#                                             tick_label_freq=3
+#                                             ),
+#                       ],
 #     output_type=OutputTypes.DOCX,
-#     output_path='report-lending.docx.docx'
+#     output_path='report-bank_churn.docx'
 # )
+#
+# generate_report(
+#                 fiddler_api=api,
+#                 analysis_modules=[
+#                                   ProjectSummary(project_id="credit_approval"),
+#                                   ModelEvaluation(project_id="credit_approval"),
+#
+#                                   PerformanceTimeSeries(project_id="credit_approval",
+#                                                         model_id='intersectionally_unfair',
+#                                                         metric='Accuracy',
+#                                                         interval_length='2D',
+#                                                         segments=Segment.categorical('race',
+#                                                                                      mode='top_n',
+#                                                                                      args={'top_n': 3}
+#                                                                                      )
+#                                                         ),
+#
+#                                   PerformanceTimeSeries(project_id="credit_approval",
+#                                                         model_id='intersectionally_unfair',
+#                                                         metric='Accuracy',
+#                                                         interval_length='2D',
+#                                                         segments=Segment.categorical('gender',
+#                                                                                      mode='all',
+#                                                                                      )
+#                                                         ),
+#                                   ],
+#                 output_type=OutputTypes.DOCX,
+#                 output_path='credit_approval.docx'
+#                 )
 
 generate_report(
     fiddler_api=api,

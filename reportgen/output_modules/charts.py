@@ -59,11 +59,20 @@ class LinePlot(BaseOutput):
 
         if isinstance(data, dict):
             for label, values in data.items():
-                x = self.x if self.x else range(len(values))
-                ax.plot(x,
-                        values,
-                        label=label,
-                        )
+                if '_all' in label:
+                    x = self.x if self.x else range(len(values))
+                    ax.plot(x,
+                            values,
+                            label=label,
+                            color='black',
+                            linewidth=5
+                            )
+                else:
+                    x = self.x if self.x else range(len(values))
+                    ax.plot(x,
+                            values,
+                            label=label,
+                            )
         elif isinstance(data, (list, np.ndarray)):
             x = self.x if self.x else range(len(data))
             ax.plot(x,
