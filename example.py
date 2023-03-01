@@ -101,5 +101,5 @@ generate_report(
                                           explanation_alg='fiddler_shapley_values'),
                      ],
     output_type=OutputTypes.DOCX,
-    output_path='imdb_rnn-report.docx.docx'
+    output_path='imdb_rnn-report.docx'
 )
