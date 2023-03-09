@@ -5,5 +5,8 @@ from typing import List, Type
 
 class BaseAnalysis(ABC):
     @abstractmethod
+    # def run_preflights(self, api):
+    #     pass
+
     def run(self, api) -> List[Type[BaseOutput]]:
         pass

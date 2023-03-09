@@ -98,7 +98,8 @@ class FailureCaseAnalysis(BaseAnalysis):
         fp_dataframe = api.get_slice(sql_query=query, project_id=self.project_id)
 
         explanation_col = []
-        for row_index in range(fp_dataframe.shape[0]):
+        # for row_index in range(fp_dataframe.shape[0]):
+        for row_index in range(3,4):
             query_df = fp_dataframe[row_index:row_index+1]
 
             explanation = api.run_explanation(
@@ -108,6 +109,9 @@ class FailureCaseAnalysis(BaseAnalysis):
                                               df=query_df[inputs],
                                               explanations=self.explanation_alg
                                               )
+
+            print(explanation)
+
             tokens = np.array(explanation.inputs)
             impacts = np.array(explanation.attributions)
             top_positive_indices = np.argsort(impacts)[:-(self.n_tokens+1):-1]
@@ -127,45 +131,45 @@ class FailureCaseAnalysis(BaseAnalysis):
                            ]
         output_modules += [AddBreak(2)]
 
-        # False Negatives
-        output_modules += [FormattedTextBlock([BoldText('False Negatives')])]
-        output_modules += [FormattedTextBlock([PlainText('Explanation Algorithm: '),
-                                               BoldText(self.explanation_alg),
-                                               ])]
-        query = f""" SELECT * FROM {self.dataset_id}."{model}" """
-        query += f"""WHERE {output_col} < {binary_threshold} AND {target_col} = '{positive_class}' """
-        query += f"""ORDER BY {output_col} ASC """
-        query += f"""LIMIT {self.n_examples}"""
-        fn_dataframe = api.get_slice(sql_query=query, project_id=self.project_id)
-
-        explanation_col = []
-        for row_index in range(fn_dataframe.shape[0]):
-            query_df = fn_dataframe[row_index:row_index+1]
-            explanation = api.run_explanation(
-                                              project_id=self.project_id,
-                                              model_id=model,
-                                              dataset_id=self.dataset_id,
-                                              df=query_df[inputs],
-                                              explanations=self.explanation_alg
-                                              )
-            tokens = np.array(explanation.inputs)
-            impacts = np.array(explanation.attributions)
-            top_negative_indices = np.argsort(impacts)[0:self.n_tokens]
-            top_tokens = tokens[top_negative_indices]
-            top_impacts = impacts[top_negative_indices]
-
-            s = ''
-            for i, token in enumerate(top_tokens):
-                if token in SKIP_TOKENS:
-                    continue
-                s += f'{token}: {top_impacts[i]:.3f}\n'
-            explanation_col.append(s)
-        fn_dataframe[EXPLANATIONS_COL_NAME] = explanation_col
-        output_modules += [dataframe_to_table(fn_dataframe,
-                                              cols=inputs + [EXPLANATIONS_COL_NAME, output_col, target_col]
-                                              )
-                           ]
-        output_modules += [AddBreak(2)]
+        # # False Negatives
+        # output_modules += [FormattedTextBlock([BoldText('False Negatives')])]
+        # output_modules += [FormattedTextBlock([PlainText('Explanation Algorithm: '),
+        #                                        BoldText(self.explanation_alg),
+        #                                        ])]
+        # query = f""" SELECT * FROM {self.dataset_id}."{model}" """
+        # query += f"""WHERE {output_col} < {binary_threshold} AND {target_col} = '{positive_class}' """
+        # query += f"""ORDER BY {output_col} ASC """
+        # query += f"""LIMIT {self.n_examples}"""
+        # fn_dataframe = api.get_slice(sql_query=query, project_id=self.project_id)
+        #
+        # explanation_col = []
+        # for row_index in range(fn_dataframe.shape[0]):
+        #     query_df = fn_dataframe[row_index:row_index+1]
+        #     explanation = api.run_explanation(
+        #                                       project_id=self.project_id,
+        #                                       model_id=model,
+        #                                       dataset_id=self.dataset_id,
+        #                                       df=query_df[inputs],
+        #                                       explanations=self.explanation_alg
+        #                                       )
+        #     tokens = np.array(explanation.inputs)
+        #     impacts = np.array(explanation.attributions)
+        #     top_negative_indices = np.argsort(impacts)[0:self.n_tokens]
+        #     top_tokens = tokens[top_negative_indices]
+        #     top_impacts = impacts[top_negative_indices]
+        #
+        #     s = ''
+        #     for i, token in enumerate(top_tokens):
+        #         if token in SKIP_TOKENS:
+        #             continue
+        #         s += f'{token}: {top_impacts[i]:.3f}\n'
+        #     explanation_col.append(s)
+        # fn_dataframe[EXPLANATIONS_COL_NAME] = explanation_col
+        # output_modules += [dataframe_to_table(fn_dataframe,
+        #                                       cols=inputs + [EXPLANATIONS_COL_NAME, output_col, target_col]
+        #                                       )
+        #                    ]
+        # output_modules += [AddBreak(2)]
 
         return output_modules
 
