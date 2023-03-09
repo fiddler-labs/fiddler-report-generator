@@ -74,7 +74,7 @@ class PerformanceTimeSeries(BaseAnalysis):
         self.tick_label_freq = tick_label_freq
         self.dataset_id = dataset_id
 
-    def _post_init_calls_and_checks(self, api):
+    def preflights(self, api):
         self.start = self.start if self.start else self._get_start_time(api)
         self.stop = self.stop if self.stop else self._get_stop_time(api)
 
@@ -163,8 +163,6 @@ class PerformanceTimeSeries(BaseAnalysis):
         return response['scores']
 
     def run(self, api) -> List[BaseOutput]:
-        self._post_init_calls_and_checks(api)
-
         intervals = pd.interval_range(self.start, self.stop, freq=self.interval_length, closed='both')
         segment_predicates = self._get_segment_predicates(api, self.dataset_id, self.segments) if self.segments else {}
 
