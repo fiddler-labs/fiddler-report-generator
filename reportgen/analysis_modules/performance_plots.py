@@ -2,7 +2,7 @@ from .base import BaseAnalysis
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
                              FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile,\
                              PlainText, BoldText, ItalicText
-#from ..output_modules.text_styles import PlainText, BoldText, ItalicText
+
 from typing import Optional, List, Sequence, Union
 from collections import defaultdict
 import fiddler as fdl
@@ -21,6 +21,9 @@ class ConfusionMatrixBinary(BaseAnalysis):
         """
         self.project_id = project_id
         self.model_id = model_id
+
+    def preflights(self, api):
+        pass
 
     def run(self, api) -> List[BaseOutput]:
         """
@@ -104,6 +107,9 @@ class ROC(BaseAnalysis):
         """
         self.project_id = project_id
         self.models = model_list
+
+    def preflights(self, api):
+        pass
 
     def run(self, api) -> List[BaseOutput]:
         """

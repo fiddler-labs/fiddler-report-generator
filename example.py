@@ -101,11 +101,11 @@ generate_report(
     fiddler_api=api,
     analysis_modules=[
                       ProjectSummary(project_id="imdb_rnn"),
-                      ModelEvaluation(project_id="imdb_rnn"),
-                      FailureCaseAnalysis(project_id="imdb_rnn",
-                                          models=['imdb_rnn'],
-                                          n_examples=5,
-                                          explanation_alg='fiddler_shapley_values'),
+                      # ModelEvaluation(project_id="imdb_rnn"),
+                      # FailureCaseAnalysis(project_id="imdb_rnn",
+                      #                     models=['imdb_rnn'],
+                      #                     n_examples=5,
+                      #                     explanation_alg='fiddler_shapley_values'),
                      ],
     output_type=OutputTypes.DOCX,
     output_path='imdb_rnn-report.docx'

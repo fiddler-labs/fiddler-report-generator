@@ -17,6 +17,9 @@ class ProjectSummary(BaseAnalysis):
         """
         self.project_id = project_id
 
+    def preflights(self, api):
+        pass
+
     def run(self, api) -> List[BaseOutput]:
         """
         :param api: An instance of Fiddler python client.

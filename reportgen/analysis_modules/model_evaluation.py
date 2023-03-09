@@ -24,6 +24,9 @@ class ModelEvaluation(BaseAnalysis):
         self.project_id = project_id
         self.models = model_list
 
+    def preflights(self, api):
+        pass
+
     def _binary_classification_evaluations(self, model_list: List[str], api):
         output_modules = []
         output_modules += [SimpleTextBlock(text='Performance Summary',
