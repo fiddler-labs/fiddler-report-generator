@@ -60,7 +60,6 @@ class PerformanceTimeSeries(BaseAnalysis):
                  start=None,
                  stop=None,
                  segments: Optional[Segment] = None,
-                 tick_label_freq=None,
                  dataset_id: str = 'production'
                  ):
 
@@ -71,7 +70,6 @@ class PerformanceTimeSeries(BaseAnalysis):
         self.start = pd.Timestamp(start).floor(freq='D') if start else None
         self.stop = pd.Timestamp(stop).ceil(freq='D') if stop else None
         self.segments = segments
-        self.tick_label_freq = tick_label_freq
         self.dataset_id = dataset_id
 
     def preflights(self, api):
@@ -191,10 +189,13 @@ class PerformanceTimeSeries(BaseAnalysis):
         #     output_modules += [FormattedTextBlock([PlainText('Segmentation: '),
         #                                            BoldText({self.segments.type})])]
 
-        if 'H' in self.interval_length:
-            xticks = [interval.left for interval in intervals]
-        else:
-            xticks = [interval.left.strftime("%d-%m-%Y") for interval in intervals]
+        # if 'H' in self.interval_length:
+        #     xticks = [interval.left for interval in intervals]
+        # else:
+        #     xticks = [interval.left.strftime("%d-%m-%Y") for interval in intervals]
+
+        xticks = [interval.left if 'H' in self.interval_length else interval.left.strftime("%d-%m-%Y")
+                  for interval in intervals]
 
         output_modules += [LinePlot(scores,
                                     xlabel='Time Interval',
@@ -202,7 +203,7 @@ class PerformanceTimeSeries(BaseAnalysis):
                                     xticks=xticks,
                                     legend_title=f"Segments on "
                                                  f"feature '{self.segments.feature}'" if self.segments else None,
-                                    less_ticks=self.tick_label_freq
+                                    #xtick_freq=self.tick_label_freq
                                     #ylim=(0, 1)
                                     )]
 

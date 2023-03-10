@@ -12,44 +12,44 @@ api = fdl.FiddlerApi(
     url='http://demo.fiddler.ai', org_id='demo', auth_token=os.getenv('fiddler_api_key'),
 )
 
-# generate_report(
-#     fiddler_api=api,
-#     analysis_modules=[
-#                       ProjectSummary(project_id="lending"),
-#                       ModelEvaluation(project_id="lending"),
-#
-#                       PerformanceTimeSeries(project_id="lending",
-#                                             model_id='logreg_all',
-#                                             metric='Accuracy',
-#                                             interval_length='D',
-#                                             start='01-01-2023',
-#                                             stop='17-01-2023',
-#                                             segments=Segment.categorical('home_ownership')
-#                                             ),
-#
-#                       PerformanceTimeSeries(project_id="lending",
-#                                             model_id='logreg_all',
-#                                             metric='Precision',
-#                                             interval_length='D',
-#                                             start='01-01-2023',
-#                                             stop='17-01-2023',
-#                                             segments=Segment.categorical('home_ownership')
-#                                             ),
-#
-#                       PerformanceTimeSeries(project_id="lending",
-#                                             model_id='logreg_all',
-#                                             metric='Recall',
-#                                             interval_length='D',
-#                                             start='01-01-2023',
-#                                             stop='17-01-2023',
-#                                             segments=Segment.categorical('home_ownership')
-#                                             ),
-#
-#                      ],
-#     output_type=OutputTypes.DOCX,
-#     output_path='report-lending.docx'
-# )
-#
+generate_report(
+    fiddler_api=api,
+    analysis_modules=[
+                      ProjectSummary(project_id="lending"),
+                      ModelEvaluation(project_id="lending"),
+
+                      PerformanceTimeSeries(project_id="lending",
+                                            model_id='logreg_all',
+                                            metric='Accuracy',
+                                            interval_length='D',
+                                            #start='01-01-2023',
+                                            #stop='17-01-2023',
+                                            segments=Segment.categorical('home_ownership')
+                                            ),
+
+                      # PerformanceTimeSeries(project_id="lending",
+                      #                       model_id='logreg_all',
+                      #                       metric='Precision',
+                      #                       interval_length='D',
+                      #                       start='01-01-2023',
+                      #                       stop='17-01-2023',
+                      #                       segments=Segment.categorical('home_ownership')
+                      #                       ),
+                      #
+                      # PerformanceTimeSeries(project_id="lending",
+                      #                       model_id='logreg_all',
+                      #                       metric='Recall',
+                      #                       interval_length='D',
+                      #                       start='01-01-2023',
+                      #                       stop='17-01-2023',
+                      #                       segments=Segment.categorical('home_ownership')
+                      #                       ),
+
+                     ],
+    output_type=OutputTypes.DOCX,
+    output_path='report-lending.docx'
+)
+
 # generate_report(
 #     fiddler_api=api,
 #     analysis_modules=[
@@ -97,16 +97,16 @@ api = fdl.FiddlerApi(
 #                 output_path='credit_approval.docx'
 #                 )
 
-generate_report(
-    fiddler_api=api,
-    analysis_modules=[
-                      ProjectSummary(project_id="imdb_rnn"),
-                      # ModelEvaluation(project_id="imdb_rnn"),
-                      # FailureCaseAnalysis(project_id="imdb_rnn",
-                      #                     models=['imdb_rnn'],
-                      #                     n_examples=5,
-                      #                     explanation_alg='fiddler_shapley_values'),
-                     ],
-    output_type=OutputTypes.DOCX,
-    output_path='imdb_rnn-report.docx'
-)
+# generate_report(
+#     fiddler_api=api,
+#     analysis_modules=[
+#                       ProjectSummary(project_id="imdb_rnn"),
+#                       # ModelEvaluation(project_id="imdb_rnn"),
+#                       # FailureCaseAnalysis(project_id="imdb_rnn",
+#                       #                     models=['imdb_rnn'],
+#                       #                     n_examples=5,
+#                       #                     explanation_alg='fiddler_shapley_values'),
+#                      ],
+#     output_type=OutputTypes.DOCX,
+#     output_path='imdb_rnn-report.docx'
+# )
