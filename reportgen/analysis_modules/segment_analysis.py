@@ -72,7 +72,7 @@ class PerformanceTimeSeries(BaseAnalysis):
         self.segments = segments
         self.dataset_id = dataset_id
 
-    def preflights(self, api):
+    def preflight(self, api):
         self.start = self.start if self.start else self._get_start_time(api)
         self.stop = self.stop if self.stop else self._get_stop_time(api)
 

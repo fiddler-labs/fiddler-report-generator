@@ -17,7 +17,7 @@ class ProjectSummary(BaseAnalysis):
         """
         self.project_id = project_id
 
-    def preflights(self, api):
+    def preflight(self, api):
         pass
 
     def run(self, api) -> List[BaseOutput]:

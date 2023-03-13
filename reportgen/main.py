@@ -10,7 +10,7 @@ def _run_analyses(
 ) -> List[Type[BaseOutput]]:
 
     for analysis_module in analysis_modules:
-        analysis_module.preflights(fiddler_api)
+        analysis_module.preflight(fiddler_api)
 
     output_modules = []
     for analysis_module in analysis_modules:
