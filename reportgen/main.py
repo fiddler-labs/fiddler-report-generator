@@ -8,8 +8,11 @@ from .output_modules import generate_output
 def _run_analyses(
     fiddler_api, analysis_modules: List[BaseAnalysis]
 ) -> List[Type[BaseOutput]]:
-    output_modules = []
 
+    for analysis_module in analysis_modules:
+        analysis_module.preflight(fiddler_api)
+
+    output_modules = []
     for analysis_module in analysis_modules:
         output_modules = output_modules + analysis_module.run(fiddler_api)
 

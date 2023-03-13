@@ -85,7 +85,7 @@ class SimpleImage(BaseOutput):
 
 
 class Table(BaseOutput):
-    def __init__(self, header: List[str], records: List[Sequence]):
+    def __init__(self, header: List[str], records: List[Sequence], style: str = 'Table Grid'):
         if records:
             for rec in records:
                 if not len(header) == len(rec):
@@ -94,21 +94,21 @@ class Table(BaseOutput):
                     )
         self.header = header
         self.records = records
+        self.style = style
 
     def render_pdf(self):
         pass
 
     def render_docx(self, document):
-        table = document.add_table(rows=len(self.records), cols=len(self.header))
+        table = document.add_table(rows=len(self.records)+1, cols=len(self.header), style=self.style)
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
-        hdr_cells = table.rows[0].cells
 
+        hdr_cells = table.rows[0].cells
         for i, col_name in enumerate(self.header):
             hdr_cells[i].text = col_name
 
-        for rec in self.records:
-            row_cells = table.add_row().cells
-
+        for i, rec in enumerate(self.records):
+            row_cells = table.rows[i+1].cells
             for i in range(len(self.header)):
                 row_cells[i].text = str(rec[i])
 

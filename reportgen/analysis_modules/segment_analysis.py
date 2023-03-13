@@ -72,7 +72,7 @@ class PerformanceTimeSeries(BaseAnalysis):
         self.segments = segments
         self.dataset_id = dataset_id
 
-    def _post_init_calls_and_checks(self, api):
+    def preflight(self, api):
         self.start = self.start if self.start else self._get_start_time(api)
         self.stop = self.stop if self.stop else self._get_stop_time(api)
 
@@ -107,16 +107,26 @@ class PerformanceTimeSeries(BaseAnalysis):
     def _get_segment_predicates(self, api, dataset: str, segment: Segment):
         segment_predicates = {}
         if segment.type == SegmentType.CATEGORICAL:
-
-            query = f""" SELECT DISTINCT {segment.feature} FROM {dataset}."{self.model_id}" """
-            slice_df = api.get_slice(sql_query=query, project_id=self.project_id)
-            categories = sorted(slice_df[segment.feature].values)
-
             if segment.mode == 'all':
+                query = f""" SELECT DISTINCT {segment.feature} FROM {dataset}."{self.model_id}" """
+                slice_df = api.get_slice(sql_query=query, project_id=self.project_id)
+                categories = sorted(slice_df[segment.feature].values)
                 for cat in categories:
                     segment_predicates[cat] = f""" {segment.feature}='{cat}'"""
+
             elif segment.mode == 'top_n':
-                pass
+                try:
+                    top_n = segment.args['top_n']
+                except ValueError:
+                    print("when mode is set to 'top_n' a 'top_n' value must be passed to args.")
+                query = f"""SELECT {segment.feature}, COUNT(*) AS num """
+                query += f"""FROM {dataset}."{self.model_id}" GROUP BY {segment.feature} ORDER BY COUNT(*) DESC """
+                query += f"""LIMIT {top_n}"""
+                slice_df = api.get_slice(sql_query=query, project_id=self.project_id)
+                categories = sorted(slice_df[segment.feature].values)
+                for cat in categories:
+                    segment_predicates[cat] = f""" {segment.feature}='{cat}'"""
+
             elif segment.mode == 'top_n_with_other':
                 pass
             elif segment.mode == 'list':
@@ -151,8 +161,6 @@ class PerformanceTimeSeries(BaseAnalysis):
         return response['scores']
 
     def run(self, api) -> List[BaseOutput]:
-        self._post_init_calls_and_checks(api)
-
         intervals = pd.interval_range(self.start, self.stop, freq=self.interval_length, closed='both')
         segment_predicates = self._get_segment_predicates(api, self.dataset_id, self.segments) if self.segments else {}
 
@@ -177,19 +185,27 @@ class PerformanceTimeSeries(BaseAnalysis):
         output_modules += [FormattedTextBlock([BoldText('Performance Time Series')])]
         output_modules += [FormattedTextBlock([PlainText('Metric: '),
                                                BoldText({self.metric})])]
-        if self.segments:
-            output_modules += [FormattedTextBlock([PlainText('Segmentation: '),
-                                                   BoldText({self.segments.type})])]
+        # if self.segments:
+        #     output_modules += [FormattedTextBlock([PlainText('Segmentation: '),
+        #                                            BoldText({self.segments.type})])]
+
+        # if 'H' in self.interval_length:
+        #     xticks = [interval.left for interval in intervals]
+        # else:
+        #     xticks = [interval.left.strftime("%d-%m-%Y") for interval in intervals]
+
+        xticks = [interval.left if 'H' in self.interval_length else interval.left.strftime("%d-%m-%Y")
+                  for interval in intervals]
 
         output_modules += [LinePlot(scores,
                                     xlabel='Time Interval',
                                     ylabel=self.metric,
-                                    xticks=[interval.left for interval in intervals],
+                                    xticks=xticks,
                                     legend_title=f"Segments on "
                                                  f"feature '{self.segments.feature}'" if self.segments else None,
-                                    less_ticks=2
+                                    #xtick_freq=self.tick_label_freq
                                     #ylim=(0, 1)
                                     )]
 
-        output_modules += [AddBreak(2)]
+        output_modules += [AddBreak(1)]
         return output_modules
