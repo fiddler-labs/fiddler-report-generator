@@ -60,7 +60,8 @@ class PerformanceTimeSeries(BaseAnalysis):
                  start=None,
                  stop=None,
                  segments: Optional[Segment] = None,
-                 dataset_id: str = 'production'
+                 dataset_id: str = 'production',
+                 show_baseline: bool = True
                  ):
 
         self.project_id = project_id
@@ -71,6 +72,7 @@ class PerformanceTimeSeries(BaseAnalysis):
         self.stop = pd.Timestamp(stop).ceil(freq='D') if stop else None
         self.segments = segments
         self.dataset_id = dataset_id
+        self.show_baseline = show_baseline
 
     def preflight(self, api):
         self.start = self.start if self.start else self._get_start_time(api)
@@ -139,7 +141,7 @@ class PerformanceTimeSeries(BaseAnalysis):
 
         return segment_predicates
 
-    def _get_sql_query(self, dataset: str, time_interval: pd.Interval, segment_predicate):
+    def _get_sql_query(self, dataset: str, time_interval: pd.Interval, segment_predicate): #Change this to handle if any of time interval or segments are missing 
         sql_query = f""" SELECT * FROM {dataset}."{self.model_id}" """
         sql_query += f"""WHERE (fiddler_timestamp BETWEEN '{time_interval.left + pd.Timedelta('0s')}' """ \
                      f"""AND '{time_interval.right - pd.Timedelta('1s')}')"""
@@ -181,18 +183,16 @@ class PerformanceTimeSeries(BaseAnalysis):
                     print(e)
                     scores[self.dataset_id + '_' + segment].append(np.NaN)
 
+        if self.show_baseline:
+            baseline_scores = {}
+
+
+
+
         output_modules = []
         output_modules += [FormattedTextBlock([BoldText('Performance Time Series')])]
         output_modules += [FormattedTextBlock([PlainText('Metric: '),
                                                BoldText({self.metric})])]
-        # if self.segments:
-        #     output_modules += [FormattedTextBlock([PlainText('Segmentation: '),
-        #                                            BoldText({self.segments.type})])]
-
-        # if 'H' in self.interval_length:
-        #     xticks = [interval.left for interval in intervals]
-        # else:
-        #     xticks = [interval.left.strftime("%d-%m-%Y") for interval in intervals]
 
         xticks = [interval.left if 'H' in self.interval_length else interval.left.strftime("%d-%m-%Y")
                   for interval in intervals]
@@ -203,8 +203,9 @@ class PerformanceTimeSeries(BaseAnalysis):
                                     xticks=xticks,
                                     legend_title=f"Segments on "
                                                  f"feature '{self.segments.feature}'" if self.segments else None,
-                                    #xtick_freq=self.tick_label_freq
+                                    #xtick_freq=2,
                                     #ylim=(0, 1)
+                                    benchmarks = {'baseline_all': 0.5}
                                     )]
 
         output_modules += [AddBreak(1)]

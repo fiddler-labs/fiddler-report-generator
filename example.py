@@ -15,9 +15,8 @@ api = fdl.FiddlerApi(
 generate_report(
     fiddler_api=api,
     analysis_modules=[
-                      ProjectSummary(project_id="lending"),
-                      ModelEvaluation(project_id="lending"),
-
+                      #ProjectSummary(project_id="lending"),
+                      #ModelEvaluation(project_id="lending"),
                       PerformanceTimeSeries(project_id="lending",
                                             model_id='logreg_all',
                                             metric='Accuracy',

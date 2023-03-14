@@ -42,6 +42,7 @@ class LinePlot(BaseOutput):
                  legend_title=None,
                  ylim=None,
                  xtick_freq=None,
+                 benchmarks=None,
                  style: PlotStyle = PlotStyle()
                  ):
 
@@ -55,6 +56,7 @@ class LinePlot(BaseOutput):
         self.legend_title = legend_title
         self.ylim = ylim
         self.xtick_freq = xtick_freq
+        self.benchmarks = benchmarks
         self.style = style
 
     def _generate_matplotlib_plot(self):
@@ -106,6 +108,19 @@ class LinePlot(BaseOutput):
             for index, label in enumerate(ax.xaxis.get_ticklabels()):
                 if index % self.xtick_freq != 0:
                     label.set_visible(False)
+
+        if self.benchmarks:
+            if isinstance(self.benchmarks, dict):
+                for label, value in self.benchmarks.items():
+                    plt.axhline(y=value,
+                                #color='w',
+                                linestyle='--',
+                                label=label
+                                )
+            else:
+                raise TypeError(
+                    f'Benchmark data must be stored in a dictionary. The given type is {type(self.benchmarks)}.'
+                )
 
         leg = ax.legend(bbox_to_anchor=(0, 1, 1, 0), loc='lower left', mode='expand', title=self.legend_title)
         leg._legend_box.align = "left"
