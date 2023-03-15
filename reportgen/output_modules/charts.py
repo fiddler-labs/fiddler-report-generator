@@ -110,6 +110,7 @@ class LinePlot(BaseOutput):
                     label.set_visible(False)
 
         if self.benchmarks:
+            
             if isinstance(self.benchmarks, dict):
                 for label, value in self.benchmarks.items():
                     plt.axhline(y=value,
@@ -122,8 +123,12 @@ class LinePlot(BaseOutput):
                     f'Benchmark data must be stored in a dictionary. The given type is {type(self.benchmarks)}.'
                 )
 
-        leg = ax.legend(bbox_to_anchor=(0, 1, 1, 0), loc='lower left', mode='expand', title=self.legend_title)
-        leg._legend_box.align = "left"
+        leg = ax.legend(bbox_to_anchor=(0, 1, 1, 0),
+                        loc='lower left',
+                        mode='expand',
+                        ncol=2 if self.benchmarks else 1,
+                        title=self.legend_title)
+        leg._legend_box.align = "center"
         ax.xaxis.grid(self.style.xgrid)
         ax.yaxis.grid(self.style.ygrid)
         plt.ylim(self.ylim)

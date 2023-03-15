@@ -141,19 +141,29 @@ class PerformanceTimeSeries(BaseAnalysis):
 
         return segment_predicates
 
-    def _get_sql_query(self, dataset: str, time_interval: pd.Interval, segment_predicate): #Change this to handle if any of time interval or segments are missing 
+    def _get_sql_query(self, dataset: str, time_interval: Optional[pd.Interval] = None, segment_predicate: Optional[str] = None):
         sql_query = f""" SELECT * FROM {dataset}."{self.model_id}" """
-        sql_query += f"""WHERE (fiddler_timestamp BETWEEN '{time_interval.left + pd.Timedelta('0s')}' """ \
-                     f"""AND '{time_interval.right - pd.Timedelta('1s')}')"""
 
-        if segment_predicate:
-            sql_query += f""" AND {segment_predicate}"""
+        if time_interval:
+            sql_query += f"""WHERE (fiddler_timestamp BETWEEN '{time_interval.left + pd.Timedelta('0s')}' """ \
+                         f"""AND '{time_interval.right - pd.Timedelta('1s')}')"""
+            if segment_predicate:
+                sql_query += f""" AND {segment_predicate}"""
+
+        elif segment_predicate:
+            sql_query += f""" WHERE {segment_predicate}"""
 
         return sql_query
 
-    def _get_segment_score(self, api, dataset: str, time_interval: pd.Interval, segment_predicate: Optional[str] = None):
+    def _get_segment_score(self,
+                           api,
+                           dataset: str,
+                           time_interval: Optional[pd.Interval] = None,
+                           segment_predicate: Optional[str] = None
+                           ):
+
         sql_query = self._get_sql_query(dataset, time_interval, segment_predicate)
-        #print(sql_query)
+        print(sql_query)
         path = ['scoring', api.v1.org_id]
         json_request = {
             "project": self.project_id,
@@ -183,11 +193,25 @@ class PerformanceTimeSeries(BaseAnalysis):
                     print(e)
                     scores[self.dataset_id + '_' + segment].append(np.NaN)
 
+        baseline_scores = False
         if self.show_baseline:
+            datasets = api.list_datasets(self.project_id)
+            dataset_id = datasets[0]
             baseline_scores = {}
+            try:
+                segment_scores = self._get_segment_score(api, dataset_id)
+                baseline_scores['baseline' + '_all'] = segment_scores[self.metric]
+            except JSONException as e:
+                print(e)
+                baseline_scores['baseline' + '_all'] = np.NaN
 
-
-
+            for segment in segment_predicates:
+                try:
+                    segment_scores = self._get_segment_score(api, dataset_id, segment_predicate=segment_predicates[segment])
+                    baseline_scores['baseline' + '_' + segment] = segment_scores[self.metric]
+                except JSONException as e:
+                    print(e)
+                    baseline_scores['baseline' + '_' + segment] = np.NaN
 
         output_modules = []
         output_modules += [FormattedTextBlock([BoldText('Performance Time Series')])]
@@ -205,7 +229,7 @@ class PerformanceTimeSeries(BaseAnalysis):
                                                  f"feature '{self.segments.feature}'" if self.segments else None,
                                     #xtick_freq=2,
                                     #ylim=(0, 1)
-                                    benchmarks = {'baseline_all': 0.5}
+                                    benchmarks=baseline_scores
                                     )]
 
         output_modules += [AddBreak(1)]
