@@ -163,7 +163,7 @@ class PerformanceTimeSeries(BaseAnalysis):
                            ):
 
         sql_query = self._get_sql_query(dataset, time_interval, segment_predicate)
-        print(sql_query)
+        #print(sql_query)
         path = ['scoring', api.v1.org_id]
         json_request = {
             "project": self.project_id,

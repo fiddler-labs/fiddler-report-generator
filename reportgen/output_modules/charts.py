@@ -4,7 +4,9 @@ from .blocks import SimpleImage
 from typing import Optional, List, Sequence, Union
 
 import numpy as np
+import itertools
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 from dataclasses import dataclass
 
 
@@ -110,12 +112,13 @@ class LinePlot(BaseOutput):
                     label.set_visible(False)
 
         if self.benchmarks:
-            
             if isinstance(self.benchmarks, dict):
+                colors = itertools.cycle([line.get_color() for line in ax.get_lines()])
                 for label, value in self.benchmarks.items():
                     plt.axhline(y=value,
-                                #color='w',
-                                linestyle='--',
+                                color=next(colors),
+                                linestyle='dashed',
+                                markersize=0,
                                 label=label
                                 )
             else:
