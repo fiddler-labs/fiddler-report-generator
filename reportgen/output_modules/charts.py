@@ -4,7 +4,9 @@ from .blocks import SimpleImage
 from typing import Optional, List, Sequence, Union
 
 import numpy as np
+import itertools
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 from dataclasses import dataclass
 
 
@@ -42,6 +44,7 @@ class LinePlot(BaseOutput):
                  legend_title=None,
                  ylim=None,
                  xtick_freq=None,
+                 benchmarks=None,
                  style: PlotStyle = PlotStyle()
                  ):
 
@@ -55,6 +58,7 @@ class LinePlot(BaseOutput):
         self.legend_title = legend_title
         self.ylim = ylim
         self.xtick_freq = xtick_freq
+        self.benchmarks = benchmarks
         self.style = style
 
     def _generate_matplotlib_plot(self):
@@ -107,8 +111,27 @@ class LinePlot(BaseOutput):
                 if index % self.xtick_freq != 0:
                     label.set_visible(False)
 
-        leg = ax.legend(bbox_to_anchor=(0, 1, 1, 0), loc='lower left', mode='expand', title=self.legend_title)
-        leg._legend_box.align = "left"
+        if self.benchmarks:
+            if isinstance(self.benchmarks, dict):
+                colors = itertools.cycle([line.get_color() for line in ax.get_lines()])
+                for label, value in self.benchmarks.items():
+                    plt.axhline(y=value,
+                                color=next(colors),
+                                linestyle='dashed',
+                                markersize=0,
+                                label=label
+                                )
+            else:
+                raise TypeError(
+                    f'Benchmark data must be stored in a dictionary. The given type is {type(self.benchmarks)}.'
+                )
+
+        leg = ax.legend(bbox_to_anchor=(0, 1, 1, 0),
+                        loc='lower left',
+                        mode='expand',
+                        ncol=2 if self.benchmarks else 1,
+                        title=self.legend_title)
+        leg._legend_box.align = "center"
         ax.xaxis.grid(self.style.xgrid)
         ax.yaxis.grid(self.style.ygrid)
         plt.ylim(self.ylim)

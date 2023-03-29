@@ -15,16 +15,16 @@ api = fdl.FiddlerApi(
 generate_report(
     fiddler_api=api,
     analysis_modules=[
-                      ProjectSummary(project_id="lending"),
-                      ModelEvaluation(project_id="lending"),
-
+                      #ProjectSummary(project_id="lending"),
+                      #ModelEvaluation(project_id="lending"),
                       PerformanceTimeSeries(project_id="lending",
                                             model_id='logreg_all',
                                             metric='Accuracy',
-                                            interval_length='D',
+                                            interval_length='2D',
                                             #start='01-01-2023',
                                             #stop='17-01-2023',
-                                            segments=Segment.categorical('home_ownership')
+                                            segments=Segment.categorical('home_ownership'),
+                                            show_baseline=False,
                                             ),
 
                       # PerformanceTimeSeries(project_id="lending",
