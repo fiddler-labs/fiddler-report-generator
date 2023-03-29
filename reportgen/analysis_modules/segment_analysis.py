@@ -163,14 +163,20 @@ class PerformanceTimeSeries(BaseAnalysis):
                            ):
 
         sql_query = self._get_sql_query(dataset, time_interval, segment_predicate)
-        #print(sql_query)
         path = ['scoring', api.v1.org_id]
         json_request = {
             "project": self.project_id,
             "sql": sql_query
         }
-        response = api.v1._call(path, json_request)
-        return response['scores']
+
+        try:
+            response = api.v1._call(path, json_request)['scores']
+        except Exception as e:
+            print(e)
+            print(f'The sql query was: {sql_query}')
+            response = None
+
+        return response
 
     def run(self, api) -> List[BaseOutput]:
         intervals = pd.interval_range(self.start, self.stop, freq=self.interval_length, closed='both')
@@ -178,40 +184,26 @@ class PerformanceTimeSeries(BaseAnalysis):
 
         scores = defaultdict(list)
         for interval in intervals:
-            try:
-                segment_scores = self._get_segment_score(api, self.dataset_id, interval)
-                scores[self.dataset_id + '_all'].append(segment_scores[self.metric])
-            except JSONException as e:
-                print(e)
-                scores[self.dataset_id + '_all'].append(np.NaN)
+            segment_scores = self._get_segment_score(api, self.dataset_id, interval)
+            score = segment_scores[self.metric] if segment_scores else np.NaN
+            scores[self.dataset_id + '_all'].append(score)
 
             for segment in segment_predicates:
-                try:
-                    segment_scores = self._get_segment_score(api, self.dataset_id, interval, segment_predicates[segment])
-                    scores[self.dataset_id + '_' + segment].append(segment_scores[self.metric])
-                except JSONException as e:
-                    print(e)
-                    scores[self.dataset_id + '_' + segment].append(np.NaN)
+                segment_scores = self._get_segment_score(api, self.dataset_id, interval, segment_predicates[segment])
+                score = segment_scores[self.metric] if segment_scores else np.NaN
+                scores[self.dataset_id + '_' + segment].append(score)
 
-        baseline_scores = False
+        baseline_scores = {}
         if self.show_baseline:
             datasets = api.list_datasets(self.project_id)
             dataset_id = datasets[0]
-            baseline_scores = {}
-            try:
-                segment_scores = self._get_segment_score(api, dataset_id)
-                baseline_scores['baseline' + '_all'] = segment_scores[self.metric]
-            except JSONException as e:
-                print(e)
-                baseline_scores['baseline' + '_all'] = np.NaN
+
+            segment_scores = self._get_segment_score(api, dataset_id)
+            baseline_scores['baseline' + '_all'] = segment_scores[self.metric] if segment_scores else np.NaN
 
             for segment in segment_predicates:
-                try:
-                    segment_scores = self._get_segment_score(api, dataset_id, segment_predicate=segment_predicates[segment])
-                    baseline_scores['baseline' + '_' + segment] = segment_scores[self.metric]
-                except JSONException as e:
-                    print(e)
-                    baseline_scores['baseline' + '_' + segment] = np.NaN
+                segment_scores = self._get_segment_score(api, dataset_id, segment_predicate=segment_predicates[segment])
+                baseline_scores['baseline' + '_' + segment] = segment_scores[self.metric] if segment_scores else np.NaN
 
         output_modules = []
         output_modules += [FormattedTextBlock([BoldText('Performance Time Series')])]
