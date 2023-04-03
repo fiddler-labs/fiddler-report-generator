@@ -1,7 +1,9 @@
 import os
 
+
 class TempOutputFile:
     instance_counter = 0
+
     def __init__(self, tmp_dir='tmp/figs/', file_name=None):
         TempOutputFile.instance_counter += 1
         self.ID = TempOutputFile.instance_counter

@@ -100,7 +100,8 @@ class Table(BaseOutput):
         pass
 
     def render_docx(self, document):
-        table = document.add_table(rows=len(self.records)+1, cols=len(self.header), style=self.style)
+        # table = document.add_table(rows=len(self.records)+1, cols=len(self.header), style=self.style)
+        table = document.add_table(rows=len(self.records)+1, cols=len(self.header))
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
         hdr_cells = table.rows[0].cells

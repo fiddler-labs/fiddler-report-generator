@@ -1,12 +1,15 @@
-from docx import Document
+#from docx import Document
 from typing import List, Type
 from .base import OutputTypes, BaseOutput
+from .templates import create_docx_template
 
 FIDDLER_DEFAULT_REPORT_NAME = 'fiddler_report'
 
 
 def _generate_output_docx(output_modules: List[BaseOutput], output_path: str):
-    document = Document()
+    # document = Document()
+    document = create_docx_template(template='reportgen/templates/word_template.docx')
+    # document = create_docx_template()
 
     for output_module in output_modules:
         output_module.render_docx(document=document)
