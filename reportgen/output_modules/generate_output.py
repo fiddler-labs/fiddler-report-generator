@@ -1,15 +1,13 @@
-#from docx import Document
-from typing import List, Type
+from typing import List, Type, Optional
 from .base import OutputTypes, BaseOutput
-from .templates import create_docx_template
+from .templates import docx_from_template
 
 FIDDLER_DEFAULT_REPORT_NAME = 'fiddler_report'
 
 
-def _generate_output_docx(output_modules: List[BaseOutput], output_path: str):
-    # document = Document()
-    document = create_docx_template(template='reportgen/templates/word_template.docx')
-    # document = create_docx_template()
+def _generate_output_docx(output_modules: List[BaseOutput], output_path: str, template: Optional[str] = None):
+
+    document = docx_from_template(template)
 
     for output_module in output_modules:
         output_module.render_docx(document=document)
@@ -26,9 +24,11 @@ def _generate_output_pdf(output_modules: List[Type[BaseOutput]], output_path: st
     raise NotImplementedError('PDF not yet implemented.')
 
 
-def generate_output(
-    output_type: OutputTypes, output_modules: List[Type[BaseOutput]], output_path: str
-):
+def generate_output(output_type: OutputTypes,
+                    output_modules: List[Type[BaseOutput]],
+                    output_path: str,
+                    template: Optional[str] = None,
+                    ):
 
     if output_type is OutputTypes.DOCX:
         output_processor = _generate_output_docx
@@ -39,4 +39,4 @@ def generate_output(
     else:
         raise ValueError('No such output type.')
 
-    output_processor(output_modules=output_modules, output_path=output_path)
+    output_processor(output_modules=output_modules, output_path=output_path, template=template)

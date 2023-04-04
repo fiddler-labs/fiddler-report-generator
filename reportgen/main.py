@@ -24,13 +24,15 @@ def generate_report(
     analysis_modules: List[BaseAnalysis],
     output_type: OutputTypes,
     output_path=None,
+    template=None,
 ):
-    output_modules = _run_analyses(
-        fiddler_api=fiddler_api, analysis_modules=analysis_modules
-    )
 
-    generate_output(
-        output_type=output_type, output_modules=output_modules, output_path=output_path
-    )
+    output_modules = _run_analyses(fiddler_api=fiddler_api, analysis_modules=analysis_modules)
+
+    generate_output(output_type=output_type,
+                    output_modules=output_modules,
+                    output_path=output_path,
+                    template=template,
+                    )
 
     return None

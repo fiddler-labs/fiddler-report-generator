@@ -12,43 +12,53 @@ api = fdl.FiddlerApi(
     url='http://demo.fiddler.ai', org_id='demo', auth_token=os.getenv('fiddler_api_key'),
 )
 
+
 generate_report(
     fiddler_api=api,
-    analysis_modules=[
-                      ProjectSummary(project_id="lending"),
-                      #ModelEvaluation(project_id="lending"),
-                      # PerformanceTimeSeries(project_id="lending",
-                      #                       model_id='logreg_all',
-                      #                       metric='Accuracy',
-                      #                       interval_length='2D',
-                      #                       #start='01-01-2023',
-                      #                       #stop='17-01-2023',
-                      #                       segments=Segment.categorical('home_ownership'),
-                      #                       show_baseline=False,
-                      #                       ),
-
-                      # PerformanceTimeSeries(project_id="lending",
-                      #                       model_id='logreg_all',
-                      #                       metric='Precision',
-                      #                       interval_length='D',
-                      #                       start='01-01-2023',
-                      #                       stop='17-01-2023',
-                      #                       segments=Segment.categorical('home_ownership')
-                      #                       ),
-                      #
-                      # PerformanceTimeSeries(project_id="lending",
-                      #                       model_id='logreg_all',
-                      #                       metric='Recall',
-                      #                       interval_length='D',
-                      #                       start='01-01-2023',
-                      #                       stop='17-01-2023',
-                      #                       segments=Segment.categorical('home_ownership')
-                      #                       ),
-
-                     ],
+    analysis_modules=[ProjectSummary(project_id="bank_churn")],
     output_type=OutputTypes.DOCX,
-    output_path='report-lending.docx'
+    output_path='report-bank-churn.docx',
+    #template='reportgen/templates/template.docx',
 )
+
+# generate_report(
+#     fiddler_api=api,
+#     analysis_modules=[
+#                       ProjectSummary(project_id="lending"),
+#                       #ModelEvaluation(project_id="lending"),
+#                       # PerformanceTimeSeries(project_id="lending",
+#                       #                       model_id='logreg_all',
+#                       #                       metric='Accuracy',
+#                       #                       interval_length='2D',
+#                       #                       #start='01-01-2023',
+#                       #                       #stop='17-01-2023',
+#                       #                       segments=Segment.categorical('home_ownership'),
+#                       #                       show_baseline=False,
+#                       #                       ),
+#
+#                       # PerformanceTimeSeries(project_id="lending",
+#                       #                       model_id='logreg_all',
+#                       #                       metric='Precision',
+#                       #                       interval_length='D',
+#                       #                       start='01-01-2023',
+#                       #                       stop='17-01-2023',
+#                       #                       segments=Segment.categorical('home_ownership')
+#                       #                       ),
+#                       #
+#                       # PerformanceTimeSeries(project_id="lending",
+#                       #                       model_id='logreg_all',
+#                       #                       metric='Recall',
+#                       #                       interval_length='D',
+#                       #                       start='01-01-2023',
+#                       #                       stop='17-01-2023',
+#                       #                       segments=Segment.categorical('home_ownership')
+#                       #                       ),
+#
+#                      ],
+#     output_type=OutputTypes.DOCX,
+#     output_path='report-lending.docx',
+#     template='reportgen/templates/template.docx',
+# )
 
 # generate_report(
 #     fiddler_api=api,
