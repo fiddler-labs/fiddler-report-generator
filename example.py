@@ -18,7 +18,7 @@ generate_report(
     analysis_modules=[ProjectSummary(project_id="bank_churn")],
     output_type=OutputTypes.DOCX,
     output_path='report-bank-churn.docx',
-    #template='reportgen/templates/template.docx',
+    author='Bashir R',
 )
 
 # generate_report(

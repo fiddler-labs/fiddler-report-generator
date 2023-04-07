@@ -11,7 +11,7 @@ from docx.shared import Inches
 
 
 class SimpleTextBlock(BaseOutput):
-    def __init__(self, text:str, style:Optional[SimpleTextStyle]=None):
+    def __init__(self, text: str, style: Optional[SimpleTextStyle]=None):
         self.text = text
         self.style = style if style else SimpleTextStyle()
 
@@ -100,8 +100,11 @@ class Table(BaseOutput):
         pass
 
     def render_docx(self, document):
-        # table = document.add_table(rows=len(self.records)+1, cols=len(self.header), style=self.style)
-        table = document.add_table(rows=len(self.records)+1, cols=len(self.header))
+        table = document.add_table(rows=len(self.records)+1, cols=len(self.header), style=self.style)
+        #table = document.add_table(rows=len(self.records)+1, cols=len(self.header))
+        print(table.style)
+        #table.style = 'FiddlerStyle'
+
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
         hdr_cells = table.rows[0].cells

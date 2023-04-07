@@ -30,7 +30,7 @@ class ProjectSummary(BaseAnalysis):
         models = api.list_models(self.project_id)
         datasets = api.list_datasets(self.project_id)
 
-        output_modules += [SimpleImage('reportgen/output_modules/figures/fiddler_logo.png', width=2)]
+        #output_modules += [SimpleImage('reportgen/output_modules/figures/fiddler_logo.png', width=2)]
         output_modules += [
                             SimpleTextBlock(text='Project Summary', style=SimpleTextStyle(alignment='center', font_style='bold', size=22)),
                             FormattedTextBlock(

@@ -1,13 +1,19 @@
 from typing import List, Type, Optional
+from docx import Document
 from .base import OutputTypes, BaseOutput
 from .templates import docx_from_template
+from .metadata import Footer
 
 FIDDLER_DEFAULT_REPORT_NAME = 'fiddler_report'
 
 
-def _generate_output_docx(output_modules: List[BaseOutput], output_path: str, template: Optional[str] = None):
+def _generate_output_docx(output_modules: List[BaseOutput], output_path: str, template: Optional[str], author: Optional[str]):
 
-    document = docx_from_template(template)
+    document = docx_from_template(template, author)
+
+    latent_styles = document.styles.latent_styles
+    latent_style_names = [ls for ls in latent_styles]
+    print(latent_style_names)
 
     for output_module in output_modules:
         output_module.render_docx(document=document)
@@ -28,6 +34,7 @@ def generate_output(output_type: OutputTypes,
                     output_modules: List[Type[BaseOutput]],
                     output_path: str,
                     template: Optional[str] = None,
+                    author: Optional[str] = None,
                     ):
 
     if output_type is OutputTypes.DOCX:
@@ -39,4 +46,4 @@ def generate_output(output_type: OutputTypes,
     else:
         raise ValueError('No such output type.')
 
-    output_processor(output_modules=output_modules, output_path=output_path, template=template)
+    output_processor(output_modules=output_modules, output_path=output_path, template=template, author=author)

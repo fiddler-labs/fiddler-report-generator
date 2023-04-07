@@ -25,6 +25,7 @@ def generate_report(
     output_type: OutputTypes,
     output_path=None,
     template=None,
+    author=None,
 ):
 
     output_modules = _run_analyses(fiddler_api=fiddler_api, analysis_modules=analysis_modules)
@@ -33,6 +34,7 @@ def generate_report(
                     output_modules=output_modules,
                     output_path=output_path,
                     template=template,
+                    author=author,
                     )
 
     return None
