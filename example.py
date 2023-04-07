@@ -15,7 +15,7 @@ api = fdl.FiddlerApi(
 
 generate_report(
     fiddler_api=api,
-    analysis_modules=[ProjectSummary(project_id="bank_churn")],
+    analysis_modules=[ProjectSummary(project_id="lending")],
     output_type=OutputTypes.DOCX,
     output_path='report-bank-churn.docx',
     author='Bashir R',

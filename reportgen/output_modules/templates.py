@@ -15,6 +15,10 @@ def docx_from_template(template: Optional[str], author: Optional[str]):
 
     if os.path.isfile(template_file):
         document = DocxTemplate(template_file)
+
+
+
+
         date = datetime.now(timezone.utc)
         footer_metadata = f'Generated on {date.strftime("%B %d, %Y at %H:%M UTC")} '
         if author:

@@ -101,10 +101,6 @@ class Table(BaseOutput):
 
     def render_docx(self, document):
         table = document.add_table(rows=len(self.records)+1, cols=len(self.header), style=self.style)
-        #table = document.add_table(rows=len(self.records)+1, cols=len(self.header))
-        print(table.style)
-        #table.style = 'FiddlerStyle'
-
         table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
         hdr_cells = table.rows[0].cells
@@ -113,8 +109,8 @@ class Table(BaseOutput):
 
         for i, rec in enumerate(self.records):
             row_cells = table.rows[i+1].cells
-            for i in range(len(self.header)):
-                row_cells[i].text = str(rec[i])
+            for j in range(len(self.header)):
+                row_cells[j].text = str(rec[j])
 
 
 class AddBreak(BaseOutput):

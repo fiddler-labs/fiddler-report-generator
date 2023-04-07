@@ -11,10 +11,6 @@ def _generate_output_docx(output_modules: List[BaseOutput], output_path: str, te
 
     document = docx_from_template(template, author)
 
-    latent_styles = document.styles.latent_styles
-    latent_style_names = [ls for ls in latent_styles]
-    print(latent_style_names)
-
     for output_module in output_modules:
         output_module.render_docx(document=document)
 
