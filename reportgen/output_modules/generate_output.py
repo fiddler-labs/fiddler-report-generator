@@ -2,7 +2,6 @@ from typing import List, Type, Optional
 from docx import Document
 from docxtpl import DocxTemplate
 from .base import OutputTypes, BaseOutput
-from .metadata import Footer
 import warnings
 import os
 
