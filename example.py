@@ -12,12 +12,11 @@ api = fdl.FiddlerApi(
     url='http://demo.fiddler.ai', org_id='demo', auth_token=os.getenv('fiddler_api_key'),
 )
 
-
 generate_report(
     fiddler_api=api,
     analysis_modules=[ProjectSummary(project_id="lending")],
     output_type=OutputTypes.DOCX,
-    output_path='report-bank-churn.docx',
+    output_path='report-lending.docx',
     author='Bashir R',
 )
 

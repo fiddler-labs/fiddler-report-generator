@@ -5,6 +5,17 @@ import os
 import warnings
 
 
+class MetaDataContext(BaseOutput):
+    def __init__(self, context_dict: dict):
+        self.context_dict = context_dict
+
+    def render_pdf(self):
+        pass
+
+    def render_docx(self, document):
+        document.render(self.context_dict)
+
+
 class Footer(BaseOutput):
     def __init__(self, text: str):
         self.text = text

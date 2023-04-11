@@ -1,15 +1,23 @@
 from typing import List, Type, Optional
 from docx import Document
+from docxtpl import DocxTemplate
 from .base import OutputTypes, BaseOutput
-from .templates import docx_from_template
 from .metadata import Footer
+import warnings
+import os
 
 FIDDLER_DEFAULT_REPORT_NAME = 'fiddler_report'
+DEFAULT_TEMPLATE_FILE = 'reportgen/templates/template.docx'
 
 
-def _generate_output_docx(output_modules: List[BaseOutput], output_path: str, template: Optional[str], author: Optional[str]):
+def _generate_output_docx(output_modules: List[BaseOutput], output_path: str, template: Optional[str]):
 
-    document = docx_from_template(template, author)
+    template_file = template if template is not None else DEFAULT_TEMPLATE_FILE
+    if os.path.isfile(template_file):
+        document = DocxTemplate(template_file)
+    else:
+        warnings.warn(f'The template file {template_file} does not exist. The output is generated without a template.')
+        document = Document()
 
     for output_module in output_modules:
         output_module.render_docx(document=document)
@@ -30,7 +38,6 @@ def generate_output(output_type: OutputTypes,
                     output_modules: List[Type[BaseOutput]],
                     output_path: str,
                     template: Optional[str] = None,
-                    author: Optional[str] = None,
                     ):
 
     if output_type is OutputTypes.DOCX:
@@ -42,4 +49,4 @@ def generate_output(output_type: OutputTypes,
     else:
         raise ValueError('No such output type.')
 
-    output_processor(output_modules=output_modules, output_path=output_path, template=template, author=author)
+    output_processor(output_modules=output_modules, output_path=output_path, template=template)

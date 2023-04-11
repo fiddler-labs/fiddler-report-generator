@@ -6,9 +6,10 @@ from .generate_output import generate_output
 from .tmp_file import TempOutputFile
 from .charts import LinePlot
 from .metadata import Footer
+from .metadata import MetaDataContext
 
 __all__ = ('OutputTypes', 'BaseOutput', 'generate_output', 'SimpleTextBlock','FormattedTextBlock','SimpleImage',
            'SimpleTextStyle', 'FormattedTextStyle', 'TempOutputFile', 'Table', 'AddBreak', 'AddPageBreak', 'LinePlot',
-           'PlainText', 'BoldText', 'ItalicText', 'Footer')
+           'PlainText', 'BoldText', 'ItalicText', 'Footer', 'MetaDataContext')
 
 # fiddler header color = rgb(0, 3, 80)
