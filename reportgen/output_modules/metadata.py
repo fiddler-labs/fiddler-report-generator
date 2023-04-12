@@ -6,6 +6,10 @@ import warnings
 
 
 class MetaDataContext(BaseOutput):
+    """
+    An output module that replaces the jinja2 tags in the template documents by the values specified in
+    a context dictionary.
+    """
     def __init__(self, context_dict: dict):
         self.context_dict = context_dict
 

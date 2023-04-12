@@ -6,7 +6,8 @@ from datetime import datetime, timezone
 
 class MetaData(BaseAnalysis):
     """
-    An analysis module that adds metadata info to the report.
+    An analysis module that adds metadata info to the report.  This module returns a MetaDataContext output module which
+    is created using a context dictionary.
     """
     def __init__(self, author: Optional[str] = None):
         self.author = author
