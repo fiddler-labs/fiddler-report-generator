@@ -11,7 +11,7 @@ from docx.shared import Inches
 
 
 class SimpleTextBlock(BaseOutput):
-    def __init__(self, text:str, style:Optional[SimpleTextStyle]=None):
+    def __init__(self, text: str, style: Optional[SimpleTextStyle]=None):
         self.text = text
         self.style = style if style else SimpleTextStyle()
 
@@ -109,8 +109,8 @@ class Table(BaseOutput):
 
         for i, rec in enumerate(self.records):
             row_cells = table.rows[i+1].cells
-            for i in range(len(self.header)):
-                row_cells[i].text = str(rec[i])
+            for j in range(len(self.header)):
+                row_cells[j].text = str(rec[j])
 
 
 class AddBreak(BaseOutput):
