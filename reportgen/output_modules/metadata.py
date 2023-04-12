@@ -27,5 +27,4 @@ class Footer(BaseOutput):
         section = document.sections[0]
         footer = section.footer
         footer_para = footer.paragraphs[0]
-        print(footer_para)
         footer_para.text = self.text
