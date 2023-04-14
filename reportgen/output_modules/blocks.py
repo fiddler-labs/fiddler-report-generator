@@ -85,7 +85,14 @@ class SimpleImage(BaseOutput):
 
 
 class Table(BaseOutput):
-    def __init__(self, header: List[str], records: List[Sequence], style: str = 'Table Grid'):
+    def __init__(self,
+                 header: List[str],
+                 records: List[Sequence],
+                 style: str = 'Table Grid',
+                 header_fontsize=10,
+                 cell_fontsize=10
+                 ):
+
         if records:
             for rec in records:
                 if not len(header) == len(rec):
@@ -95,6 +102,8 @@ class Table(BaseOutput):
         self.header = header
         self.records = records
         self.style = style
+        self.header_fontsize = header_fontsize
+        self.cell_fontsize = cell_fontsize
 
     def render_pdf(self):
         pass
@@ -106,11 +115,14 @@ class Table(BaseOutput):
         hdr_cells = table.rows[0].cells
         for i, col_name in enumerate(self.header):
             hdr_cells[i].text = col_name
+            hdr_cells[i].paragraphs[0].runs[0].font.size = Pt(self.header_fontsize)
 
         for i, rec in enumerate(self.records):
             row_cells = table.rows[i+1].cells
             for j in range(len(self.header)):
                 row_cells[j].text = str(rec[j])
+                row_cells[j].paragraphs[0].runs[0].font.size = Pt(self.cell_fontsize)
+
 
 
 class AddBreak(BaseOutput):
