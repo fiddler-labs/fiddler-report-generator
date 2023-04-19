@@ -15,8 +15,10 @@ api = fdl.FiddlerApi(
 generate_report(
     fiddler_api=api,
     analysis_modules=[
-                      # ProjectSummary(project_id="lending"),
-                      AlertsSummary(project_id="lending")
+                      #ProjectSummary(project_id="lending"),
+                      #ModelSummary(project_id="lending"),
+                      AlertsSummary(project_id="bank_churn",
+                                    start_time=datetime.strptime('2023-01-01', '%Y-%m-%d'))
                       ],
     output_type=OutputTypes.DOCX,
     output_path='report-lending.docx',
