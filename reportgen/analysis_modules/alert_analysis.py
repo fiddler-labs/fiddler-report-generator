@@ -6,6 +6,7 @@ from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 from collections import defaultdict
 from datetime import datetime, timezone
+from .plotting_helpers import pie_chart
 import fiddler as fdl
 import numpy as np
 import pandas as pd
@@ -17,7 +18,7 @@ import re
 class Alerts(BaseAnalysis):
     """
        An analysis module for fetching alert rules and triggered alerts from the Fiddler backend.  In order to generate
-       specific output modules in the report use analysis modules that are inherited from this class.
+       specific alert outputs use analysis modules that are inherited from this class.
     """
     def __init__(self,
                  project_id: Optional[str] = None,
@@ -55,7 +56,7 @@ class Alerts(BaseAnalysis):
                 alerts_dict['project_id'].append(rule.project_id)
                 alerts_dict['model_id'].append(rule.model_id)
                 alerts_dict['name'].append(rule.name)
-                alerts_dict['alert_type'].append(rule.alert_type.value)
+                alerts_dict['alert_type'].append(rule.alert_type.name)
                 alerts_dict['column'].append(rule.column)
                 alerts_dict['severity'].append(a.severity)
                 alerts_dict['value'].append(a.alert_value)
@@ -70,18 +71,36 @@ class Alerts(BaseAnalysis):
 
 
 class AlertsSummary(Alerts):
+
     def run(self, api) -> List[BaseOutput]:
         alerts = self._get_alerts(api)
+        alerts_df = pd.concat(list(alerts.values()), ignore_index=True)
+        agg_df = alerts_df.groupby('severity').agg(count=('alert_type', 'size'),
+                                                   types=('alert_type', lambda x: dict(zip(*np.unique(x, return_counts=True)))),
+                                                   )
+        print(agg_df)
+        print(agg_df.index)
+        print(type(agg_df))
+        print(agg_df.loc['CRITICAL'])
 
-        for rule in self.alert_rules:
-            print(rule.name)
-            print(alerts[rule.alert_rule_uuid])
+        charts_file_names = []
+        for severity in ['CRITICAL', 'WARNING1', 'WARNING']:
+            if severity in agg_df.index:
+                print(agg_df.loc[severity]['types'])
+                charts_file_names.append(pie_chart(agg_df.loc[severity]['count'],
+                                                   agg_df.loc[severity]['types'],
+                                                   section_names=fdl.AlertType._member_names_,
+                                                   title=severity,
+                                                   )
+                                         )
+            else:
+                charts_file_names.append(pie_chart(0, (), section_names=[],  title=severity))
 
-        # alerts_table_cols = ['alert_type', 'severity', 'message']
-        # alerts_table_rows = []
-        # for row_tuple in alerts_df[alerts_table_cols].itertuples(index=False, name=None):
-        #     alerts_table_rows.append(row_tuple)
-        #
+        charts_file_names
+
+
+        # output_modules += [SimpleImage(tmp_image_file, width=3)]
+
         output_modules = []
         # output_modules += [SimpleTextBlock(text='Alerts',
         #                                    style=SimpleTextStyle(alignment='center',
@@ -93,4 +112,32 @@ class AlertsSummary(Alerts):
         #                    ]
         # output_modules += [AddBreak(2)]
 
+        return output_modules
+
+
+class AlertsTimeline(Alerts):
+    def run(self, api) -> List[BaseOutput]:
+        alerts = self._get_alerts(api)
+
+        output_modules = []
+        output_modules += [AddBreak(2)]
+        return output_modules
+
+
+class AlertsDetail(Alerts):
+    def run(self, api) -> List[BaseOutput]:
+        alerts = self._get_alerts(api)
+
+        # for rule in self.alert_rules:
+        #     alerts[rule.alert_rule_uuid]
+        #     print(rule.name)
+        #     print(alerts[rule.alert_rule_uuid])
+
+        # alerts_table_cols = ['alert_type', 'severity', 'message']
+        # alerts_table_rows = []
+        # for row_tuple in alerts_df[alerts_table_cols].itertuples(index=False, name=None):
+        #     alerts_table_rows.append(row_tuple)
+
+        output_modules = []
+        output_modules += [AddBreak(2)]
         return output_modules
