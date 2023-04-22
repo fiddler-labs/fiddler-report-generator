@@ -1,7 +1,7 @@
 from .base import BaseAnalysis
 from .performance_metrics import BinaryClassifierMetrics
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, ImageTable
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 from collections import defaultdict
@@ -78,40 +78,32 @@ class AlertsSummary(Alerts):
         agg_df = alerts_df.groupby('severity').agg(count=('alert_type', 'size'),
                                                    types=('alert_type', lambda x: dict(zip(*np.unique(x, return_counts=True)))),
                                                    )
-        print(agg_df)
-        print(agg_df.index)
-        print(type(agg_df))
-        print(agg_df.loc['CRITICAL'])
 
-        charts_file_names = []
-        for severity in ['CRITICAL', 'WARNING1', 'WARNING']:
+        summary_charts = []
+        for severity in ['CRITICAL', 'WARNING']:
             if severity in agg_df.index:
-                print(agg_df.loc[severity]['types'])
-                charts_file_names.append(pie_chart(agg_df.loc[severity]['count'],
-                                                   agg_df.loc[severity]['types'],
-                                                   section_names=fdl.AlertType._member_names_,
-                                                   title=severity,
-                                                   )
-                                         )
+                summary_charts.append(pie_chart(agg_df.loc[severity]['count'],
+                                                agg_df.loc[severity]['types'],
+                                                section_names=fdl.AlertType._member_names_,
+                                                title=severity,
+                                                )
+                                      )
             else:
-                charts_file_names.append(pie_chart(0, (), section_names=[],  title=severity))
-
-        charts_file_names
-
-
-        # output_modules += [SimpleImage(tmp_image_file, width=3)]
+                summary_charts.append(pie_chart(0, {}, section_names=[],  title=severity))
 
         output_modules = []
-        # output_modules += [SimpleTextBlock(text='Alerts',
-        #                                    style=SimpleTextStyle(alignment='center',
-        #                                                          font_style='bold',
-        #                                                          size=18))]
-        # output_modules += [AddBreak(1)]
-        # output_modules += [Table(header=alerts_table_cols,
-        #                          records=alerts_table_rows),
-        #                    ]
-        # output_modules += [AddBreak(2)]
-
+        output_modules += [SimpleTextBlock(text='Alert Summary',
+                                           style=SimpleTextStyle(alignment='center',
+                                                                 font_style='bold',
+                                                                 size=18))]
+        output_modules += [AddBreak(2)]
+        output_modules += [ImageTable(summary_charts,
+                                      titles=['Critical Alerts', 'Warning Alerts'],
+                                      dim=(1, 2),
+                                      width=3
+                                      )
+                           ]
+        output_modules += [AddBreak(2)]
         return output_modules
 
 

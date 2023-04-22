@@ -2,7 +2,7 @@ from .base import BaseOutput
 from .styles import SimpleTextStyle, FormattedTextStyle
 from .text_styles import FormattedText
 from .tmp_file import TempOutputFile
-from typing import Optional, List, Sequence, Union
+from typing import Optional, List, Sequence, Union, Tuple
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.text import WD_BREAK
 from docx.enum.table import WD_TABLE_ALIGNMENT
@@ -64,7 +64,7 @@ class FormattedTextBlock(BaseOutput):
 
 
 class SimpleImage(BaseOutput):
-    def __init__(self, source:Union[str,TempOutputFile], width=None):
+    def __init__(self, source: Union[str, TempOutputFile], width=None):
         self.source = source
         self.width = width
 
@@ -81,7 +81,8 @@ class SimpleImage(BaseOutput):
             document.add_picture(self.source.get_path(), width=self.width)
             self.source.delete_file()
         else:
-            "Error: incorrect input type"
+            raise ValueError(
+                "Incorrect image source. Image sources must be a valid file path or a TempOutputFile object.")
 
 
 class Table(BaseOutput):
@@ -123,6 +124,57 @@ class Table(BaseOutput):
                 row_cells[j].text = str(rec[j])
                 row_cells[j].paragraphs[0].runs[0].font.size = Pt(self.cell_fontsize)
 
+
+class ImageTable(BaseOutput):
+    def __init__(self,
+                 images: List,
+                 titles: Optional[List[str]] = None,
+                 dim: Tuple[int] = (1, 2),
+                 width: Optional[float] = None,
+                 fontsize: Optional[int] = 14,
+                 ):
+        self.images = images
+        self.titles = titles
+        self.dim = dim
+        self.width = width
+        self.fontsize = fontsize
+        self.width = width
+
+    def render_pdf(self):
+        pass
+
+    def render_docx(self, document):
+        self.width = Inches(self.width) if self.width is not None else self.width
+        table = document.add_table(rows=self.dim[0], cols=self.dim[1],
+                                   #style='',
+                                   )
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+
+        if self.titles:
+            if not len(self.titles) == len(self.images):
+                raise ValueError("The number of titles must match the number of images.")
+
+        for img_idx, img in enumerate(self.images):
+            row_idx = img_idx // self.dim[1]
+            col_idx = img_idx % self.dim[1]
+            paragraph = table.rows[row_idx].cells[col_idx].paragraphs[0]
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+            if self.titles:
+                run = paragraph.add_run(self.titles[img_idx])
+                run.font.bold = True
+                run.font.size = Pt(self.fontsize)
+
+            run = paragraph.add_run()
+            if isinstance(img, str):
+                run.add_picture(img, width=self.width)
+
+            elif isinstance(img, TempOutputFile):
+                run.add_picture(img.get_path(), width=self.width)
+                img.delete_file()
+            else:
+                raise ValueError(
+                    "Incorrect image source. Image sources must be a valid file path or a TempOutputFile object.")
 
 
 class AddBreak(BaseOutput):
