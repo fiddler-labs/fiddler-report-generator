@@ -8,6 +8,7 @@ from docx.enum.text import WD_BREAK
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.shared import Pt
 from docx.shared import Inches
+import numpy as np
 
 
 class SimpleTextBlock(BaseOutput):
@@ -129,13 +130,13 @@ class ImageTable(BaseOutput):
     def __init__(self,
                  images: List,
                  titles: Optional[List[str]] = None,
-                 dim: Tuple[int] = (1, 2),
+                 n_cols: int = 2,
                  width: Optional[float] = None,
                  fontsize: Optional[int] = 14,
                  ):
         self.images = images
         self.titles = titles
-        self.dim = dim
+        self.n_cols = n_cols
         self.width = width
         self.fontsize = fontsize
         self.width = width
@@ -145,18 +146,19 @@ class ImageTable(BaseOutput):
 
     def render_docx(self, document):
         self.width = Inches(self.width) if self.width is not None else self.width
-        table = document.add_table(rows=self.dim[0], cols=self.dim[1],
-                                   #style='',
-                                   )
-        table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
         if self.titles:
             if not len(self.titles) == len(self.images):
                 raise ValueError("The number of titles must match the number of images.")
 
+        n_rows = int(np.ceil(len(self.images) / self.n_cols))
+
+        table = document.add_table(rows=n_rows, cols=self.n_cols)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+
         for img_idx, img in enumerate(self.images):
-            row_idx = img_idx // self.dim[1]
-            col_idx = img_idx % self.dim[1]
+            row_idx = img_idx // self.n_cols
+            col_idx = img_idx % self.n_cols
             paragraph = table.rows[row_idx].cells[col_idx].paragraphs[0]
             paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
 

@@ -80,16 +80,19 @@ class AlertsSummary(Alerts):
                                                    )
 
         summary_charts = []
-        for severity in ['CRITICAL', 'WARNING']:
+        for severity in ['CRITICAL', 'WARNING1', 'WARNING']:
             if severity in agg_df.index:
                 summary_charts.append(pie_chart(agg_df.loc[severity]['count'],
                                                 agg_df.loc[severity]['types'],
-                                                section_names=fdl.AlertType._member_names_,
-                                                title=severity,
+                                                section_names=fdl.AlertType._member_names_
                                                 )
                                       )
             else:
-                summary_charts.append(pie_chart(0, {}, section_names=[],  title=severity))
+                summary_charts.append(pie_chart(0,
+                                                {},
+                                                section_names=fdl.AlertType._member_names_
+                                                )
+                                      )
 
         output_modules = []
         output_modules += [SimpleTextBlock(text='Alert Summary',
@@ -98,20 +101,11 @@ class AlertsSummary(Alerts):
                                                                  size=18))]
         output_modules += [AddBreak(2)]
         output_modules += [ImageTable(summary_charts,
-                                      titles=['Critical Alerts', 'Warning Alerts'],
-                                      dim=(1, 2),
+                                      titles=['Critical Alerts', 'Warning Alerts', 'test'],
+                                      n_cols=2,
                                       width=3
                                       )
                            ]
-        output_modules += [AddBreak(2)]
-        return output_modules
-
-
-class AlertsTimeline(Alerts):
-    def run(self, api) -> List[BaseOutput]:
-        alerts = self._get_alerts(api)
-
-        output_modules = []
         output_modules += [AddBreak(2)]
         return output_modules
 
@@ -129,6 +123,15 @@ class AlertsDetail(Alerts):
         # alerts_table_rows = []
         # for row_tuple in alerts_df[alerts_table_cols].itertuples(index=False, name=None):
         #     alerts_table_rows.append(row_tuple)
+
+        output_modules = []
+        output_modules += [AddBreak(2)]
+        return output_modules
+
+
+class AlertsTimeline(Alerts):
+    def run(self, api) -> List[BaseOutput]:
+        alerts = self._get_alerts(api)
 
         output_modules = []
         output_modules += [AddBreak(2)]
