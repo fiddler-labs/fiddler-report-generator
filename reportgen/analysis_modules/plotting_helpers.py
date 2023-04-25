@@ -22,7 +22,6 @@ def pie_chart(total_count, sections, section_names):
     ax.set_aspect('equal')
 
     if total_count == 0:
-        print(slices)
         wedges, texts = ax.pie([1, 0],
                                wedgeprops=dict(width=0.3, edgecolor='white', linewidth=4.0),
                                startangle=-90,
@@ -75,6 +74,5 @@ def pie_chart(total_count, sections, section_names):
     tmp_image_file = TempOutputFile()
     plt.savefig(tmp_image_file.get_path(), bbox_inches='tight', pad_inches=0)
     plt.close(fig)
-    return tmp_image_file.get_path()
-    # return tmp_image_file
+    return tmp_image_file
 

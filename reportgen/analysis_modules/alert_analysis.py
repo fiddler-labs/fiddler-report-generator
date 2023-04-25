@@ -60,9 +60,10 @@ class Alerts(BaseAnalysis):
                 alerts_dict['column'].append(rule.column)
                 alerts_dict['severity'].append(a.severity)
                 alerts_dict['value'].append(a.alert_value)
-                alerts_dict['time'].append(datetime.fromtimestamp(a.alert_time_bucket/1000, timezone.utc).date())
+                alerts_dict['date'].append(datetime.fromtimestamp(a.alert_time_bucket/1000, timezone.utc).date())
                 alerts_dict['message'].append(a.message)
             alerts_df = pd.DataFrame(alerts_dict)
+            alerts_df = alerts_df.round(2)
             alerts[rule.alert_rule_uuid] = alerts_df
         return alerts
 
@@ -80,7 +81,7 @@ class AlertsSummary(Alerts):
                                                    )
 
         summary_charts = []
-        for severity in ['CRITICAL', 'WARNING1', 'WARNING']:
+        for severity in ['CRITICAL', 'WARNING']:
             if severity in agg_df.index:
                 summary_charts.append(pie_chart(agg_df.loc[severity]['count'],
                                                 agg_df.loc[severity]['types'],
@@ -101,7 +102,7 @@ class AlertsSummary(Alerts):
                                                                  size=18))]
         output_modules += [AddBreak(2)]
         output_modules += [ImageTable(summary_charts,
-                                      titles=['Critical Alerts', 'Warning Alerts', 'test'],
+                                      titles=['Critical Alerts', 'Warning Alerts'],
                                       n_cols=2,
                                       width=3
                                       )
@@ -110,28 +111,67 @@ class AlertsSummary(Alerts):
         return output_modules
 
 
-class AlertsDetail(Alerts):
+class AlertsDetails(Alerts):
     def run(self, api) -> List[BaseOutput]:
         alerts = self._get_alerts(api)
 
-        # for rule in self.alert_rules:
-        #     alerts[rule.alert_rule_uuid]
-        #     print(rule.name)
-        #     print(alerts[rule.alert_rule_uuid])
-
-        # alerts_table_cols = ['alert_type', 'severity', 'message']
-        # alerts_table_rows = []
-        # for row_tuple in alerts_df[alerts_table_cols].itertuples(index=False, name=None):
-        #     alerts_table_rows.append(row_tuple)
-
         output_modules = []
+        output_modules += [SimpleTextBlock(text='Alert Rules and Incidents',
+                                           style=SimpleTextStyle(alignment='center',
+                                                                 font_style='bold',
+                                                                 size=18))]
+        output_modules += [AddBreak(2)]
+
+        alert_rules_dict = defaultdict(list)
+        for rule in self.alert_rules:
+            alert_rules_dict[rule.alert_type].append(rule)
+
+        for alert_type in alert_rules_dict.keys():
+
+            output_modules += [FormattedTextBlock([
+                                                   BoldText(f'{alert_type.name} Alerts'),
+                                                  ])
+                               ]
+            output_modules += [AddBreak(1)]
+
+            for rule in alert_rules_dict[alert_type]:
+                output_modules += [FormattedTextBlock([BoldText(f'Rule: '),
+                                                       PlainText(f'{rule.name}')],
+                                                      style=FormattedTextStyle(alignment='center')
+                                                      )
+                                   ]
+                output_modules += [SimpleTextBlock(f'('
+                                                   f'model_id={rule.model_id}, '
+                                                   f'metric={rule.metric.name}, '
+                                                   f'column={rule.column}, '
+                                                   f'warning_threshold={rule.warning_threshold}, '
+                                                   f'critical_threshold={rule.critical_threshold}'
+                                                   f')',
+                                                   style=SimpleTextStyle(alignment='center', size=9)
+                                                   )
+                                   ]
+                output_modules += [AddBreak(1)]
+
+                alerts_table_cols = ['alert_type', 'date', 'severity', 'value']
+                alerts_table_rows = []
+                for row_tuple in alerts[rule.alert_rule_uuid][alerts_table_cols].itertuples(index=False, name=None):
+                    alerts_table_rows.append(row_tuple)
+
+                output_modules += [Table(header=alerts_table_cols,
+                                         records=alerts_table_rows,
+                                         cell_fontsize=10
+                                         )
+                                   ]
+
+                output_modules += [AddBreak(2)]
+
         output_modules += [AddBreak(2)]
         return output_modules
 
 
 class AlertsTimeline(Alerts):
     def run(self, api) -> List[BaseOutput]:
-        alerts = self._get_alerts(api)
+        #TODO
 
         output_modules = []
         output_modules += [AddBreak(2)]

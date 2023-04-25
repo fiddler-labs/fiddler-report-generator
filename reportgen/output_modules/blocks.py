@@ -12,7 +12,7 @@ import numpy as np
 
 
 class SimpleTextBlock(BaseOutput):
-    def __init__(self, text: str, style: Optional[SimpleTextStyle]=None):
+    def __init__(self, text: str, style: Optional[SimpleTextStyle] = None):
         self.text = text
         self.style = style if style else SimpleTextStyle()
 
@@ -51,7 +51,7 @@ class SimpleTextBlock(BaseOutput):
 
 
 class FormattedTextBlock(BaseOutput):
-    def __init__(self, elements:List[FormattedText], style:Optional[FormattedTextStyle]=None):
+    def __init__(self, elements: List[FormattedText], style: Optional[FormattedTextStyle] = None):
         self.elements = elements
         self.style = style if style else FormattedTextStyle()
 
@@ -60,6 +60,20 @@ class FormattedTextBlock(BaseOutput):
 
     def render_docx(self, document):
         paragraph = document.add_paragraph()
+
+        if self.style.alignment == 'center':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        elif self.style.alignment == 'right':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        elif self.style.alignment == 'left':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        elif self.style.alignment == 'justify':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        else:
+            raise ValueError(
+                'Unknown alignment parameter.'
+            )
+
         for run_obj in self.elements:
             run_obj.render_docx(paragraph)
 

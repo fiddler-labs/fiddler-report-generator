@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from reportgen import generate_report, OutputTypes
 from reportgen.analysis_modules import ProjectSummary, ModelSummary, DatasetSummary, \
                                        ModelEvaluation, PerformanceTimeSeries, Segment,\
-                                       FailureCaseAnalysis, AlertsSummary
+                                       FailureCaseAnalysis, AlertsSummary, AlertsDetails
 
 print(f"Running client version {fdl.__version__}")
 api = fdl.FiddlerApi(
@@ -18,7 +18,9 @@ generate_report(
                       ProjectSummary(project_id="lending"),
                       #ModelSummary(project_id="lending"),
                       AlertsSummary(project_id="bank_churn",
-                                    start_time=datetime.strptime('2023-01-01', '%Y-%m-%d'))
+                                    start_time=datetime.strptime('2023-01-01', '%Y-%m-%d')),
+                      AlertsDetails(project_id="bank_churn",
+                                start_time=datetime.strptime('2023-01-01', '%Y-%m-%d'))
                       ],
     output_type=OutputTypes.DOCX,
     output_path='report-lending.docx',
