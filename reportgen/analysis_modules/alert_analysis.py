@@ -1,5 +1,4 @@
 from .base import BaseAnalysis
-from .performance_metrics import BinaryClassifierMetrics
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
                              FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, ImageTable
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
