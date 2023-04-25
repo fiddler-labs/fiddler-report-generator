@@ -167,12 +167,3 @@ class AlertsDetails(Alerts):
 
         output_modules += [AddBreak(2)]
         return output_modules
-
-
-class AlertsTimeline(Alerts):
-    def run(self, api) -> List[BaseOutput]:
-        #TODO
-
-        output_modules = []
-        output_modules += [AddBreak(2)]
-        return output_modules
