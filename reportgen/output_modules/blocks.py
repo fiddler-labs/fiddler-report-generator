@@ -2,16 +2,17 @@ from .base import BaseOutput
 from .styles import SimpleTextStyle, FormattedTextStyle
 from .text_styles import FormattedText
 from .tmp_file import TempOutputFile
-from typing import Optional, List, Sequence, Union
+from typing import Optional, List, Sequence, Union, Tuple
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.text import WD_BREAK
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.shared import Pt
 from docx.shared import Inches
+import numpy as np
 
 
 class SimpleTextBlock(BaseOutput):
-    def __init__(self, text: str, style: Optional[SimpleTextStyle]=None):
+    def __init__(self, text: str, style: Optional[SimpleTextStyle] = None):
         self.text = text
         self.style = style if style else SimpleTextStyle()
 
@@ -50,7 +51,7 @@ class SimpleTextBlock(BaseOutput):
 
 
 class FormattedTextBlock(BaseOutput):
-    def __init__(self, elements:List[FormattedText], style:Optional[FormattedTextStyle]=None):
+    def __init__(self, elements: List[FormattedText], style: Optional[FormattedTextStyle] = None):
         self.elements = elements
         self.style = style if style else FormattedTextStyle()
 
@@ -59,12 +60,26 @@ class FormattedTextBlock(BaseOutput):
 
     def render_docx(self, document):
         paragraph = document.add_paragraph()
+
+        if self.style.alignment == 'center':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        elif self.style.alignment == 'right':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        elif self.style.alignment == 'left':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        elif self.style.alignment == 'justify':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        else:
+            raise ValueError(
+                'Unknown alignment parameter.'
+            )
+
         for run_obj in self.elements:
             run_obj.render_docx(paragraph)
 
 
 class SimpleImage(BaseOutput):
-    def __init__(self, source:Union[str,TempOutputFile], width=None):
+    def __init__(self, source: Union[str, TempOutputFile], width=None):
         self.source = source
         self.width = width
 
@@ -81,11 +96,19 @@ class SimpleImage(BaseOutput):
             document.add_picture(self.source.get_path(), width=self.width)
             self.source.delete_file()
         else:
-            "Error: incorrect input type"
+            raise ValueError(
+                "Incorrect image source. Image sources must be a valid file path or a TempOutputFile object.")
 
 
 class Table(BaseOutput):
-    def __init__(self, header: List[str], records: List[Sequence], style: str = 'Table Grid'):
+    def __init__(self,
+                 header: List[str],
+                 records: List[Sequence],
+                 style: str = 'Table Grid',
+                 header_fontsize=10,
+                 cell_fontsize=10
+                 ):
+
         if records:
             for rec in records:
                 if not len(header) == len(rec):
@@ -95,6 +118,8 @@ class Table(BaseOutput):
         self.header = header
         self.records = records
         self.style = style
+        self.header_fontsize = header_fontsize
+        self.cell_fontsize = cell_fontsize
 
     def render_pdf(self):
         pass
@@ -106,11 +131,66 @@ class Table(BaseOutput):
         hdr_cells = table.rows[0].cells
         for i, col_name in enumerate(self.header):
             hdr_cells[i].text = col_name
+            hdr_cells[i].paragraphs[0].runs[0].font.size = Pt(self.header_fontsize)
 
         for i, rec in enumerate(self.records):
             row_cells = table.rows[i+1].cells
             for j in range(len(self.header)):
                 row_cells[j].text = str(rec[j])
+                row_cells[j].paragraphs[0].runs[0].font.size = Pt(self.cell_fontsize)
+
+
+class ImageTable(BaseOutput):
+    def __init__(self,
+                 images: List,
+                 titles: Optional[List[str]] = None,
+                 n_cols: int = 2,
+                 width: Optional[float] = None,
+                 fontsize: Optional[int] = 14,
+                 ):
+        self.images = images
+        self.titles = titles
+        self.n_cols = n_cols
+        self.width = width
+        self.fontsize = fontsize
+        self.width = width
+
+    def render_pdf(self):
+        pass
+
+    def render_docx(self, document):
+        self.width = Inches(self.width) if self.width is not None else self.width
+
+        if self.titles:
+            if not len(self.titles) == len(self.images):
+                raise ValueError("The number of titles must match the number of images.")
+
+        n_rows = int(np.ceil(len(self.images) / self.n_cols))
+
+        table = document.add_table(rows=n_rows, cols=self.n_cols)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+
+        for img_idx, img in enumerate(self.images):
+            row_idx = img_idx // self.n_cols
+            col_idx = img_idx % self.n_cols
+            paragraph = table.rows[row_idx].cells[col_idx].paragraphs[0]
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+            if self.titles:
+                run = paragraph.add_run(self.titles[img_idx])
+                run.font.bold = True
+                run.font.size = Pt(self.fontsize)
+
+            run = paragraph.add_run()
+            if isinstance(img, str):
+                run.add_picture(img, width=self.width)
+
+            elif isinstance(img, TempOutputFile):
+                run.add_picture(img.get_path(), width=self.width)
+                img.delete_file()
+            else:
+                raise ValueError(
+                    "Incorrect image source. Image sources must be a valid file path or a TempOutputFile object.")
 
 
 class AddBreak(BaseOutput):
