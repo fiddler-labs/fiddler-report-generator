@@ -31,9 +31,9 @@ class ModelSummary(BaseAnalysis):
         """
         output_modules = []
         output_modules += [SimpleTextBlock(text='Models',
-                                           style=SimpleTextStyle(alignment='center',
+                                           style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
-                                                                 size=18))]
+                                                                 size=16))]
         output_modules += [AddBreak(1)]
 
         models = api.list_models(self.project_id)
@@ -50,5 +50,5 @@ class ModelSummary(BaseAnalysis):
                                 records=table_rows
                                 )
                            ]
-        output_modules += [AddBreak(2)]
+        output_modules += [AddBreak(4)]
         return output_modules

@@ -8,6 +8,7 @@ from collections import defaultdict
 import fiddler as fdl
 import numpy as np
 import matplotlib.pyplot as plt
+import requests
 
 
 class ConfusionMatrixBinary(BaseAnalysis):
@@ -38,22 +39,28 @@ class ConfusionMatrixBinary(BaseAnalysis):
 
         dataset = model_info.datasets[0]
         dataset_obj = api.v2.get_dataset(self.project_id, dataset)
-        path = ['scoring', api.v1.org_id, self.project_id, self.model_id]
+
+        url = f'{api.v1.connection.url}/v2/scores'
 
         output_modules = []
         for source in dataset_obj.file_list['tree']:
-            json_request = {
-                    "dataset_name": dataset,
-                    "source": source['name']
-                }
-            response = api.v1._call(path, json_request)
-            scores = response['scores']
+            request = {
+                       "organization_name": api.v1.org_id,
+                       "project_name": self.project_id,
+                       "model_name": self.model_id,
+                       "data_source": {"dataset_name": dataset,
+                                       "source_type": "DATASET",
+                                       "source": source['name']},
+                       "binary_threshold": 0.5
+                       }
+            response = requests.post(url, headers=api.v1.connection.auth_header, json=request)
+            response_dict = response.json()
 
             CM = np.zeros((2, 2))
-            CM[0, 0] = scores['Confusion Matrix']['tp']
-            CM[0, 1] = scores['Confusion Matrix']['fn']
-            CM[1, 0] = scores['Confusion Matrix']['fp']
-            CM[1, 1] = scores['Confusion Matrix']['tn']
+            CM[0, 0] = response_dict['data']['confusion_matrix']['tp']
+            CM[0, 1] = response_dict['data']['confusion_matrix']['fn']
+            CM[1, 0] = response_dict['data']['confusion_matrix']['fp']
+            CM[1, 1] = response_dict['data']['confusion_matrix']['tn']
 
             fig, ax = plt.subplots(figsize=(7, 7))
             plt.suptitle("Dataset: {}, Source: {}".format(dataset, source['name']), size=16)

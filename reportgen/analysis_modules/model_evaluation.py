@@ -29,19 +29,22 @@ class ModelEvaluation(BaseAnalysis):
 
     def _binary_classification_evaluations(self, model_list: List[str], api):
         output_modules = []
-        output_modules += [SimpleTextBlock(text='Performance Summary',
-                                           style=SimpleTextStyle(alignment='center',
+        output_modules += [SimpleTextBlock(text='Model Performance (Baseline Dataset)',
+                                           style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
-                                                                 size=18))]
+                                                                 size=16))]
+        output_modules += [AddBreak(1)]
+
         output_modules += BinaryClassifierMetrics(self.project_id, model_list).run(api)
         output_modules += [AddBreak(2)]
+
         output_modules += [SimpleTextBlock(text='Performance Charts',
-                                           style=SimpleTextStyle(alignment='center',
+                                           style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
-                                                                 size=18))]
+                                                                 size=16))]
         output_modules += [AddBreak(1)]
         output_modules += [FormattedTextBlock([BoldText('ROC Curves')])]
-        output_modules += ROC(self.project_id, model_list).run(api)
+        #output_modules += ROC(self.project_id, model_list).run(api)
         output_modules += [AddBreak(2)]
 
         output_modules += [FormattedTextBlock([BoldText('Model Confusion Matrices')])]
@@ -51,6 +54,7 @@ class ModelEvaluation(BaseAnalysis):
                                                   )]
             output_modules += ConfusionMatrixBinary(self.project_id, model).run(api)
             output_modules += [AddBreak(1)]
+        output_modules += [AddBreak(2)]
         return output_modules
 
     def run(self, api) -> List[BaseOutput]:
@@ -62,10 +66,11 @@ class ModelEvaluation(BaseAnalysis):
             self.models = api.list_models(self.project_id)
 
         output_modules = []
-        output_modules += [SimpleTextBlock(text='Model Evaluations',
-                                           style=SimpleTextStyle(alignment='center',
+        output_modules += [SimpleTextBlock(text='Model Performance Summary',
+                                           style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
-                                                                 size=22))]
+                                                                 size=18))]
+        output_modules += [AddBreak(1)]
 
         models_by_type = defaultdict(list)
         for model_id in self.models:

@@ -32,6 +32,7 @@ class Alerts(BaseAnalysis):
         self.start_time = start_time
         self.end_time = end_time
         self.alert_rules = alert_rules
+        self.alerts_count = 0
 
     def preflight(self, api):
         self.start_time = self.start_time.strftime("%Y-%m-%d") if self.start_time else None
@@ -75,6 +76,7 @@ class AlertsSummary(Alerts):
     def run(self, api) -> List[BaseOutput]:
         alerts = self._get_alerts(api)
         alerts_df = pd.concat(list(alerts.values()), ignore_index=True)
+        self.alerts_count = len(alerts_df)
         agg_df = alerts_df.groupby('severity').agg(count=('alert_type', 'size'),
                                                    types=('alert_type', lambda x: dict(zip(*np.unique(x, return_counts=True)))),
                                                    )
@@ -96,7 +98,7 @@ class AlertsSummary(Alerts):
 
         output_modules = []
         output_modules += [SimpleTextBlock(text='Alert Summary',
-                                           style=SimpleTextStyle(alignment='center',
+                                           style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
                                                                  size=18))]
         output_modules += [AddBreak(2)]
@@ -116,7 +118,7 @@ class AlertsDetails(Alerts):
 
         output_modules = []
         output_modules += [SimpleTextBlock(text='Alert Rules and Incidents',
-                                           style=SimpleTextStyle(alignment='center',
+                                           style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
                                                                  size=18))]
         output_modules += [AddBreak(2)]
@@ -151,14 +153,15 @@ class AlertsDetails(Alerts):
                                    ]
                 output_modules += [AddBreak(1)]
 
-                alerts_table_cols = ['alert_type', 'date', 'severity', 'value']
+                #alerts_table_cols = ['model_id', 'alert_type', 'date', 'severity', 'value']
+                alerts_table_cols = ['model_id', 'alert_type', 'date', 'severity']
                 alerts_table_rows = []
                 for row_tuple in alerts[rule.alert_rule_uuid][alerts_table_cols].itertuples(index=False, name=None):
                     alerts_table_rows.append(row_tuple)
 
                 output_modules += [Table(header=alerts_table_cols,
                                          records=alerts_table_rows,
-                                         cell_fontsize=10
+                                         cell_fontsize=9
                                          )
                                    ]
 

@@ -15,16 +15,21 @@ api = fdl.FiddlerApi(
 generate_report(
     fiddler_api=api,
     analysis_modules=[
-                      ProjectSummary(project_id="bank_churn"),
-                      AlertsSummary(project_id="bank_churn",
-                                    start_time=datetime.strptime('2023-01-01', '%Y-%m-%d')),
-                      AlertsDetails(project_id="bank_churn",
-                                start_time=datetime.strptime('2023-01-01', '%Y-%m-%d'))
+                      ProjectSummary(project_id="bank_churn", start_time_delta='60D'),
+                      ModelEvaluation(project_id="bank_churn"),
                       ],
     output_type=OutputTypes.DOCX,
-    output_path='report-lending.docx',
+    output_path='bank_churn.docx',
     author='Bashir R',
 )
+
+
+                      # PerformanceTimeSeries(project_id="bank_churn",
+                      #                       model_id='churn_classifier',
+                      #                       metric='Accuracy',
+                      #                       interval_length='D',
+                      #                       segments=Segment.categorical('geography'),
+                      #                       ),
 
 # generate_report(
 #     fiddler_api=api,
@@ -64,7 +69,7 @@ generate_report(
 #     output_path='report-lending.docx',
 #     template='reportgen/templates/template.docx',
 # )
-
+#
 # generate_report(
 #     fiddler_api=api,
 #     analysis_modules=[
@@ -111,7 +116,7 @@ generate_report(
 #                 output_type=OutputTypes.DOCX,
 #                 output_path='credit_approval.docx'
 #                 )
-
+#
 # generate_report(
 #     fiddler_api=api,
 #     analysis_modules=[
