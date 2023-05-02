@@ -33,20 +33,21 @@ class ProjectSummary(BaseAnalysis):
         self.alert_details = alert_details
 
     def preflight(self, api):
-        if self.start_time_delta:
-            if self.start_time:
-                warnings.warn(f'The start_time_delta argument is ignored since an explicit start time is provided.')
-            else:
-                self.start_time = (datetime.now() - pd.to_timedelta(self.start_time_delta)).date()
         if self.end_time is None:
             self.end_time = datetime.now().date()
+
+        if self.start_time:
+            if self.start_time_delta:
+                warnings.warn(f'The start_time_delta argument is ignored since an explicit start time is provided.')
+        else:
+            self.start_time = (self.end_time - pd.to_timedelta(self.start_time_delta))
 
     def run(self, api) -> List[BaseOutput]:
         """
         :param api: An instance of Fiddler python client.
         :return: List of output modules.
         """
-        # Add your external modules here
+        # ----------------- external modules initialization and preflights ------------------
         external_modules = {}
         external_modules['DatasetSummary'] = DatasetSummary(self.project_id)
         external_modules['ModelSummary'] = ModelSummary(self.project_id)
@@ -58,16 +59,16 @@ class ProjectSummary(BaseAnalysis):
                                                           start_time=self.start_time,
                                                           end_time=self.end_time
                                                           )
-
         for M in external_modules.values():
             M.preflight(api)
+        # -----------------------------------------------------------------------------------
 
         models = api.list_models(self.project_id)
         datasets = api.list_datasets(self.project_id)
 
         output_modules = []
         output_modules += [SimpleTextBlock(text=f'Project: {self.project_id}',
-                                            style=SimpleTextStyle(alignment='left', font_style='bold', size=18))
+                                           style=SimpleTextStyle(alignment='left', font_style='bold', size=18))
                            ]
         output_modules += [AddBreak(1)]
         output_modules += [FormattedTextBlock([BoldText('Time Interval: '),
