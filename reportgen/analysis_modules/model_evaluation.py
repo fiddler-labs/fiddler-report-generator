@@ -29,7 +29,7 @@ class ModelEvaluation(BaseAnalysis):
 
     def _binary_classification_evaluations(self, model_list: List[str], api):
         output_modules = []
-        output_modules += [SimpleTextBlock(text='Model Performance (Baseline Dataset)',
+        output_modules += [SimpleTextBlock(text='Performance Summary on Baseline Dataset',
                                            style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
                                                                  size=16))]
@@ -43,11 +43,13 @@ class ModelEvaluation(BaseAnalysis):
                                                                  font_style='bold',
                                                                  size=16))]
         output_modules += [AddBreak(1)]
-        output_modules += [FormattedTextBlock([BoldText('ROC Curves')])]
-        #output_modules += ROC(self.project_id, model_list).run(api)
+        output_modules += [FormattedTextBlock([PlainText('ROC Curves')])]
+        output_modules += [AddBreak(1)]
+        output_modules += ROC(self.project_id, model_list).run(api)
         output_modules += [AddBreak(2)]
 
-        output_modules += [FormattedTextBlock([BoldText('Model Confusion Matrices')])]
+        output_modules += [FormattedTextBlock([PlainText('Confusion Matrices')])]
+        output_modules += [AddBreak(1)]
         for model in model_list:
             output_modules += [FormattedTextBlock([PlainText('Model: '),
                                                    BoldText(model)]
@@ -66,7 +68,7 @@ class ModelEvaluation(BaseAnalysis):
             self.models = api.list_models(self.project_id)
 
         output_modules = []
-        output_modules += [SimpleTextBlock(text='Model Performance Summary',
+        output_modules += [SimpleTextBlock(text='Model Performance',
                                            style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
                                                                  size=18))]

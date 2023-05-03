@@ -65,15 +65,14 @@ class BinaryClassifierMetrics(BaseAnalysis):
                             #'{: .2f}'.format(response_dict['data']['precision']),
                             #'{: .2f}'.format(response_dict['data']['recall']),
                             '{: .2f}'.format(response_dict['data']['f1_score']),
-                            #'{: .2f}'.format(response_dict['data']['auc'])
+                            '{: .2f}'.format(response_dict['data']['auc'])
                         )
                     )
 
         output_modules = [
                             Table(
-                                header=['Model', 'Dataset', 'Source', 'Accuracy', 'F1'],
-                                records=table_rows,
-                                cell_fontsize=9
+                                header=['Model', 'Dataset', 'Source', 'Accuracy', 'F1', 'AUC'],
+                                records=table_rows
                                 )
                            ]
         return output_modules

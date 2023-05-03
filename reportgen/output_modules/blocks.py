@@ -106,7 +106,7 @@ class Table(BaseOutput):
                  records: List[Sequence],
                  style: str = 'Table Grid',
                  header_fontsize=10,
-                 cell_fontsize=10
+                 cell_fontsize=9
                  ):
 
         if records:

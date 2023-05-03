@@ -53,14 +53,13 @@ class ConfusionMatrixBinary(BaseAnalysis):
                                        "source": source['name']},
                        "binary_threshold": 0.5
                        }
-            response = requests.post(url, headers=api.v1.connection.auth_header, json=request)
-            response_dict = response.json()
+            response = requests.post(url, headers=api.v1.connection.auth_header, json=request).json()
 
             CM = np.zeros((2, 2))
-            CM[0, 0] = response_dict['data']['confusion_matrix']['tp']
-            CM[0, 1] = response_dict['data']['confusion_matrix']['fn']
-            CM[1, 0] = response_dict['data']['confusion_matrix']['fp']
-            CM[1, 1] = response_dict['data']['confusion_matrix']['tn']
+            CM[0, 0] = response['data']['confusion_matrix']['tp']
+            CM[0, 1] = response['data']['confusion_matrix']['fn']
+            CM[1, 0] = response['data']['confusion_matrix']['fp']
+            CM[1, 1] = response['data']['confusion_matrix']['tn']
 
             fig, ax = plt.subplots(figsize=(7, 7))
             plt.suptitle("Dataset: {}, Source: {}".format(dataset, source['name']), size=16)
@@ -138,19 +137,26 @@ class ROC(BaseAnalysis):
 
                 dataset_obj = api.v2.get_dataset(self.project_id, dataset)
                 binary_threshold = model_info.binary_classification_threshold
-                path = ['model_performance', api.v1.org_id, self.project_id, model_id]
+
+                url = f'{api.v1.connection.url}/v2/scores'
 
                 for source in dataset_obj.file_list['tree']:
                     metrics[model_id][dataset][source['name']] = {}
 
-                    json_request = {
-                            "dataset_name": dataset,
-                            "source": source['name']
-                        }
-                    response = api.v1._call(path, json_request)['roc_curve']
-                    fpr = response['fpr']
-                    tpr = response['tpr']
-                    thresholds = response['thresholds']
+                    request = {
+                        "organization_name": api.v1.org_id,
+                        "project_name": self.project_id,
+                        "model_name": model_id,
+                        "data_source": {"dataset_name": dataset,
+                                        "source_type": "DATASET",
+                                        "source": source['name']},
+                        "binary_threshold": binary_threshold
+                    }
+                    response = requests.post(url, headers=api.v1.connection.auth_header, json=request).json()
+
+                    fpr = response['data']['roc_curve']['fpr']
+                    tpr = response['data']['roc_curve']['tpr']
+                    thresholds = response['data']['roc_curve']['thresholds']
                     res = np.abs(np.array(thresholds) - binary_threshold)
                     threshold_indx = np.argmin(res)
 
@@ -159,6 +165,9 @@ class ROC(BaseAnalysis):
                     metrics[model_id][dataset][source['name']]['threshold_indx'] = threshold_indx
 
         fig, ax = plt.subplots(figsize=(5, 5))
+        plt.rc('text', usetex=False)
+        plt.rc('font', size=12)
+        plt.rc('legend', fontsize=10)
         if metrics:
             for model_id in metrics:
                 for dataset in metrics[model_id]:
@@ -182,8 +191,8 @@ class ROC(BaseAnalysis):
             ax.set_aspect('equal')
             ax.legend(bbox_to_anchor=(0, 1.02, 1, 0), loc='lower left', mode='expand')
 
-            plt.xlabel("False Positive Rate")
-            plt.ylabel("True Positive Rate")
+            plt.xlabel("False Positive Rate", fontsize=13)
+            plt.ylabel("True Positive Rate", fontsize=13)
             plt.tight_layout()
 
             tmp_image_file = TempOutputFile()

@@ -24,7 +24,7 @@ def pie_chart(total_count, sections, section_names):
     if total_count == 0:
         wedges, texts = ax.pie([1, 0],
                                wedgeprops=dict(width=0.3, edgecolor='white', linewidth=4.0),
-                               startangle=-90,
+                               startangle=90,
                                colors=['grey']
                                )
         leg_handles = []
@@ -48,7 +48,7 @@ def pie_chart(total_count, sections, section_names):
     else:
         wedges, texts = ax.pie(slices.values(),
                                wedgeprops=dict(width=0.3, edgecolor='white', linewidth=4.0),
-                               startangle=-90,
+                               startangle=90,
                                )
         leg_handles = []
         for w in wedges:

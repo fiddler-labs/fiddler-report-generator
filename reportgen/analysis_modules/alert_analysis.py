@@ -160,8 +160,7 @@ class AlertsDetails(Alerts):
                     alerts_table_rows.append(row_tuple)
 
                 output_modules += [Table(header=alerts_table_cols,
-                                         records=alerts_table_rows,
-                                         cell_fontsize=9
+                                         records=alerts_table_rows
                                          )
                                    ]
 
