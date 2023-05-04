@@ -153,8 +153,7 @@ class AlertsDetails(Alerts):
                                    ]
                 output_modules += [AddBreak(1)]
 
-                #alerts_table_cols = ['model_id', 'alert_type', 'date', 'severity', 'value']
-                alerts_table_cols = ['model_id', 'alert_type', 'date', 'severity']
+                alerts_table_cols = ['model_id', 'severity', 'value', 'date']
                 alerts_table_rows = []
                 for row_tuple in self.alerts[rule.alert_rule_uuid][alerts_table_cols].itertuples(index=False, name=None):
                     alerts_table_rows.append(row_tuple)
