@@ -14,7 +14,8 @@ import requests
 
 class BinaryConfusionMatrix(BaseAnalysis):
     """
-       An analysis module that generates a confusion matrix for any data source assigned to a given model.
+       An analysis module that generates a table of confusion matrices for any dataset and data source in a given
+       list of models in a project.
     """
     def __init__(self, project_id, model_list: Optional[List[str]] = None):
         """
