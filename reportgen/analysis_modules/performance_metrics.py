@@ -51,7 +51,7 @@ class BinaryClassifierMetrics(BaseAnalysis):
                                "data_source": {"dataset_name": dataset,
                                                "source_type": "DATASET",
                                                "source": source['name']},
-                               "binary_threshold": 0.5
+                               "binary_threshold": model_info.binary_classification_threshold
                                }
                     response = requests.post(url, headers=api.v1.connection.auth_header, json=request)
                     response_dict = response.json()
