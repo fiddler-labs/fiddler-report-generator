@@ -18,6 +18,6 @@ generate_report(
                       ProjectSummary(project_id="bank_churn", start_time_delta='60D'),
                       ],
     output_type=OutputTypes.DOCX,
-    output_path='bank_churn.docx',
+    output_path='example.docx',
     author='Bashir R',
 )
