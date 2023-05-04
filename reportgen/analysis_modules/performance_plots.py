@@ -8,10 +8,11 @@ from collections import defaultdict
 import fiddler as fdl
 import numpy as np
 import matplotlib.pyplot as plt
+from .plotting_helpers import confusion_matrix
 import requests
 
 
-class ConfusionMatrixBinary(BaseAnalysis):
+class BinaryConfusionMatrix(BaseAnalysis):
     """
        An analysis module that generates a confusion matrix for any data source assigned to a given model.
     """
@@ -61,43 +62,7 @@ class ConfusionMatrixBinary(BaseAnalysis):
             CM[1, 0] = response['data']['confusion_matrix']['fp']
             CM[1, 1] = response['data']['confusion_matrix']['tn']
 
-            fig, ax = plt.subplots(figsize=(7, 7))
-            plt.suptitle("Dataset: {}, Source: {}".format(dataset, source['name']), size=16)
-            im = ax.imshow(CM, cmap='Reds')
-
-            labels = ['Positive', 'Negative']
-            ax.set_xticks(np.arange(len(labels)), labels=labels)
-            ax.set_yticks(np.arange(len(labels)), labels=labels)
-            ax.set_ylabel('Actual', weight='bold')
-            ax.set_xlabel('Predicted', weight='bold')
-            ax.xaxis.set_ticks_position('top')
-            ax.xaxis.set_label_position('top')
-
-            ax.spines[:].set_visible(False)
-
-            ax.set_xticks(np.arange(CM.shape[1] + 1) - .49, minor=True)
-            ax.set_yticks(np.arange(CM.shape[0] + 1) - .49, minor=True)
-            ax.grid(which="minor", color="w", linestyle='-', linewidth=8)
-            ax.tick_params(which="minor", top=False, left=False)
-
-            total = CM.sum()
-            threshold = im.norm(CM.max()) / 2
-
-            for i in range(CM.shape[0]):
-                for j in range(CM.shape[1]):
-                    text = '{percent:.1f}% \n'.format(percent=100 * CM[i, j] / total)
-                    text += '{samples:d} Samples'.format(samples=int(CM[i, j]))
-                    ax.text(j, i, text,
-                            color='white' if im.norm(CM[i, j]) > threshold else 'black',
-                            horizontalalignment='center',
-                            fontweight='demi'
-                            )
-
-            plt.tight_layout()
-
-            tmp_image_file = TempOutputFile()
-            plt.savefig(tmp_image_file.get_path())
-            plt.close(fig)
+            tmp_image_file = confusion_matrix(CM, ['Positive', 'Negative'])
             output_modules += [SimpleImage(tmp_image_file, width=3)]
         return output_modules
 
@@ -165,7 +130,6 @@ class ROC(BaseAnalysis):
                     metrics[model_id][dataset][source['name']]['threshold_indx'] = threshold_indx
 
         fig, ax = plt.subplots(figsize=(5, 5))
-        plt.rc('text', usetex=False)
         plt.rc('font', size=12)
         plt.rc('legend', fontsize=10)
         if metrics:

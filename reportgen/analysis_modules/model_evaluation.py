@@ -50,12 +50,15 @@ class ModelEvaluation(BaseAnalysis):
 
         output_modules += [FormattedTextBlock([PlainText('Confusion Matrices')])]
         output_modules += [AddBreak(1)]
+
         for model in model_list:
             output_modules += [FormattedTextBlock([PlainText('Model: '),
                                                    BoldText(model)]
                                                   )]
             output_modules += ConfusionMatrixBinary(self.project_id, model).run(api)
+
             output_modules += [AddBreak(1)]
+
         output_modules += [AddBreak(2)]
         return output_modules
 
