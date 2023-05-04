@@ -59,6 +59,8 @@ class ProjectSummary(BaseAnalysis):
                                                           start_time=self.start_time,
                                                           end_time=self.end_time
                                                           )
+        external_modules['ModelEvaluation'] = ModelEvaluation(project_id=self.project_id)
+
         for M in external_modules.values():
             M.preflight(api)
         # -----------------------------------------------------------------------------------
@@ -99,5 +101,6 @@ class ProjectSummary(BaseAnalysis):
         output_modules += external_modules['AlertsSummary'].run(api)
         output_modules += external_modules['AlertsDetails'].run(api)
         output_modules += [AddPageBreak()]
+        output_modules += external_modules['ModelEvaluation'].run(api)
 
         return output_modules

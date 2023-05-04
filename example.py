@@ -16,7 +16,6 @@ generate_report(
     fiddler_api=api,
     analysis_modules=[
                       ProjectSummary(project_id="bank_churn", start_time_delta='60D'),
-                      ModelEvaluation(project_id="bank_churn"),
                       ],
     output_type=OutputTypes.DOCX,
     output_path='bank_churn.docx',
