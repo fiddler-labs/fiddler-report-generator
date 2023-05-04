@@ -225,10 +225,10 @@ class ObjectTable(BaseOutput):
             row_idx = obj_idx // self.n_cols
             col_idx = obj_idx % self.n_cols
             paragraph = table.rows[row_idx].cells[col_idx].paragraphs[0]
-            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
             if self.titles:
-                run = paragraph.add_run(self.titles[img_idx])
+                run = paragraph.add_run(self.titles[obj_idx])
                 run.font.bold = True
                 run.font.size = Pt(self.title_fontsize)
 
@@ -236,10 +236,10 @@ class ObjectTable(BaseOutput):
                 for run_obj in obj.elements:
                     run_obj.render_docx(paragraph)
 
-            elif isinstance(img, TempOutputFile):
+            elif isinstance(obj, TempOutputFile):
                 run = paragraph.add_run()
-                run.add_picture(img.get_path(), width=self.width)
-                img.delete_file()
+                run.add_picture(obj.get_path(), width=self.width)
+                obj.delete_file()
             else:
                 raise ValueError(
                     "Table objects must be either a FormattedTextBlock or a TempOutputFile object.")
