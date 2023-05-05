@@ -4,7 +4,7 @@ from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, Si
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 import fiddler as fdl
-import requests
+from .connection_helpers import FrontEndCall
 
 
 class BinaryClassifierMetrics(BaseAnalysis):
