@@ -30,12 +30,12 @@ def _generate_output_docx(output_modules: List[BaseOutput], output_path: str, te
 
 def _generate_output_pdf(output_modules: List[BaseOutput], output_path: str, template: Optional[str]):
     template_file = template if template is not None else DEFAULT_TEMPLATE_FILE
-    _generate_output_docx(output_modules=output_modules, output_path='/tmp/tmp', template=template_file)
+    _generate_output_docx(output_modules=output_modules, output_path='tmp', template=template_file)
 
     report_name = FIDDLER_DEFAULT_REPORT_NAME + '.pdf' if output_path is None else output_path + '.pdf'
     file = open(report_name, "w")
     file.close()
-    convert('/tmp/tmp.docx', report_name)
+    convert('tmp.docx', report_name)
     return None
 
 
