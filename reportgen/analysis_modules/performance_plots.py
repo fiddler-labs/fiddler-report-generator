@@ -1,26 +1,29 @@
 from .base import BaseAnalysis
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
                              FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile,\
-                             PlainText, BoldText, ItalicText
+                             PlainText, BoldText, ItalicText, ObjectTable
 
 from typing import Optional, List, Sequence, Union
 from collections import defaultdict
 import fiddler as fdl
 import numpy as np
 import matplotlib.pyplot as plt
+from .plotting_helpers import confusion_matrix
+from .connection_helpers import FrontEndCall
 
 
-class ConfusionMatrixBinary(BaseAnalysis):
+class BinaryConfusionMatrix(BaseAnalysis):
     """
-       An analysis module that generates a confusion matrix for any data source assigned to a given model.
+       An analysis module that generates a table of confusion matrices for any dataset and data source in a given
+       list of models in a project.
     """
-    def __init__(self, project_id, model_id):
+    def __init__(self, project_id, model_list: Optional[List[str]] = None):
         """
         :param project_id: Project ID in the Fiddler platform.
-        :param model_id: Model ID for which the confusion matrix is generated.
+        :param model_list: List of binary classification model names. If None all binary models in the project are used.
         """
         self.project_id = project_id
-        self.model_id = model_id
+        self.models = model_list
 
     def preflight(self, api):
         pass
@@ -30,69 +33,51 @@ class ConfusionMatrixBinary(BaseAnalysis):
         :param api: An instance of Fiddler python client.
         :return: List of output modules.
         """
-        model_info = api.get_model_info(self.project_id, self.model_id)
-        if not model_info.model_task == fdl.ModelTask.BINARY_CLASSIFICATION:
-            raise TypeError(
-                f'Confusion matrices can created for binary classification model only.'
-            )
 
-        dataset = model_info.datasets[0]
-        dataset_obj = api.v2.get_dataset(self.project_id, dataset)
-        path = ['scoring', api.v1.org_id, self.project_id, self.model_id]
+        if self.models is None:
+            self.models = api.list_models(self.project_id)
 
-        output_modules = []
-        for source in dataset_obj.file_list['tree']:
-            json_request = {
-                    "dataset_name": dataset,
-                    "source": source['name']
-                }
-            response = api.v1._call(path, json_request)
-            scores = response['scores']
+        table_objects = []
+        for model_id in self.models:
+            model_info = api.get_model_info(self.project_id, model_id)
+            for dataset in model_info.datasets:
+                dataset_obj = api.v2.get_dataset(self.project_id, dataset)
+                for source in dataset_obj.file_list['tree']:
 
-            CM = np.zeros((2, 2))
-            CM[0, 0] = scores['Confusion Matrix']['tp']
-            CM[0, 1] = scores['Confusion Matrix']['fn']
-            CM[1, 0] = scores['Confusion Matrix']['fp']
-            CM[1, 1] = scores['Confusion Matrix']['tn']
+                    table_objects.append(
+                                         FormattedTextBlock([BoldText('Model: '),
+                                                             PlainText(model_id + '\n'),
+                                                             BoldText('Dataset: '),
+                                                             PlainText(dataset + '\n'),
+                                                             BoldText('Source: '),
+                                                             PlainText(source['name']),
+                                                             ]
+                                                            )
+                                         )
 
-            fig, ax = plt.subplots(figsize=(7, 7))
-            plt.suptitle("Dataset: {}, Source: {}".format(dataset, source['name']), size=16)
-            im = ax.imshow(CM, cmap='Reds')
+                    request = {
+                               "organization_name": api.v1.org_id,
+                               "project_name": self.project_id,
+                               "model_name": model_id,
+                               "data_source": {"dataset_name": dataset,
+                                               "source_type": "DATASET",
+                                               "source": source['name']},
+                               "binary_threshold": model_info.binary_classification_threshold
+                               }
+                    response = FrontEndCall(api, endpoint='scores').post(request)
 
-            labels = ['Positive', 'Negative']
-            ax.set_xticks(np.arange(len(labels)), labels=labels)
-            ax.set_yticks(np.arange(len(labels)), labels=labels)
-            ax.set_ylabel('Actual', weight='bold')
-            ax.set_xlabel('Predicted', weight='bold')
-            ax.xaxis.set_ticks_position('top')
-            ax.xaxis.set_label_position('top')
+                    CM = np.zeros((2, 2))
+                    CM[0, 0] = response['data']['confusion_matrix']['tp']
+                    CM[0, 1] = response['data']['confusion_matrix']['fn']
+                    CM[1, 0] = response['data']['confusion_matrix']['fp']
+                    CM[1, 1] = response['data']['confusion_matrix']['tn']
 
-            ax.spines[:].set_visible(False)
+                    table_objects.append(confusion_matrix(CM, ['Positive', 'Negative']))
 
-            ax.set_xticks(np.arange(CM.shape[1] + 1) - .49, minor=True)
-            ax.set_yticks(np.arange(CM.shape[0] + 1) - .49, minor=True)
-            ax.grid(which="minor", color="w", linestyle='-', linewidth=8)
-            ax.tick_params(which="minor", top=False, left=False)
-
-            total = CM.sum()
-            threshold = im.norm(CM.max()) / 2
-
-            for i in range(CM.shape[0]):
-                for j in range(CM.shape[1]):
-                    text = '{percent:.1f}% \n'.format(percent=100 * CM[i, j] / total)
-                    text += '{samples:d} Samples'.format(samples=int(CM[i, j]))
-                    ax.text(j, i, text,
-                            color='white' if im.norm(CM[i, j]) > threshold else 'black',
-                            horizontalalignment='center',
-                            fontweight='demi'
-                            )
-
-            plt.tight_layout()
-
-            tmp_image_file = TempOutputFile()
-            plt.savefig(tmp_image_file.get_path())
-            plt.close(fig)
-            output_modules += [SimpleImage(tmp_image_file, width=3)]
+        output_modules = [ObjectTable(table_objects,
+                                      width=3.5
+                                      )
+                          ]
         return output_modules
 
 
@@ -103,7 +88,7 @@ class ROC(BaseAnalysis):
     def __init__(self, project_id, model_list: Optional[List[str]] = None):
         """
         :param project_id: Project ID in the Fiddler platform.
-        :param model_list: List of binary classification model names. If None all binary models in the project are plotted.
+        :param model_list: List of binary classification model names. If None all binary models in the project are used.
         """
         self.project_id = project_id
         self.models = model_list
@@ -131,19 +116,24 @@ class ROC(BaseAnalysis):
 
                 dataset_obj = api.v2.get_dataset(self.project_id, dataset)
                 binary_threshold = model_info.binary_classification_threshold
-                path = ['model_performance', api.v1.org_id, self.project_id, model_id]
 
                 for source in dataset_obj.file_list['tree']:
                     metrics[model_id][dataset][source['name']] = {}
 
-                    json_request = {
-                            "dataset_name": dataset,
-                            "source": source['name']
-                        }
-                    response = api.v1._call(path, json_request)['roc_curve']
-                    fpr = response['fpr']
-                    tpr = response['tpr']
-                    thresholds = response['thresholds']
+                    request = {
+                        "organization_name": api.v1.org_id,
+                        "project_name": self.project_id,
+                        "model_name": model_id,
+                        "data_source": {"dataset_name": dataset,
+                                        "source_type": "DATASET",
+                                        "source": source['name']},
+                        "binary_threshold": binary_threshold
+                    }
+                    response = FrontEndCall(api, endpoint='scores').post(request)
+
+                    fpr = response['data']['roc_curve']['fpr']
+                    tpr = response['data']['roc_curve']['tpr']
+                    thresholds = response['data']['roc_curve']['thresholds']
                     res = np.abs(np.array(thresholds) - binary_threshold)
                     threshold_indx = np.argmin(res)
 
@@ -152,6 +142,8 @@ class ROC(BaseAnalysis):
                     metrics[model_id][dataset][source['name']]['threshold_indx'] = threshold_indx
 
         fig, ax = plt.subplots(figsize=(5, 5))
+        plt.rc('font', size=12)
+        plt.rc('legend', fontsize=10)
         if metrics:
             for model_id in metrics:
                 for dataset in metrics[model_id]:
@@ -175,8 +167,8 @@ class ROC(BaseAnalysis):
             ax.set_aspect('equal')
             ax.legend(bbox_to_anchor=(0, 1.02, 1, 0), loc='lower left', mode='expand')
 
-            plt.xlabel("False Positive Rate")
-            plt.ylabel("True Positive Rate")
+            plt.xlabel("False Positive Rate", fontsize=13)
+            plt.ylabel("True Positive Rate", fontsize=13)
             plt.tight_layout()
 
             tmp_image_file = TempOutputFile()

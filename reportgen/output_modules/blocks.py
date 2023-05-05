@@ -106,7 +106,7 @@ class Table(BaseOutput):
                  records: List[Sequence],
                  style: str = 'Table Grid',
                  header_fontsize=10,
-                 cell_fontsize=10
+                 cell_fontsize=9
                  ):
 
         if records:
@@ -146,14 +146,13 @@ class ImageTable(BaseOutput):
                  titles: Optional[List[str]] = None,
                  n_cols: int = 2,
                  width: Optional[float] = None,
-                 fontsize: Optional[int] = 14,
+                 title_fontsize: Optional[int] = 14,
                  ):
         self.images = images
         self.titles = titles
         self.n_cols = n_cols
         self.width = width
-        self.fontsize = fontsize
-        self.width = width
+        self.title_fontsize = title_fontsize
 
     def render_pdf(self):
         pass
@@ -179,7 +178,7 @@ class ImageTable(BaseOutput):
             if self.titles:
                 run = paragraph.add_run(self.titles[img_idx])
                 run.font.bold = True
-                run.font.size = Pt(self.fontsize)
+                run.font.size = Pt(self.title_fontsize)
 
             run = paragraph.add_run()
             if isinstance(img, str):
@@ -191,6 +190,59 @@ class ImageTable(BaseOutput):
             else:
                 raise ValueError(
                     "Incorrect image source. Image sources must be a valid file path or a TempOutputFile object.")
+
+
+class ObjectTable(BaseOutput):
+    def __init__(self,
+                 objects: List,
+                 titles: Optional[List[str]] = None,
+                 n_cols: int = 2,
+                 width: Optional[float] = None,
+                 title_fontsize: Optional[int] = 14,
+                 ):
+        self.objects = objects
+        self.titles = titles
+        self.n_cols = n_cols
+        self.width = width
+        self.title_fontsize = title_fontsize
+
+    def render_pdf(self):
+        pass
+
+    def render_docx(self, document):
+        self.width = Inches(self.width) if self.width is not None else self.width
+
+        if self.titles:
+            if not len(self.titles) == len(self.images):
+                raise ValueError("The number of titles must match the number of objects.")
+
+        n_rows = int(np.ceil(len(self.objects) / self.n_cols))
+
+        table = document.add_table(rows=n_rows, cols=self.n_cols)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+
+        for obj_idx, obj in enumerate(self.objects):
+            row_idx = obj_idx // self.n_cols
+            col_idx = obj_idx % self.n_cols
+            paragraph = table.rows[row_idx].cells[col_idx].paragraphs[0]
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+
+            if self.titles:
+                run = paragraph.add_run(self.titles[obj_idx])
+                run.font.bold = True
+                run.font.size = Pt(self.title_fontsize)
+
+            if isinstance(obj, FormattedTextBlock):
+                for run_obj in obj.elements:
+                    run_obj.render_docx(paragraph)
+
+            elif isinstance(obj, TempOutputFile):
+                run = paragraph.add_run()
+                run.add_picture(obj.get_path(), width=self.width)
+                obj.delete_file()
+            else:
+                raise ValueError(
+                    "Table objects must be either a FormattedTextBlock or a TempOutputFile object.")
 
 
 class AddBreak(BaseOutput):

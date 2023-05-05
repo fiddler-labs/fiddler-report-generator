@@ -5,6 +5,55 @@ import pandas as pd
 from ..output_modules import TempOutputFile
 
 
+def confusion_matrix(matrix, ticks):
+
+    if not matrix.shape[0] == matrix.shape[1]:
+        raise ValueError('confusion matrix must be square.')
+
+    if not matrix.shape[0] == len(ticks):
+        raise ValueError('number of ticks does not match matrix dimensions.')
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+    ax.set_aspect('equal')
+
+    im = ax.imshow(matrix, cmap='Reds')
+
+    ax.set_xticks(np.arange(len(ticks)), labels=ticks, fontsize=14)
+    ax.set_yticks(np.arange(len(ticks)), labels=ticks, fontsize=14)
+
+    ax.set_ylabel('Actual', weight='bold', fontsize=16)
+    ax.set_xlabel('Predicted', weight='bold', fontsize=16)
+    ax.xaxis.set_ticks_position('top')
+    ax.xaxis.set_label_position('top')
+
+    ax.spines[:].set_visible(False)
+
+    ax.set_xticks(np.arange(matrix.shape[1] + 1) - .49, minor=True)
+    ax.set_yticks(np.arange(matrix.shape[0] + 1) - .49, minor=True)
+    ax.grid(which="minor", color="w", linestyle='-', linewidth=8)
+    ax.tick_params(which="minor", top=False, left=False)
+
+    total = matrix.sum()
+    threshold = im.norm(matrix.max()) / 2
+
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            text = '{percent:.1f}% \n'.format(percent=100 * matrix[i, j] / total)
+            text += '{samples:d} Samples'.format(samples=int(matrix[i, j]))
+            ax.text(j, i, text,
+                    color='white' if im.norm(matrix[i, j]) > threshold else 'black',
+                    horizontalalignment='center',
+                    fontweight='semibold'
+                    )
+
+    plt.tight_layout()
+
+    tmp_image_file = TempOutputFile()
+    plt.savefig(tmp_image_file.get_path(), bbox_inches='tight', pad_inches=0)
+    plt.close(fig)
+    return tmp_image_file
+
+
 def pie_chart(total_count, sections, section_names):
 
     slices = dict(zip(section_names, [0]*len(section_names)))
@@ -24,7 +73,7 @@ def pie_chart(total_count, sections, section_names):
     if total_count == 0:
         wedges, texts = ax.pie([1, 0],
                                wedgeprops=dict(width=0.3, edgecolor='white', linewidth=4.0),
-                               startangle=-90,
+                               startangle=90,
                                colors=['grey']
                                )
         leg_handles = []
@@ -48,7 +97,7 @@ def pie_chart(total_count, sections, section_names):
     else:
         wedges, texts = ax.pie(slices.values(),
                                wedgeprops=dict(width=0.3, edgecolor='white', linewidth=4.0),
-                               startangle=-90,
+                               startangle=90,
                                )
         leg_handles = []
         for w in wedges:

@@ -32,12 +32,18 @@ class Alerts(BaseAnalysis):
         self.start_time = start_time
         self.end_time = end_time
         self.alert_rules = alert_rules
+        self.alerts_count = None
+        self.alerts = None
 
     def preflight(self, api):
         self.start_time = self.start_time.strftime("%Y-%m-%d") if self.start_time else None
         self.end_time = self.end_time.strftime("%Y-%m-%d") if self.end_time else None
+
         if self.alert_rules is None:
             self.alert_rules = api.get_alert_rules(self.project_id, self.model_id)
+
+        self.alerts = self._get_alerts(api)
+        self.alerts_count = len(pd.concat(list(self.alerts.values())))
 
     def _get_alerts(self, api):
         alerts = {}
@@ -71,10 +77,8 @@ class Alerts(BaseAnalysis):
 
 
 class AlertsSummary(Alerts):
-
     def run(self, api) -> List[BaseOutput]:
-        alerts = self._get_alerts(api)
-        alerts_df = pd.concat(list(alerts.values()), ignore_index=True)
+        alerts_df = pd.concat(list(self.alerts.values()), ignore_index=True)
         agg_df = alerts_df.groupby('severity').agg(count=('alert_type', 'size'),
                                                    types=('alert_type', lambda x: dict(zip(*np.unique(x, return_counts=True)))),
                                                    )
@@ -96,7 +100,7 @@ class AlertsSummary(Alerts):
 
         output_modules = []
         output_modules += [SimpleTextBlock(text='Alert Summary',
-                                           style=SimpleTextStyle(alignment='center',
+                                           style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
                                                                  size=18))]
         output_modules += [AddBreak(2)]
@@ -112,11 +116,9 @@ class AlertsSummary(Alerts):
 
 class AlertsDetails(Alerts):
     def run(self, api) -> List[BaseOutput]:
-        alerts = self._get_alerts(api)
-
         output_modules = []
         output_modules += [SimpleTextBlock(text='Alert Rules and Incidents',
-                                           style=SimpleTextStyle(alignment='center',
+                                           style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
                                                                  size=18))]
         output_modules += [AddBreak(2)]
@@ -151,14 +153,13 @@ class AlertsDetails(Alerts):
                                    ]
                 output_modules += [AddBreak(1)]
 
-                alerts_table_cols = ['alert_type', 'date', 'severity', 'value']
+                alerts_table_cols = ['model_id', 'severity', 'value', 'date']
                 alerts_table_rows = []
-                for row_tuple in alerts[rule.alert_rule_uuid][alerts_table_cols].itertuples(index=False, name=None):
+                for row_tuple in self.alerts[rule.alert_rule_uuid][alerts_table_cols].itertuples(index=False, name=None):
                     alerts_table_rows.append(row_tuple)
 
                 output_modules += [Table(header=alerts_table_cols,
-                                         records=alerts_table_rows,
-                                         cell_fontsize=10
+                                         records=alerts_table_rows
                                          )
                                    ]
 
