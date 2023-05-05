@@ -9,7 +9,7 @@ import fiddler as fdl
 import numpy as np
 import matplotlib.pyplot as plt
 from .plotting_helpers import confusion_matrix
-import requests
+from .connection_helpers import FrontEndCall
 
 
 class BinaryConfusionMatrix(BaseAnalysis):
@@ -36,8 +36,6 @@ class BinaryConfusionMatrix(BaseAnalysis):
 
         if self.models is None:
             self.models = api.list_models(self.project_id)
-
-        url = f'{api.v1.connection.url}/v2/scores'
 
         table_objects = []
         for model_id in self.models:
@@ -66,7 +64,7 @@ class BinaryConfusionMatrix(BaseAnalysis):
                                                "source": source['name']},
                                "binary_threshold": model_info.binary_classification_threshold
                                }
-                    response = requests.post(url, headers=api.v1.connection.auth_header, json=request).json()
+                    response = FrontEndCall(api, endpoint='scores').post(request)
 
                     CM = np.zeros((2, 2))
                     CM[0, 0] = response['data']['confusion_matrix']['tp']
@@ -119,8 +117,6 @@ class ROC(BaseAnalysis):
                 dataset_obj = api.v2.get_dataset(self.project_id, dataset)
                 binary_threshold = model_info.binary_classification_threshold
 
-                url = f'{api.v1.connection.url}/v2/scores'
-
                 for source in dataset_obj.file_list['tree']:
                     metrics[model_id][dataset][source['name']] = {}
 
@@ -133,7 +129,7 @@ class ROC(BaseAnalysis):
                                         "source": source['name']},
                         "binary_threshold": binary_threshold
                     }
-                    response = requests.post(url, headers=api.v1.connection.auth_header, json=request).json()
+                    response = FrontEndCall(api, endpoint='scores').post(request)
 
                     fpr = response['data']['roc_curve']['fpr']
                     tpr = response['data']['roc_curve']['tpr']

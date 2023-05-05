@@ -39,7 +39,7 @@ class BinaryClassifierMetrics(BaseAnalysis):
                     f'Binary classifier metrics can be computed for binary classification models only.'
                 )
 
-            url = f'{api.v1.connection.url}/v2/scores'
+            #url = f'{api.v1.connection.url}/v2/scores'
             for dataset in model_info.datasets:
                 dataset_obj = api.v2.get_dataset(self.project_id, dataset)
 
@@ -53,19 +53,18 @@ class BinaryClassifierMetrics(BaseAnalysis):
                                                "source": source['name']},
                                "binary_threshold": model_info.binary_classification_threshold
                                }
-                    response = requests.post(url, headers=api.v1.connection.auth_header, json=request)
-                    response_dict = response.json()
+                    response = FrontEndCall(api, endpoint='scores').post(request)
 
                     table_rows.append(
                         (
                             '{}'.format(model_id),
                             '{}'.format(dataset),
                             '{}'.format(source['name']),
-                            '{: .2f}'.format(response_dict['data']['accuracy']),
-                            #'{: .2f}'.format(response_dict['data']['precision']),
-                            #'{: .2f}'.format(response_dict['data']['recall']),
-                            '{: .2f}'.format(response_dict['data']['f1_score']),
-                            '{: .2f}'.format(response_dict['data']['auc'])
+                            '{: .2f}'.format(response['data']['accuracy']),
+                            #'{: .2f}'.format(response['data']['precision']),
+                            #'{: .2f}'.format(response['data']['recall']),
+                            '{: .2f}'.format(response['data']['f1_score']),
+                            '{: .2f}'.format(response['data']['auc'])
                         )
                     )
 

@@ -26,9 +26,9 @@ class DatasetSummary(BaseAnalysis):
         """
         output_modules = []
         output_modules += [SimpleTextBlock(text='Datasets',
-                                           style=SimpleTextStyle(alignment='left',
+                                           style=SimpleTextStyle(alignment='center',
                                                                  font_style='bold',
-                                                                 size=16))]
+                                                                 size=18))]
         output_modules += [AddBreak(1)]
 
         datasets = api.list_datasets(self.project_id)
@@ -55,6 +55,6 @@ class DatasetSummary(BaseAnalysis):
                                      header=['Dataset ID', 'Source', 'Size (#Rows)'],
                                      records=table_rows
                                     ),
-                               AddBreak(4),
+                               AddBreak(2),
                                ]
         return output_modules

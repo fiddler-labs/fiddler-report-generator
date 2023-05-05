@@ -48,20 +48,20 @@ class ProjectSummary(BaseAnalysis):
         :return: List of output modules.
         """
         # ----------------- external modules initialization and preflights ------------------
-        external_modules = {}
-        external_modules['DatasetSummary'] = DatasetSummary(self.project_id)
-        external_modules['ModelSummary'] = ModelSummary(self.project_id)
-        external_modules['AlertsSummary'] = AlertsSummary(project_id=self.project_id,
+        submodules = {}
+        submodules['DatasetSummary'] = DatasetSummary(self.project_id)
+        submodules['ModelSummary'] = ModelSummary(self.project_id)
+        submodules['AlertsSummary'] = AlertsSummary(project_id=self.project_id,
                                                           start_time=self.start_time,
                                                           end_time=self.end_time
                                                           )
-        external_modules['AlertsDetails'] = AlertsDetails(project_id=self.project_id,
+        submodules['AlertsDetails'] = AlertsDetails(project_id=self.project_id,
                                                           start_time=self.start_time,
                                                           end_time=self.end_time
                                                           )
-        external_modules['ModelEvaluation'] = ModelEvaluation(project_id=self.project_id)
+        submodules['ModelEvaluation'] = ModelEvaluation(project_id=self.project_id)
 
-        for M in external_modules.values():
+        for M in submodules.values():
             M.preflight(api)
         # -----------------------------------------------------------------------------------
 
@@ -89,18 +89,18 @@ class ProjectSummary(BaseAnalysis):
                                                BoldText('{} dataset(s) '.format(len(datasets))),
                                                PlainText('as summarized below. '.format(len(models), len(datasets))),
                                                PlainText('During this time interval a total number of '),
-                                               BoldText('{} alert(s) '.format(external_modules['AlertsSummary'].alerts_count)),
+                                               BoldText('{} alert(s) '.format(submodules['AlertsSummary'].alerts_count)),
                                                PlainText('were triggered for this project.')
                                                ]
                                               )
                            ]
         output_modules += [AddBreak(4)]
-        output_modules += external_modules['DatasetSummary'].run(api)
-        output_modules += external_modules['ModelSummary'].run(api)
+        output_modules += submodules['DatasetSummary'].run(api)
+        output_modules += submodules['ModelSummary'].run(api)
         output_modules += [AddPageBreak()]
-        output_modules += external_modules['AlertsSummary'].run(api)
-        output_modules += external_modules['AlertsDetails'].run(api)
+        output_modules += submodules['AlertsSummary'].run(api)
+        output_modules += submodules['AlertsDetails'].run(api)
         output_modules += [AddPageBreak()]
-        output_modules += external_modules['ModelEvaluation'].run(api)
+        output_modules += submodules['ModelEvaluation'].run(api)
 
         return output_modules
