@@ -30,30 +30,28 @@ def _generate_output_docx(output_modules: List[BaseOutput], output_path: str, te
 
 def _generate_output_pdf(output_modules: List[BaseOutput], output_path: str, template: Optional[str]):
     template_file = template if template is not None else DEFAULT_TEMPLATE_FILE
-    _generate_output_docx(output_modules=output_modules, output_path='tmp', template=template_file)
+    _generate_output_docx(output_modules=output_modules, output_path='tmp/tmp', template=template_file)
 
     report_name = FIDDLER_DEFAULT_REPORT_NAME + '.pdf' if output_path is None else output_path + '.pdf'
     file = open(report_name, "w")
     file.close()
-    convert('tmp.docx', report_name)
+    convert('tmp/tmp.docx', report_name)
     return None
 
 
-def generate_output(output_types: List[OutputTypes],
+def generate_output(output_type: OutputTypes,
                     output_modules: List[Type[BaseOutput]],
                     output_path: str,
                     template: Optional[str] = None,
                     ):
 
-    for type in output_types:
+    if output_type is OutputTypes.DOCX:
+        output_processor = _generate_output_docx
 
-        if type is OutputTypes.DOCX:
-            output_processor = _generate_output_docx
+    elif output_type is OutputTypes.PDF:
+        output_processor = _generate_output_pdf
 
-        elif type is OutputTypes.PDF:
-            output_processor = _generate_output_pdf
-
-        else:
-            raise ValueError('No such output type.')
+    else:
+        raise ValueError('No such output type.')
 
     output_processor(output_modules=output_modules, output_path=output_path, template=template)

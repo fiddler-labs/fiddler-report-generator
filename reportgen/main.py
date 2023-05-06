@@ -23,7 +23,7 @@ def _run_analyses(
 def generate_report(
     fiddler_api,
     analysis_modules: List[BaseAnalysis],
-    output_types: List[OutputTypes],
+    output_type: OutputTypes,
     output_path=None,
     template=None,
     author=None,
@@ -33,7 +33,7 @@ def generate_report(
     output_modules += MetaData(author=author).run(fiddler_api)
     output_modules += _run_analyses(fiddler_api=fiddler_api, analysis_modules=analysis_modules)
 
-    generate_output(output_types=output_types,
+    generate_output(output_type=output_type,
                     output_modules=output_modules,
                     output_path=output_path,
                     template=template,

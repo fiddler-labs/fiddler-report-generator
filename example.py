@@ -17,18 +17,7 @@ generate_report(
     analysis_modules=[
                       ProjectSummary(project_id="bank_churn", start_time_delta='60D'),
                       ],
-    #output_types=[OutputTypes.DOCX],
-    output_types=[OutputTypes.DOCX, OutputTypes.PDF],
+    output_type=OutputTypes.PDF,
     output_path='example',
     author='Bashir R',
                 )
-
-# generate_report(
-#     fiddler_api=api,
-#     analysis_modules=[
-#                       ProjectSummary(project_id="bank_churn", start_time_delta='60D'),
-#                       ],
-#     output_type=OutputTypes.PDF,
-#     output_path='example.pdf',
-#     author='Bashir R',
-#                 )
