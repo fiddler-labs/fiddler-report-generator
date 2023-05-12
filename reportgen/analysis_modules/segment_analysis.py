@@ -283,7 +283,10 @@ class PerformanceTimeSeries(BaseAnalysis):
             print(f'The sql query was: {sql_query}')
             response = None
 
-        return response
+        if response['kind'] == "NORMAL":
+            return response
+        else:
+            return None
 
     def run(self, api) -> List[BaseOutput]:
         intervals = pd.interval_range(self.start_time, self.end_time, freq=self.interval_length, closed='both')
@@ -292,7 +295,7 @@ class PerformanceTimeSeries(BaseAnalysis):
         scores = defaultdict(list)
         for interval in intervals:
             segment_scores = self._get_segment_score(api, self.dataset_id, interval)
-            score = segment_scores['data'][self.metric] if segment_scores and segment_scores['kind'] == "NORMAL" else np.NaN
+            score = segment_scores['data'][self.metric] if segment_scores else np.NaN
             scores[self.dataset_id + '_all'].append(score)
 
             for segment in segment_predicates:
@@ -312,18 +315,15 @@ class PerformanceTimeSeries(BaseAnalysis):
                 segment_scores = self._get_segment_score(api, dataset_id, segment_predicate=segment_predicates[segment])
                 baseline_scores['baseline' + '_' + segment] = segment_scores['data'][self.metric] if segment_scores else np.NaN
 
-        output_modules = []
-
         xticks = [interval.left if 'H' in self.interval_length else interval.left.strftime("%d-%m-%Y")
                   for interval in intervals]
 
-        output_modules += [LinePlot(scores,
+        output_modules = [LinePlot(scores,
                                     xlabel='Time Interval',
                                     ylabel=self.metric,
                                     xticks=xticks,
                                     xtick_freq=np.ceil(len(xticks)/10),
                                     benchmarks=baseline_scores
-                                    )]
-
-        # output_modules += [AddBreak(1)]
+                                    )
+                          ]
         return output_modules
