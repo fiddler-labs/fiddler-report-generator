@@ -18,11 +18,11 @@ class PlotStyle:
     font_size = 18
     font_family = 'sans-serif'
     font_weight = 500
-    label_size = 18
-    legend_fontsize = 16
+    label_size = 24
+    legend_fontsize = 18
     legend_title_fontsize = 18
-    xtick_label_size = 16
-    ytick_label_size = 16
+    xtick_label_size = 18
+    ytick_label_size = 18
     marker_size = 18
     linewidth = 2
     marker = '.'
@@ -60,6 +60,7 @@ class LinePlot(BaseOutput):
         self.xtick_freq = xtick_freq
         self.benchmarks = benchmarks
         self.style = style
+        self.tmp_image_file = None
 
     def _generate_matplotlib_plot(self):
         plt.rc('text', usetex=self.style.usetex)
@@ -150,7 +151,10 @@ class LinePlot(BaseOutput):
         self._generate_matplotlib_plot()
         SimpleImage(self.tmp_image_file, width=self.style.render_width).render_docx(document)
 
+    def get_image(self):
 
+        if self.tmp_image_file is None:
+            self._generate_matplotlib_plot()
 
-
+        return self.tmp_image_file
 
