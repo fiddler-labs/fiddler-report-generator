@@ -33,7 +33,7 @@ class PerformanceAnalysisSpec:
     args: Optional[dict] = None
     predicate: Optional[str] = None
     dataset_id: str = 'production'
-    show_baseline: bool = False
+    show_baseline: bool = True
 
 
 @dataclass
@@ -143,7 +143,7 @@ class PerformanceAnalysis(BaseAnalysis):
                 spec_info += [BoldText('Segmentation: '),
                               PlainText(spec.segment_col + '\n'),
                               BoldText('Segmentation Mode: '),
-                              #PlainText(spec.segment_mode + '\n'),
+                              PlainText(self.analysis_modules[idx].segments.mode + '\n'),
                               ]
 
             table_objects.append(FormattedTextBlock(spec_info))
