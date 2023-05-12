@@ -20,14 +20,9 @@ generate_report(
                                      performance_analysis=[
                                                            PerformanceAnalysisSpec(model_id='churn_classifier',
                                                                                    metric='accuracy',
-                                                                                   interval_length='3D',
-                                                                                   segment_col='geography'
-                                                                                   ),
-                                                           PerformanceAnalysisSpec(model_id='churn_classifier',
-                                                                                   metric='accuracy',
                                                                                    interval_length='7D',
                                                                                    segment_col='geography'
-                                                                                   )
+                                                                                   ),
                                                            ]
                                      ),
                       ],
