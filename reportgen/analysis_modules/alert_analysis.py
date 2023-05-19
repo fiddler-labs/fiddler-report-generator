@@ -100,9 +100,9 @@ class AlertsSummary(Alerts):
 
         output_modules = []
         output_modules += [SimpleTextBlock(text='Alert Summary',
-                                           style=SimpleTextStyle(alignment='left',
-                                                                 font_style='bold',
-                                                                 size=18))]
+                                           style=SimpleTextStyle(font_style='bold', size=18)
+                                           )
+                           ]
         output_modules += [AddBreak(2)]
         output_modules += [ImageTable(summary_charts,
                                       titles=['Critical Alerts', 'Warning Alerts'],

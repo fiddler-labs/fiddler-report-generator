@@ -18,11 +18,11 @@ class PlotStyle:
     font_size = 18
     font_family = 'sans-serif'
     font_weight = 500
-    label_size = 18
-    legend_fontsize = 16
+    label_size = 24
+    legend_fontsize = 18
     legend_title_fontsize = 18
-    xtick_label_size = 16
-    ytick_label_size = 16
+    xtick_label_size = 18
+    ytick_label_size = 18
     marker_size = 18
     linewidth = 2
     marker = '.'
@@ -35,7 +35,6 @@ class PlotStyle:
 class LinePlot(BaseOutput):
     def __init__(self,
                  data,
-                 x=None,
                  xlabel='X',
                  ylabel='Y',
                  xticks=None,
@@ -49,7 +48,6 @@ class LinePlot(BaseOutput):
                  ):
 
         self.data = data
-        self.x = x
         self.xlabel = xlabel
         self.ylabel = ylabel
         self.xticks = xticks
@@ -60,6 +58,7 @@ class LinePlot(BaseOutput):
         self.xtick_freq = xtick_freq
         self.benchmarks = benchmarks
         self.style = style
+        self.tmp_image_file = None
 
     def _generate_matplotlib_plot(self):
         plt.rc('text', usetex=self.style.usetex)
@@ -79,8 +78,8 @@ class LinePlot(BaseOutput):
 
         if isinstance(self.data, dict):
             for label, values in self.data.items():
+                x = range(1, len(values) + 1) if self.benchmarks else range(len(values))
                 if '_all' in label:
-                    x = self.x if self.x else range(len(values))
                     ax.plot(x,
                             values,
                             label=label,
@@ -88,17 +87,34 @@ class LinePlot(BaseOutput):
                             linewidth=2 * self.style.linewidth
                             )
                 else:
-                    x = self.x if self.x else range(len(values))
                     ax.plot(x,
                             values,
                             label=label,
                             )
         elif isinstance(self.data, (list, np.ndarray)):
-            x = self.x if self.x else range(len(self.data))
+            x = range(1, len(values) + 1) if self.benchmarks else range(len(values))
             ax.plot(x,
                     self.data,
                     label=self.label,
                     )
+
+        if self.benchmarks:
+            if self.xticks:
+                self.xticks = ['baseline'] + self.xticks
+
+            if isinstance(self.benchmarks, dict):
+                colors = itertools.cycle([line.get_color() for line in ax.get_lines()])
+                for label, value in self.benchmarks.items():
+                    ax.plot(0,
+                            value,
+                            color=next(colors),
+                            marker='^',
+                            markersize=14,
+                            )
+            else:
+                raise TypeError(
+                    f'Benchmark data must be stored in a dictionary. The given type is {type(self.benchmarks)}.'
+                )
 
         if self.xticks:
             plt.xticks(range(len(self.xticks)), self.xticks, rotation=self.style.xticks_rotation)
@@ -111,20 +127,6 @@ class LinePlot(BaseOutput):
                 if index % self.xtick_freq != 0:
                     label.set_visible(False)
 
-        if self.benchmarks:
-            if isinstance(self.benchmarks, dict):
-                colors = itertools.cycle([line.get_color() for line in ax.get_lines()])
-                for label, value in self.benchmarks.items():
-                    plt.axhline(y=value,
-                                color=next(colors),
-                                linestyle='dashed',
-                                markersize=0,
-                                label=label
-                                )
-            else:
-                raise TypeError(
-                    f'Benchmark data must be stored in a dictionary. The given type is {type(self.benchmarks)}.'
-                )
 
         leg = ax.legend(bbox_to_anchor=(0, 1, 1, 0),
                         loc='lower left',
@@ -150,7 +152,10 @@ class LinePlot(BaseOutput):
         self._generate_matplotlib_plot()
         SimpleImage(self.tmp_image_file, width=self.style.render_width).render_docx(document)
 
+    def get_image(self):
 
+        if self.tmp_image_file is None:
+            self._generate_matplotlib_plot()
 
-
+        return self.tmp_image_file
 
