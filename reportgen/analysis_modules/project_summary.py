@@ -3,6 +3,7 @@ from .dataset_summary import DatasetSummary
 from .model_summary import ModelSummary
 from .alert_analysis import AlertsSummary, AlertsDetails
 from .model_evaluation import ModelEvaluation
+from .segment_analysis import PerformanceAnalysis, PerformanceAnalysisSpec
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
                              FormattedTextStyle, SimpleTextStyle, AddBreak, AddPageBreak
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
@@ -22,6 +23,7 @@ class ProjectSummary(BaseAnalysis):
                  end_time: Optional[datetime] = None,
                  start_time_delta: Optional[str] = '30D',
                  models: Optional[List[str]] = None,
+                 performance_analysis: Optional[List[PerformanceAnalysisSpec]] = None,
                  alert_details=True
                  ):
 
@@ -30,6 +32,7 @@ class ProjectSummary(BaseAnalysis):
         self.end_time = end_time
         self.start_time_delta = start_time_delta
         self.models = models
+        self.performance_analysis = performance_analysis
         self.alert_details = alert_details
 
     def preflight(self, api):
@@ -52,17 +55,23 @@ class ProjectSummary(BaseAnalysis):
         submodules['DatasetSummary'] = DatasetSummary(self.project_id)
         submodules['ModelSummary'] = ModelSummary(self.project_id)
         submodules['AlertsSummary'] = AlertsSummary(project_id=self.project_id,
-                                                          start_time=self.start_time,
-                                                          end_time=self.end_time
-                                                          )
+                                                    start_time=self.start_time,
+                                                    end_time=self.end_time
+                                                    )
         submodules['AlertsDetails'] = AlertsDetails(project_id=self.project_id,
-                                                          start_time=self.start_time,
-                                                          end_time=self.end_time
-                                                          )
+                                                    start_time=self.start_time,
+                                                    end_time=self.end_time
+                                                    )
         submodules['ModelEvaluation'] = ModelEvaluation(project_id=self.project_id)
 
-        for M in submodules.values():
-            M.preflight(api)
+        if self.performance_analysis:
+            submodules['PerformanceAnalysis'] = PerformanceAnalysis(project_id=self.project_id,
+                                                                    start_time=self.start_time,
+                                                                    end_time=self.end_time,
+                                                                    analysis_specs=self.performance_analysis)
+
+        for module in submodules.values():
+            module.preflight(api)
         # -----------------------------------------------------------------------------------
 
         models = api.list_models(self.project_id)
@@ -102,5 +111,9 @@ class ProjectSummary(BaseAnalysis):
         output_modules += submodules['AlertsDetails'].run(api)
         output_modules += [AddPageBreak()]
         output_modules += submodules['ModelEvaluation'].run(api)
+
+        if self.performance_analysis:
+            output_modules += [AddPageBreak()]
+            output_modules += submodules['PerformanceAnalysis'].run(api)
 
         return output_modules

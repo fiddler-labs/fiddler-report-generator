@@ -3,9 +3,7 @@ import fiddler as fdl
 import pandas as pd
 from datetime import datetime, timedelta
 from reportgen import generate_report, OutputTypes
-from reportgen.analysis_modules import ProjectSummary, ModelSummary, DatasetSummary, \
-                                       ModelEvaluation, PerformanceTimeSeries, Segment,\
-                                       FailureCaseAnalysis, AlertsSummary, AlertsDetails, PerformanceAnalysisSpec
+from reportgen.analysis_modules import ProjectSummary, PerformanceAnalysisSpec
 
 print(f"Running client version {fdl.__version__}")
 api = fdl.FiddlerApi(
