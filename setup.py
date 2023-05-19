@@ -18,5 +18,6 @@ setuptools.setup(
                                    'python-docx',
                                    'docxtpl',
                                    'matplotlib',
+                                   'docx2pdf',
                                    ],
 )

@@ -7,3 +7,4 @@ scikit-learn
 python-docx
 docxtpl
 matplotlib
+docx2pdf
