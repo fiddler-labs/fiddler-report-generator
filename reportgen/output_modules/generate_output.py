@@ -4,6 +4,8 @@ from docxtpl import DocxTemplate
 from .base import OutputTypes, BaseOutput
 import warnings
 import os
+from docx2pdf import convert
+
 
 FIDDLER_DEFAULT_REPORT_NAME = 'fiddler_report'
 DEFAULT_TEMPLATE_FILE = 'reportgen/templates/template.docx'
@@ -21,16 +23,20 @@ def _generate_output_docx(output_modules: List[BaseOutput], output_path: str, te
     for output_module in output_modules:
         output_module.render_docx(document=document)
 
-    if output_path is None:
-        document.save(FIDDLER_DEFAULT_REPORT_NAME + '.docx')
-    else:
-        document.save(output_path)
-
+    report_name = FIDDLER_DEFAULT_REPORT_NAME + '.docx' if output_path is None else output_path + '.docx'
+    document.save(report_name)
     return None
 
 
-def _generate_output_pdf(output_modules: List[Type[BaseOutput]], output_path: str):
-    raise NotImplementedError('PDF not yet implemented.')
+def _generate_output_pdf(output_modules: List[BaseOutput], output_path: str, template: Optional[str]):
+    template_file = template if template is not None else DEFAULT_TEMPLATE_FILE
+    _generate_output_docx(output_modules=output_modules, output_path='tmp/tmp', template=template_file)
+
+    report_name = FIDDLER_DEFAULT_REPORT_NAME + '.pdf' if output_path is None else output_path + '.pdf'
+    file = open(report_name, "w")
+    file.close()
+    convert('tmp/tmp.docx', report_name)
+    return None
 
 
 def generate_output(output_type: OutputTypes,
