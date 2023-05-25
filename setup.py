@@ -8,7 +8,6 @@ setuptools.setup(
                  author='Bashir R',
                  author_email='bashir@fiddler.ai',
                  license='BSD 2-clause',
-                 #packages=['reportgen'],
                  packages=setuptools.find_packages(),
                  install_requires=['numpy',
                                    'scipy',
