@@ -24,7 +24,7 @@ generate_report(
                                                            ]
                                      ),
                       ],
-    output_type=OutputTypes.PDF,
+    output_type=OutputTypes.DOCX,
     output_path='example',
     author='Bashir R',
     )

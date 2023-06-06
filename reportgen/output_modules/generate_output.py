@@ -5,7 +5,7 @@ from .base import OutputTypes, BaseOutput
 import warnings
 import os
 from docx2pdf import convert
-
+from pkg_resources import resource_filename
 
 FIDDLER_DEFAULT_REPORT_NAME = 'fiddler_report'
 DEFAULT_TEMPLATE_FILE = resource_filename('reportgen', 'templates/template.docx')
