@@ -1,7 +1,10 @@
 from typing import Optional, List
 from .base import BaseAnalysis
-from ..output_modules import BaseOutput, MetaDataContext
+from ..output_modules import BaseOutput, MetaDataContext, SimpleTextBlock, FormattedTextBlock, \
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, AddPageBreak
+from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from datetime import datetime, timezone
+
 
 
 class MetaData(BaseAnalysis):
@@ -33,5 +36,26 @@ class MetaData(BaseAnalysis):
                    }
 
         output_modules = [MetaDataContext(context)]
+
+        projects = api.list_projects()
+        url = api.v2.url[0:api.v2.url.find('.ai/')+4]
+
+        output_modules += [FormattedTextBlock([PlainText('This report is generated for the Fiddler deployment at '),
+                                               ItalicText('{}. '.format(url)),
+                                               PlainText('This Fiddler deployment contains '),
+                                               BoldText('{} '.format(len(projects))),
+                                               PlainText('project(s). '),
+                                               ]
+                                              )
+                           ]
+        output_modules += [AddBreak(1)]
+        output_modules += [FormattedTextBlock([PlainText('The following content of this report is generated based on '
+                                                         'the specified analysis modules for different projects. ' 
+                                                         'The list of analysis modules is customizable and can be '
+                                                         'specified when running Fiddler Report Generator.'),
+                                               ]
+                                              )
+                           ]
+        output_modules += [AddBreak(2)]
 
         return output_modules

@@ -43,7 +43,7 @@ class Alerts(BaseAnalysis):
             self.alert_rules = api.get_alert_rules(self.project_id, self.model_id)
 
         self.alerts = self._get_alerts(api)
-        self.alerts_count = len(pd.concat(list(self.alerts.values())))
+        self.alerts_count = len(pd.concat(list(self.alerts.values()))) if self.alerts else 0
 
     def _get_alerts(self, api):
         alerts = {}
@@ -78,10 +78,13 @@ class Alerts(BaseAnalysis):
 
 class AlertsSummary(Alerts):
     def run(self, api) -> List[BaseOutput]:
-        alerts_df = pd.concat(list(self.alerts.values()), ignore_index=True)
-        agg_df = alerts_df.groupby('severity').agg(count=('alert_type', 'size'),
-                                                   types=('alert_type', lambda x: dict(zip(*np.unique(x, return_counts=True)))),
-                                                   )
+        if self.alerts:
+            alerts_df = pd.concat(list(self.alerts.values()), ignore_index=True)
+            agg_df = alerts_df.groupby('severity').agg(count=('alert_type', 'size'),
+                                                       types=('alert_type', lambda x: dict(zip(*np.unique(x, return_counts=True)))),
+                                                       )
+        else:
+            agg_df = pd.DataFrame()
 
         summary_charts = []
         for severity in ['CRITICAL', 'WARNING']:

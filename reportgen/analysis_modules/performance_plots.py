@@ -37,8 +37,10 @@ class BinaryConfusionMatrix(BaseAnalysis):
         if self.models is None:
             self.models = api.list_models(self.project_id)
 
-        table_objects = []
+        output_modules = []
+
         for model_id in self.models:
+            table_objects = []
             model_info = api.get_model_info(self.project_id, model_id)
             for dataset in model_info.datasets:
                 dataset_obj = api.v2.get_dataset(self.project_id, dataset)
@@ -74,10 +76,8 @@ class BinaryConfusionMatrix(BaseAnalysis):
 
                     table_objects.append(confusion_matrix(CM, ['Positive', 'Negative']))
 
-        output_modules = [ObjectTable(table_objects,
-                                      width=3.5
-                                      )
-                          ]
+                    output_modules += [ObjectTable(table_objects, width=3)]
+                    output_modules += [AddBreak(4)]
         return output_modules
 
 

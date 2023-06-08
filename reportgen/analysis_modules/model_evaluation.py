@@ -36,19 +36,19 @@ class ModelEvaluation(BaseAnalysis):
         output_modules += [AddBreak(1)]
 
         output_modules += BinaryClassifierMetrics(self.project_id, model_list).run(api)
-        output_modules += [AddBreak(2)]
+        output_modules += [AddBreak(4)]
 
         output_modules += [SimpleTextBlock(text='Performance Charts',
                                            style=SimpleTextStyle(alignment='left',
                                                                  font_style='bold',
                                                                  size=16))]
         output_modules += [AddBreak(1)]
-        output_modules += [FormattedTextBlock([PlainText('ROC Curves')])]
+        output_modules += [FormattedTextBlock([BoldText('ROC Curves')])]
         output_modules += [AddBreak(1)]
         output_modules += ROC(self.project_id, model_list).run(api)
-        output_modules += [AddBreak(2)]
+        output_modules += [AddPageBreak()]
 
-        output_modules += [FormattedTextBlock([PlainText('Confusion Matrices')])]
+        output_modules += [FormattedTextBlock([BoldText('Confusion Matrices')])]
         output_modules += [AddBreak(1)]
         output_modules += BinaryConfusionMatrix(self.project_id, model_list).run(api)
         output_modules += [AddBreak(1)]
