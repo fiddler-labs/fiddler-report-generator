@@ -5,11 +5,10 @@ from .base import OutputTypes, BaseOutput
 import warnings
 import os
 from docx2pdf import convert
-
+from pkg_resources import resource_filename
 
 FIDDLER_DEFAULT_REPORT_NAME = 'fiddler_report'
-DEFAULT_TEMPLATE_FILE = 'reportgen/templates/template.docx'
-
+DEFAULT_TEMPLATE_FILE = resource_filename('reportgen', 'templates/template.docx')
 
 def _generate_output_docx(output_modules: List[BaseOutput], output_path: str, template: Optional[str]):
 

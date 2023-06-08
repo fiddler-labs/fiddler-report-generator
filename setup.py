@@ -9,6 +9,7 @@ setuptools.setup(
                  author_email='bashir@fiddler.ai',
                  license='BSD 2-clause',
                  packages=setuptools.find_packages(),
+                 package_data={'reportgen': ['templates/template.docx']},
                  install_requires=['numpy',
                                    'scipy',
                                    'pandas',

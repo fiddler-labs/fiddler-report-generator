@@ -136,7 +136,8 @@ class Table(BaseOutput):
         for i, rec in enumerate(self.records):
             row_cells = table.rows[i+1].cells
             for j in range(len(self.header)):
-                row_cells[j].text = str(rec[j])
+                s = f'{rec[j]:.2f}' if isinstance(rec[j], float) else str(rec[j])
+                row_cells[j].text = s
                 row_cells[j].paragraphs[0].runs[0].font.size = Pt(self.cell_fontsize)
 
 

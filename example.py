@@ -13,18 +13,18 @@ api = fdl.FiddlerApi(
 generate_report(
     fiddler_api=api,
     analysis_modules=[
-                      ProjectSummary(project_id="bank_churn",
-                                     start_time_delta='30D',
+                      ProjectSummary(project_id="lending",
+                                     start_time_delta='90D',
                                      performance_analysis=[
-                                                           PerformanceAnalysisSpec(model_id='churn_classifier',
+                                                           PerformanceAnalysisSpec(model_id='logreg_all',
                                                                                    metric='accuracy',
-                                                                                   interval_length='7D',
-                                                                                   segment_col='geography'
+                                                                                   interval_length='10D',
+                                                                                   segment_col='home_ownership'
                                                                                    ),
                                                            ]
                                      ),
                       ],
-    output_type=OutputTypes.PDF,
+    output_type=OutputTypes.DOCX,
     output_path='example',
     author='Bashir R',
     )
