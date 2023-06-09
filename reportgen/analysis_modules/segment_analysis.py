@@ -132,7 +132,6 @@ class PerformanceAnalysis(BaseAnalysis):
 
         for idx, spec in enumerate(self.analysis_specs):
             table_objects = []
-
             spec_info = [BoldText('Model: '),
                          PlainText(spec.model_id + '\n'),
                          BoldText('Metric: '),
@@ -149,8 +148,8 @@ class PerformanceAnalysis(BaseAnalysis):
             table_objects.append(FormattedTextBlock(spec_info))
             table_objects.append(self.analysis_modules[idx].run(api)[0].get_image())
 
-            output_modules += [ObjectTable(table_objects, width=4)]
-            output_modules += [AddBreak(2)]
+            output_modules += [ObjectTable(table_objects, width=3.5)]
+            output_modules += [AddBreak(4)]
 
         return output_modules
 
