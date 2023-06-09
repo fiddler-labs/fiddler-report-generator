@@ -1,1 +1,2 @@
 # fiddler-report-generator
+Installation:
