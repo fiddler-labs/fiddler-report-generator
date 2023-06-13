@@ -21,27 +21,27 @@ generate_report(fiddler_api=api,
                 author='Bashir R'
                 )
 
-# ------------------------ example 2 ------------------------
-analysis1 = PerformanceAnalysisSpec(model_id='logreg_all',
-                                    metric='accuracy',
-                                    interval_length='2D',
-                                    )
-
-analysis2 = PerformanceAnalysisSpec(model_id='logreg_all',
-                                    metric='f1_score',
-                                    interval_length='2D',
-                                    )
-
-generate_report(fiddler_api=api,
-                analysis_modules=[ProjectSummary(project_id="lending",
-                                                 start_time_delta='30D',
-                                                 performance_analysis=[analysis1, analysis2]
-                                                 )
-                                  ],
-                output_type=OutputTypes.DOCX,
-                output_path='example2',
-                author='Bashir R'
-                )
+# # ------------------------ example 2 ------------------------
+# analysis1 = PerformanceAnalysisSpec(model_id='logreg_all',
+#                                     metric='accuracy',
+#                                     interval_length='2D',
+#                                     )
+#
+# analysis2 = PerformanceAnalysisSpec(model_id='logreg_all',
+#                                     metric='f1_score',
+#                                     interval_length='2D',
+#                                     )
+#
+# generate_report(fiddler_api=api,
+#                 analysis_modules=[ProjectSummary(project_id="lending",
+#                                                  start_time_delta='30D',
+#                                                  performance_analysis=[analysis1, analysis2]
+#                                                  )
+#                                   ],
+#                 output_type=OutputTypes.DOCX,
+#                 output_path='example2',
+#                 author='Bashir R'
+#                 )
 
 # ------------------------ example 3 ------------------------
 analysis1 = PerformanceAnalysisSpec(model_id='logreg_all',
@@ -59,7 +59,12 @@ analysis2 = PerformanceAnalysisSpec(model_id='logreg_all',
 generate_report(fiddler_api=api,
                 analysis_modules=[ProjectSummary(project_id="lending",
                                                  start_time_delta='30D',
-                                                 performance_analysis=[analysis1, analysis2]
+                                                 performance_analysis=[analysis1,
+                                                                       analysis2,
+                                                                       analysis2,
+                                                                       analysis2,
+                                                                       analysis2,
+                                                                       analysis2,]
                                                  )
                                   ],
                 output_type=OutputTypes.DOCX,
