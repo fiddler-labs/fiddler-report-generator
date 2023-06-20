@@ -31,8 +31,7 @@ class ModelSummary(BaseAnalysis):
         """
         output_modules = []
         output_modules += [SimpleTextBlock(text='Models',
-                                           style=SimpleTextStyle(alignment='left',
-                                                                 font_style='bold',
+                                           style=SimpleTextStyle(font_style='bold',
                                                                  size=16))]
         output_modules += [AddBreak(1)]
 

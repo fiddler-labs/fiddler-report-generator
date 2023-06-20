@@ -121,9 +121,8 @@ class AlertsDetails(Alerts):
     def run(self, api) -> List[BaseOutput]:
         output_modules = []
         output_modules += [SimpleTextBlock(text='Alert Rules and Incidents',
-                                           style=SimpleTextStyle(alignment='left',
-                                                                 font_style='bold',
-                                                                 size=18))]
+                                           style=SimpleTextStyle(font_style='bold', size=18))]
+
         output_modules += [AddBreak(2)]
 
         alert_rules_dict = defaultdict(list)

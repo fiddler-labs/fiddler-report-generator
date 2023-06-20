@@ -26,8 +26,7 @@ class DatasetSummary(BaseAnalysis):
         """
         output_modules = []
         output_modules += [SimpleTextBlock(text='Datasets',
-                                           style=SimpleTextStyle(alignment='center',
-                                                                 font_style='bold',
+                                           style=SimpleTextStyle(font_style='bold',
                                                                  size=18))]
         output_modules += [AddBreak(1)]
 

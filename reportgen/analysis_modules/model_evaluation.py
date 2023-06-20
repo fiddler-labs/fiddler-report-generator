@@ -87,4 +87,5 @@ class ModelEvaluation(BaseAnalysis):
             elif model_type == fdl.ModelTask.RANKING:
                 print("Model evaluations are not implemented yet")
 
+        output_modules += [AddBreak(1)]
         return output_modules
