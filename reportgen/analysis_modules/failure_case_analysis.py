@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from collections import defaultdict
+from .connection_helpers import FrontEndCall
 
 
 class FailureCaseAnalysis(BaseAnalysis):
@@ -135,28 +136,52 @@ class FailureCaseAnalysis(BaseAnalysis):
 
         row_index = 0
         query_df = fp_dataframe[row_index:row_index+1]
-        explanation = api.run_explanation(project_id=self.project_id,
-                                          model_id=model,
-                                          dataset_id=self.dataset_id,
-                                          df=query_df[inputs],
-                                          explanations='shap',
-                                          return_raw_response=True
-                                          )
-        print(explanation)
+
+        alg = 'IG'
+
+        row_req = {}
+        for feature in inputs:
+            row_req[feature] = str(query_df.iloc[0][feature])
+
+        request = {
+            "organization_name": api.v1.org_id,
+            "project_name": self.project_id,
+            "model_name": model,
+            "explanation_type": alg,
+            "input_data_source": {"row": row_req,
+                                  "source_type": "ROW"
+                                  }
+        }
+        response = FrontEndCall(api, endpoint='explain').post(request)
+
+        print(response['data']['explanations'][output_col]['GEM'])
 
 
-        output_modules += [Table(header=['input'] + [output_col, target_col], records=fp_table_rows)]
-        output_modules += [AddBreak(2)]
-
-
-
-
-        output_modules += [SimpleTextBlock(text='False Negatives',
-                                           style=SimpleTextStyle(font_style='bold',
-                                                                 size=16))]
-        output_modules += [AddBreak(1)]
-        output_modules += [Table(header=['input'] + [output_col, target_col], records=fn_table_rows)]
-        output_modules += [AddBreak(2)]
+        # alg='fiddler_shapley_values'
+        # explanation = api.run_explanation(project_id=self.project_id,
+        #                                   model_id=model,
+        #                                   dataset_id=self.dataset_id,
+        #                                   df=query_df[inputs],
+        #                                   explanations=alg,
+        #                                   return_raw_response=False
+        #                                   )
+        # print(alg)
+        # print(explanation)
+        #
+        #
+        #
+        # output_modules += [Table(header=['input'] + [output_col, target_col], records=fp_table_rows)]
+        # output_modules += [AddBreak(2)]
+        #
+        #
+        #
+        #
+        # output_modules += [SimpleTextBlock(text='False Negatives',
+        #                                    style=SimpleTextStyle(font_style='bold',
+        #                                                          size=16))]
+        # output_modules += [AddBreak(1)]
+        # output_modules += [Table(header=['input'] + [output_col, target_col], records=fn_table_rows)]
+        # output_modules += [AddBreak(2)]
 
         # def dataframe_to_table(df, cols, max_str_length=290):
         #     df = df[cols]
