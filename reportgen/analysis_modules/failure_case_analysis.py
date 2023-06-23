@@ -15,6 +15,7 @@ from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from collections import defaultdict
 from .connection_helpers import FrontEndCall
+import warnings
 
 
 class FailureCaseAnalysis(BaseAnalysis):
@@ -25,9 +26,9 @@ class FailureCaseAnalysis(BaseAnalysis):
                  dataset_id: str = 'production',
                  start_time: Optional[datetime] = None,
                  end_time: Optional[datetime] = None,
-                 n_examples: int = 50,
-                 # n_tokens: int = 10,
-                 # explanation_alg: str = 'fiddler_shapley_values'
+                 n_examples: int = 5,
+                 explanation_alg: str = 'FIDDLER_SHAP'
+                 # n_tokens: int = 10
                  ):
 
         self.project_id = project_id
@@ -36,8 +37,8 @@ class FailureCaseAnalysis(BaseAnalysis):
         self.start_time = start_time
         self.end_time = end_time
         self.n_examples = n_examples
+        self.explanation_alg = explanation_alg
         # self.n_tokens = n_tokens
-        # self.explanation_alg = explanation_alg
 
     def preflight(self, api):
         self.start_time = self.start_time.strftime("%Y-%m-%d") if self.start_time else None
@@ -61,6 +62,8 @@ class FailureCaseAnalysis(BaseAnalysis):
         output_col = model_info.outputs[0].name
         target_col = model_info.targets[0].name
         inputs = [input.name for input in model_info.inputs]
+        reference_dataset = model_info.datasets[0]
+        print("reference_dataset", reference_dataset)
 
         if model_info.target_class_order is not None:
             negative_class, positive_class = model_info.target_class_order
@@ -83,11 +86,6 @@ class FailureCaseAnalysis(BaseAnalysis):
         query += f"""LIMIT {self.n_examples}"""
         fp_dataframe = api.get_slice(sql_query=query, project_id=self.project_id)
 
-        fp_table_rows = []
-        for row in zip(fp_dataframe[inputs].itertuples(index=False),
-                       fp_dataframe[[output_col, target_col]].itertuples(name=None, index=False)):
-            fp_table_rows.append((row[0], row[1][0], row[1][1]))
-
         # False Negatives
         query = f""" SELECT * FROM {self.dataset_id}."{model}" """
         query += f"""WHERE {output_col} < {binary_threshold} AND {target_col} = '{positive_class}' """
@@ -100,186 +98,123 @@ class FailureCaseAnalysis(BaseAnalysis):
         query += f"""LIMIT {self.n_examples}"""
         fn_dataframe = api.get_slice(sql_query=query, project_id=self.project_id)
 
-        fn_table_rows = []
-        for row in zip(fn_dataframe[inputs].itertuples(index=False),
-                       fn_dataframe[[output_col, target_col]].itertuples(name=None, index=False)):
-            fn_table_rows.append((row[0], row[1][0], row[1][1]))
-
-
         output_modules = []
-        output_modules += [FormattedTextBlock([BoldText('Model: '),
-                                               PlainText(f'{model}' + '\n'),
-                                               BoldText('Model Task: '),
-                                               PlainText(f'{model_info.model_task.value}'),
+        output_modules += [SimpleTextBlock(text=f'Model: {model}',
+                                           style=SimpleTextStyle(font_style='bold',
+                                                                 size=16))]
+        output_modules += [FormattedTextBlock([BoldText('Model Task: '),
+                                               PlainText(f'{model_info.model_task.value}' + '\n'),
+                                               BoldText('Target column: '),
+                                               ItalicText(f'"{target_col}"' + '\n'),
+                                               BoldText('Model output column: '),
+                                               ItalicText(f'"{output_col}"')
                                                ]
                                               )
                            ]
         output_modules += [AddBreak(2)]
-
-        output_modules += [SimpleTextBlock(text='False Positives',
+        output_modules += [SimpleTextBlock(text='False Positives Sorted by Model Output',
                                            style=SimpleTextStyle(font_style='bold',
                                                                  size=14))]
         output_modules += [AddBreak(1)]
 
-        output_modules += [FormattedTextBlock([PlainText('Target column: '),
-                                               ItalicText(f'"{target_col}"'),
-                                               PlainText('='),
-                                               BoldText(f'{fp_dataframe.head(1)[target_col][0]}' + '\n'),
-                                               PlainText('Model output column name: '),
-                                               ItalicText(f'"{output_col}"'),
-                                               ]
-                                              )
-                           ]
-        output_modules += [AddBreak(1)]
+        if len(fp_dataframe) == 0:
+            output_modules += [SimpleTextBlock(f'No false positive prediction found in {dataset_id} data.')]
 
-        print(fp_dataframe)
+        else:
+            for row_index in range(fp_dataframe.shape[0]):
+                output_modules += [FormattedTextBlock([BoldText(f'Example {row_index + 1}.')])]
+                output_modules += [AddBreak(1)]
 
-        row_index = 0
-        query_df = fp_dataframe[row_index:row_index+1]
+                query_df = fp_dataframe[row_index:row_index + 1]
+                row_req = {feature: str(query_df.iloc[0][feature]) for feature in inputs}
+                if self.explanation_alg != 'IG' and not any([input.data_type == fdl.DataType.STRING for input in model_info.inputs]):
+                    request = {
+                        "organization_name": api.v1.org_id,
+                        "project_name": self.project_id,
+                        "model_name": model,
+                        "ref_data_source": {"dataset_name": reference_dataset,
+                                            "source_type": "DATASET"
+                                            },
+                        "explanation_type": self.explanation_alg,
+                        "input_data_source": {"row": row_req,
+                                              "source_type": "ROW"
+                                              }
+                    }
 
-        alg = 'IG'
+                else:
+                    request = {
+                        "organization_name": api.v1.org_id,
+                        "project_name": self.project_id,
+                        "model_name": model,
+                        "explanation_type": self.explanation_alg,
+                        "input_data_source": {"row": row_req,
+                                              "source_type": "ROW"
+                                              }
+                    }
 
-        row_req = {}
-        for feature in inputs:
-            row_req[feature] = str(query_df.iloc[0][feature])
+                response = FrontEndCall(api, endpoint='explain').post(request)
+                if response['kind'] == 'NORMAL':
+                    print(response['data']['explanations'][output_col]['GEM'])
+                    output_modules += [FormattedTextBlock([PlainText('Model Prediction: '),
+                                                           PlainText(
+                                                               f"{response['data']['explanations'][output_col]['model_prediction']:.2f}"),
+                                                           ]
+                                                          )
+                                       ]
+                    output_modules += [FormattedTextBlock([PlainText(f'Feature Values and Attributions '),
+                                                           PlainText(f'(Explanation Algorithm: '
+                                                                     f'{self.explanation_alg})')
+                                                           ]
+                                                          )
+                                       ]
 
-        request = {
-            "organization_name": api.v1.org_id,
-            "project_name": self.project_id,
-            "model_name": model,
-            "explanation_type": alg,
-            "input_data_source": {"row": row_req,
-                                  "source_type": "ROW"
-                                  }
-        }
-        response = FrontEndCall(api, endpoint='explain').post(request)
+                    attribution_table_rows = []
+                    for item in response['data']['explanations'][output_col]['GEM']['contents']:
+                        value = item['value'] if item['type'] == 'simple' else ' - '
+                        attribution_table_rows.append(
+                                                      (item['feature-name'],
+                                                       item['attribution'],
+                                                       value
+                                                       )
+                                                      )
+                    attribution_table_cols = ['Feature', 'Attribution', 'Value']
+                    output_modules += [Table(header=attribution_table_cols,
+                                             records=attribution_table_rows
+                                             )
+                                       ]
+                    output_modules += [AddBreak(1)]
+                    output_modules += [FormattedTextBlock([PlainText(f'TEXT:'),
+                                                           ]
+                                                          )
+                                       ]
+                    output_modules += [AddBreak(2)]
 
-        print(response['data']['explanations'][output_col]['GEM'])
+                else:
+                    warnings.warn(f'The explanation API failed with '
+                                  f"error {response['error']}")
+                    output_modules += [FormattedTextBlock([PlainText('Model Prediction: '),
+                                                           PlainText(f'{query_df.iloc[0][output_col]:.2f}'),
+                                                           ]
+                                                          )
+                                       ]
+                    output_modules += [AddBreak(1)]
+                    output_modules += [FormattedTextBlock([ItalicText(f'Feature attributions are not available for '
+                                                                      f'this example.'),
+                                                           ]
+                                                          )
+                                       ]
+                    output_modules += [AddBreak(1)]
+                    output_modules += [FormattedTextBlock([PlainText(f'{list(query_df.itertuples(index=True, name=None))[0]}'),
+                                                           ]
+                                                          )
+                                       ]
 
-
-        # alg='fiddler_shapley_values'
-        # explanation = api.run_explanation(project_id=self.project_id,
-        #                                   model_id=model,
-        #                                   dataset_id=self.dataset_id,
-        #                                   df=query_df[inputs],
-        #                                   explanations=alg,
-        #                                   return_raw_response=False
-        #                                   )
-        # print(alg)
-        # print(explanation)
-        #
-        #
-        #
-        # output_modules += [Table(header=['input'] + [output_col, target_col], records=fp_table_rows)]
-        # output_modules += [AddBreak(2)]
-        #
-        #
-        #
-        #
-        # output_modules += [SimpleTextBlock(text='False Negatives',
-        #                                    style=SimpleTextStyle(font_style='bold',
-        #                                                          size=16))]
-        # output_modules += [AddBreak(1)]
-        # output_modules += [Table(header=['input'] + [output_col, target_col], records=fn_table_rows)]
-        # output_modules += [AddBreak(2)]
-
-        # def dataframe_to_table(df, cols, max_str_length=290):
-        #     df = df[cols]
-        #     for col, type in df.dtypes.items():
-        #         if type == 'object':
-        #             df[col] = df[col].map(lambda s: s[0:max_str_length])
-        #         elif type == 'float64':
-        #             df[col] = df[col].map(lambda i: '{:.2f}'.format(i))
-        #
-        #     records = [row for row in df.itertuples(name=None, index=False)]
-        #     return
-
-
-
-
-        # output_modules += [FormattedTextBlock([PlainText('Explanation Algorithm: '),
-        #                                        BoldText(self.explanation_alg),
-        #                                        ])]
-
-        # explanation_col = []
-        # # for row_index in range(fp_dataframe.shape[0]):
-        # for row_index in range(3,4):
-        #     query_df = fp_dataframe[row_index:row_index+1]
-        #
-        #     explanation = api.run_explanation(
-        #                                       project_id=self.project_id,
-        #                                       model_id=model,
-        #                                       dataset_id=self.dataset_id,
-        #                                       df=query_df[inputs],
-        #                                       explanations=self.explanation_alg
-        #                                       )
-        #
-        #     print(explanation)
-        #
-        #     tokens = np.array(explanation.inputs)
-        #     impacts = np.array(explanation.attributions)
-        #     top_positive_indices = np.argsort(impacts)[:-(self.n_tokens+1):-1]
-        #     top_tokens = tokens[top_positive_indices]
-        #     top_impacts = impacts[top_positive_indices]
-        #
-        #     s = ''
-        #     for i, token in enumerate(top_tokens):
-        #         if token in SKIP_TOKENS:
-        #             continue
-        #         s += f'{token}: {top_impacts[i]:.3f}\n'
-        #     explanation_col.append(s)
-        # fp_dataframe[EXPLANATIONS_COL_NAME] = explanation_col
-        # output_modules += [dataframe_to_table(fp_dataframe,
-        #                                       cols=inputs + [EXPLANATIONS_COL_NAME, output_col, target_col]
-        #                                       )
-        #                    ]
-        # output_modules += [AddBreak(2)]
-
-        # # False Negatives
-        # output_modules += [FormattedTextBlock([BoldText('False Negatives')])]
-        # output_modules += [FormattedTextBlock([PlainText('Explanation Algorithm: '),
-        #                                        BoldText(self.explanation_alg),
-        #                                        ])]
-        # query = f""" SELECT * FROM {self.dataset_id}."{model}" """
-        # query += f"""WHERE {output_col} < {binary_threshold} AND {target_col} = '{positive_class}' """
-        # query += f"""ORDER BY {output_col} ASC """
-        # query += f"""LIMIT {self.n_examples}"""
-        # fn_dataframe = api.get_slice(sql_query=query, project_id=self.project_id)
-        #
-        # explanation_col = []
-        # for row_index in range(fn_dataframe.shape[0]):
-        #     query_df = fn_dataframe[row_index:row_index+1]
-        #     explanation = api.run_explanation(
-        #                                       project_id=self.project_id,
-        #                                       model_id=model,
-        #                                       dataset_id=self.dataset_id,
-        #                                       df=query_df[inputs],
-        #                                       explanations=self.explanation_alg
-        #                                       )
-        #     tokens = np.array(explanation.inputs)
-        #     impacts = np.array(explanation.attributions)
-        #     top_negative_indices = np.argsort(impacts)[0:self.n_tokens]
-        #     top_tokens = tokens[top_negative_indices]
-        #     top_impacts = impacts[top_negative_indices]
-        #
-        #     s = ''
-        #     for i, token in enumerate(top_tokens):
-        #         if token in SKIP_TOKENS:
-        #             continue
-        #         s += f'{token}: {top_impacts[i]:.3f}\n'
-        #     explanation_col.append(s)
-        # fn_dataframe[EXPLANATIONS_COL_NAME] = explanation_col
-        # output_modules += [dataframe_to_table(fn_dataframe,
-        #                                       cols=inputs + [EXPLANATIONS_COL_NAME, output_col, target_col]
-        #                                       )
-        #                    ]
-        # output_modules += [AddBreak(2)]
-
+        output_modules += [AddBreak(2)]
         return output_modules
 
     def run(self, api) -> List[BaseOutput]:
         output_modules = []
-        output_modules += [SimpleTextBlock(text='Model Failure Cases',
+        output_modules += [SimpleTextBlock(text='Model Failure Analysis',
                                            style=SimpleTextStyle(font_style='bold', size=18))]
         output_modules += [AddBreak(1)]
         output_modules += [SimpleTextBlock('This section investigates the top examples for which the predicted label '
@@ -287,7 +222,8 @@ class FailureCaseAnalysis(BaseAnalysis):
                                            )]
         output_modules += [AddBreak(1)]
         output_modules += [SimpleTextBlock('We present the results of this section in two categories: '
-                                           'False Positives and False Negatives. For each example, we exploit '
+                                           'False Positives and False Negatives for each model. '
+                                           'For each example, we exploit '
                                            'Fiddler explainability to provide more insight about why the model '
                                            'has made a mistake.'
                                            )]
