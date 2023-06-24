@@ -109,9 +109,9 @@ class ProjectSummary(BaseAnalysis):
         output_modules += [AddPageBreak()]
         output_modules += submodules['AlertsSummary'].run(api)
         output_modules += submodules['AlertsDetails'].run(api)
-        output_modules += [AddPageBreak()]
+        #output_modules += [AddPageBreak()]
         output_modules += submodules['ModelEvaluation'].run(api)
-        output_modules += [AddPageBreak()]
+        #output_modules += [AddPageBreak()]
 
         if self.performance_analysis:
             output_modules += [AddPageBreak()]

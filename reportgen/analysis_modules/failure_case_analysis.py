@@ -63,7 +63,6 @@ class FailureCaseAnalysis(BaseAnalysis):
         target_col = model_info.targets[0].name
         inputs = [input.name for input in model_info.inputs]
         reference_dataset = model_info.datasets[0]
-        print("reference_dataset", reference_dataset)
 
         if model_info.target_class_order is not None:
             negative_class, positive_class = model_info.target_class_order
@@ -118,7 +117,7 @@ class FailureCaseAnalysis(BaseAnalysis):
         output_modules += [AddBreak(1)]
 
         if len(fp_dataframe) == 0:
-            output_modules += [SimpleTextBlock(f'No false positive prediction found in {dataset_id} data.')]
+            output_modules += [SimpleTextBlock(f'No false positive prediction found in {self.dataset_id} data.')]
 
         else:
             for row_index in range(fp_dataframe.shape[0]):
@@ -154,7 +153,6 @@ class FailureCaseAnalysis(BaseAnalysis):
 
                 response = FrontEndCall(api, endpoint='explain').post(request)
                 if response['kind'] == 'NORMAL':
-                    print(response['data']['explanations'][output_col]['GEM'])
                     output_modules += [FormattedTextBlock([PlainText('Model Prediction: '),
                                                            PlainText(
                                                                f"{response['data']['explanations'][output_col]['model_prediction']:.2f}"),
