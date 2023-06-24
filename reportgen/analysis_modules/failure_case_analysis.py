@@ -27,8 +27,8 @@ class FailureCaseAnalysis(BaseAnalysis):
                  start_time: Optional[datetime] = None,
                  end_time: Optional[datetime] = None,
                  n_examples: int = 5,
-                 explanation_alg: str = 'FIDDLER_SHAP'
-                 # n_tokens: int = 10
+                 explanation_alg: str = 'FIDDLER_SHAP',
+                 n_attributions: int = 6
                  ):
 
         self.project_id = project_id
@@ -38,7 +38,7 @@ class FailureCaseAnalysis(BaseAnalysis):
         self.end_time = end_time
         self.n_examples = n_examples
         self.explanation_alg = explanation_alg
-        # self.n_tokens = n_tokens
+        self.n_attributions = n_attributions
 
     def preflight(self, api):
         self.start_time = self.start_time.strftime("%Y-%m-%d") if self.start_time else None
@@ -166,25 +166,28 @@ class FailureCaseAnalysis(BaseAnalysis):
                                                           )
                                        ]
 
-                    attribution_table_rows = []
+                    attribution_rows = []
                     for item in response['data']['explanations'][output_col]['GEM']['contents']:
                         value = item['value'] if item['type'] == 'simple' else ' - '
-                        attribution_table_rows.append(
-                                                      (item['feature-name'],
-                                                       item['attribution'],
-                                                       value
-                                                       )
-                                                      )
+                        attribution_rows.append((item['feature-name'],
+                                                 item['attribution'],
+                                                 value
+                                                 )
+                                                )
+
                     attribution_table_cols = ['Feature', 'Attribution', 'Value']
+                    attr_df = pd.DataFrame(attribution_rows,  columns=attribution_table_cols)
+                    attr_df = attr_df.sort_values(by='Attribution', key=abs, ascending=False)[0:self.n_attributions]
                     output_modules += [Table(header=attribution_table_cols,
-                                             records=attribution_table_rows
+                                             records=list(attr_df.itertuples(index=False, name=None))
                                              )
                                        ]
                     output_modules += [AddBreak(1)]
-                    output_modules += [FormattedTextBlock([PlainText(f'TEXT:'),
-                                                           ]
-                                                          )
-                                       ]
+
+                    for item in response['data']['explanations'][output_col]['GEM']['contents']:
+                        if item['type'] == 'text':
+                            output_modules += [FormattedTextBlock([BoldText(f"{item['feature-name']}:")])]
+
                     output_modules += [AddBreak(2)]
 
                 else:
