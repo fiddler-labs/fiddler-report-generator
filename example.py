@@ -10,27 +10,26 @@ api = fdl.FiddlerApi(
     url='http://demo.fiddler.ai', org_id='demo', auth_token=os.getenv('fiddler_api_key'),
 )
 
-
 # ------------------------ example 1 ------------------------
-# generate_report(fiddler_api=api,
-#                 analysis_modules=[ProjectSummary(project_id="imdb_rnn",
-#                                                  start_time_delta='30D'),
-#                                   FailureCaseAnalysis(project_id="imdb_rnn")
-#                                   ],
-#                 output_type=OutputTypes.DOCX,
-#                 output_path='imdb',
-#                 author='Bashir R'
-#                 )
-
 generate_report(fiddler_api=api,
-                analysis_modules=[ProjectSummary(project_id="lending",
+                analysis_modules=[ProjectSummary(project_id="imdb_rnn",
                                                  start_time_delta='30D'),
-                                  FailureCaseAnalysis(project_id="lending")
+                                  FailureCaseAnalysis(project_id="imdb_rnn")
                                   ],
                 output_type=OutputTypes.DOCX,
-                output_path='lending',
+                output_path='imdb',
                 author='Bashir R'
                 )
+
+# generate_report(fiddler_api=api,
+#                 analysis_modules=[ProjectSummary(project_id="lending",
+#                                                  start_time_delta='30D'),
+#                                   FailureCaseAnalysis(project_id="lending")
+#                                   ],
+#                 output_type=OutputTypes.DOCX,
+#                 output_path='lending',
+#                 author='Bashir R'
+#                 )
 
 # # ------------------------ example 2 ------------------------
 # analysis1 = PerformanceAnalysisSpec(model_id='logreg_all',

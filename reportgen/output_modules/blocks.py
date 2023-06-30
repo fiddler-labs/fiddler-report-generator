@@ -4,6 +4,7 @@ from .text_styles import FormattedText
 from .tmp_file import TempOutputFile
 from typing import Optional, List, Sequence, Union, Tuple
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_COLOR_INDEX
 from docx.enum.text import WD_BREAK
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.shared import Pt
@@ -48,6 +49,50 @@ class SimpleTextBlock(BaseOutput):
             raise ValueError(
                 'Unknown font style.'
             )
+
+
+class TokenizedTextBlock(BaseOutput):
+    def __init__(self,
+                 tokens: List[str],
+                 alignment: Optional[str] = 'left',
+                 font_size: Optional[int] = 12,
+                 highlights: Optional[dict] = None,
+                 colors: Optional[dict] = None,
+                 ):
+
+        self.tokens = tokens
+        self.alignment = alignment
+        self.font_size = font_size
+        self.highlights = highlights
+        self.colors = colors
+
+    def render_pdf(self):
+        pass
+
+    def render_docx(self, document):
+        paragraph = document.add_paragraph()
+
+        if self.alignment == 'center':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        elif self.alignment == 'right':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        elif self.alignment == 'left':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        elif self.alignment == 'justify':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        else:
+            raise ValueError(
+                'Unknown alignment parameter.'
+            )
+
+        for token in self.tokens:
+            run = paragraph.add_run(token)
+            run.font.size = Pt(self.font_size)
+
+            if self.highlights:
+                if token in self.highlights:
+                    hc = WD_COLOR_INDEX.TURQUOISE if self.highlights[token] > 0.0 else WD_COLOR_INDEX.RED
+                    run.font.highlight_color = hc
 
 
 class FormattedTextBlock(BaseOutput):
