@@ -3,6 +3,7 @@ from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
 from ..output_modules import TempOutputFile
+from matplotlib.ticker import PercentFormatter
 
 
 def confusion_matrix(matrix, ticks):
@@ -125,3 +126,39 @@ def pie_chart(total_count, sections, section_names):
     plt.close(fig)
     return tmp_image_file
 
+
+def feature_impact_chart(feature_impacts, top_n = 6):
+    feature_impacts = dict(sorted(feature_impacts.items(), key=lambda item: item[1], reverse=True))
+    features = [*feature_impacts.keys()]
+    impacts = [*feature_impacts.values()]
+    impacts = np.array(impacts) / np.array(impacts).sum()
+    features = features[0:top_n]
+    impacts = impacts[0:top_n]
+
+    plt.rc('font', size=9)
+    plt.rc('font', family='sans-serif')
+    tick_font = {'family': 'monospace',
+                 'size': 8
+                 }
+
+    fig, ax = plt.subplots(figsize=(3, 3))
+    ax.barh(np.arange(len(features)), impacts, align='center', color='cornflowerblue')
+    ax.set_xlabel('Feature Impact', fontsize=10)
+    ax.set_yticks(np.arange(len(features)))
+    ax.set_yticklabels(features, fontdict=tick_font)
+    ax.invert_yaxis()
+    ax.xaxis.grid()
+    max_range = max(0.55, max(impacts))
+    plt.xlim(0, max_range)
+    ax.set_xticks(np.arange(0, max_range + 0.1, 0.25))
+    ax.xaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.spines['bottom'].set_visible(True)
+
+    plt.tight_layout()
+    tmp_image_file = TempOutputFile()
+    plt.savefig(tmp_image_file.get_path(), bbox_inches='tight', pad_inches=0)
+    plt.close(fig)
+    return tmp_image_file

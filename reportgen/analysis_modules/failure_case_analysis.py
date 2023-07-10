@@ -25,7 +25,7 @@ MAX_STRING_LENGTH = 600
 class FailureCaseAnalysis(BaseAnalysis):
 
     def __init__(self,
-                 project_id: Optional[str] = None,
+                 project_id: str,
                  models: Optional[List[str]] = None,
                  dataset_id: str = 'production',
                  start_time: Optional[datetime] = None,

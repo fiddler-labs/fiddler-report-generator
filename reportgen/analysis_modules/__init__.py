@@ -9,7 +9,9 @@ from .alert_analysis import AlertsSummary, AlertsDetails
 from .metadata import MetaData
 from .failure_case_analysis import FailureCaseAnalysis
 from .connection_helpers import FrontEndCall
+from .feature_impact import FeatureImpact
 
 __all__ = ('BaseAnalysis', 'ProjectSummary', 'ModelSummary', 'DatasetSummary',
            'ModelEvaluation', 'PerformanceTimeSeries', 'Segment', 'FailureCaseAnalysis', 'MetaData',
-           'AlertsSummary', 'AlertsDetails', 'FrontEndCall', 'PerformanceAnalysisSpec', 'PerformanceAnalysis')
+           'AlertsSummary', 'AlertsDetails', 'FrontEndCall', 'PerformanceAnalysisSpec', 'PerformanceAnalysis',
+           'FeatureImpact')
