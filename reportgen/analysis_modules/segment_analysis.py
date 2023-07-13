@@ -318,11 +318,11 @@ class PerformanceTimeSeries(BaseAnalysis):
                   for interval in intervals]
 
         output_modules = [LinePlot(scores,
-                                    xlabel='Time Interval',
-                                    ylabel=self.metric,
-                                    xticks=xticks,
-                                    xtick_freq=np.ceil(len(xticks)/10),
-                                    benchmarks=baseline_scores
-                                    )
+                                   xlabel='Time Interval',
+                                   ylabel=self.metric,
+                                   xticks=xticks,
+                                   xtick_freq=np.ceil(len(xticks)/10),
+                                   benchmarks=baseline_scores
+                                   )
                           ]
         return output_modules

@@ -23,16 +23,9 @@ generate_report(fiddler_api=api,
                 )
 
 # # ------------------------ example 2 ------------------------
-analysis1 = PerformanceAnalysisSpec(model_id='logreg_all',
-                                    metric='accuracy',
-                                    interval_length='3D',
-                                    segment_col='home_ownership'
-                                    )
-
 generate_report(fiddler_api=api,
                 analysis_modules=[ProjectSummary(project_id="lending",
                                                  start_time_delta='30D',
-                                                 performance_analysis=[analysis1],
                                                  ),
                                   FeatureImpact(project_id="lending"),
                                   FailureCaseAnalysis(project_id="lending"),
@@ -41,3 +34,21 @@ generate_report(fiddler_api=api,
                 output_path='lending',
                 author='Bashir R'
                 )
+
+# # ------------------------ example 3 ------------------------
+# analysis1 = PerformanceAnalysisSpec(model_id='logreg_all',
+#                                     metric='accuracy',
+#                                     interval_length='6D',
+#                                     segment_col='home_ownership'
+#                                     )
+#
+# generate_report(fiddler_api=api,
+#                 analysis_modules=[ProjectSummary(project_id="lending",
+#                                                  start_time_delta='30D',
+#                                                  performance_analysis=[analysis1],
+#                                                  )
+#                                   ],
+#                 output_type=OutputTypes.DOCX,
+#                 output_path='lending',
+#                 author='Bashir R'
+#                 )

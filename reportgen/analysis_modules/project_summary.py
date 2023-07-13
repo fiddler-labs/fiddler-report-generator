@@ -116,5 +116,6 @@ class ProjectSummary(BaseAnalysis):
         if self.performance_analysis:
             output_modules += [AddPageBreak()]
             output_modules += submodules['PerformanceAnalysis'].run(api)
+            output_modules += [AddPageBreak()]
 
         return output_modules
