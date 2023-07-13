@@ -9,5 +9,5 @@ Once you downloaded this package, run the following command at the package root 
 
 `pip install .`
 
-For instructions about how to use FRoG see https://fiddlerlabs.atlassian.net/wiki/spaces/FL/pages/2005434384/Fiddler+Report+Generator+FRoG
 
+## Quick Start
