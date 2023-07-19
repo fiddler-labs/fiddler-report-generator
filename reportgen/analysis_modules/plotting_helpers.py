@@ -141,7 +141,7 @@ def feature_impact_chart(feature_impacts, top_n = 6):
                  'size': 8
                  }
 
-    fig, ax = plt.subplots(figsize=(3, 3))
+    fig, ax = plt.subplots(figsize=(3, 2.4))
     ax.barh(np.arange(len(features)), impacts, align='center', color='cornflowerblue')
     ax.set_xlabel('Impact', fontsize=9)
     ax.set_yticks(np.arange(len(features)))

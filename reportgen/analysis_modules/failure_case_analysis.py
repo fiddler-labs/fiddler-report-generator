@@ -2,7 +2,7 @@ from .base import BaseAnalysis
 from .performance_metrics import BinaryClassifierMetrics
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
                              FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, LinePlot,\
-                             PlainText, BoldText, ItalicText, TokenizedTextBlock
+                             PlainText, BoldText, ItalicText, TokenizedTextBlock, DescriptiveTextBlock
 from typing import Optional, List, Sequence, Union
 
 import fiddler as fdl
@@ -167,7 +167,8 @@ class FailureCaseAnalysis(BaseAnalysis):
 
                 for item in response['data']['explanations'][output_col]['GEM']['contents']:
                     if item['type'] == 'text':
-                        output_modules += [FormattedTextBlock([PlainText(f'Token-level attributions for '),
+                        output_modules += [FormattedTextBlock([PlainText(f'{self.n_tokens} strongest token-level '
+                                                                         f'attributions for '),
                                                                BoldText(f"{item['feature-name']} "),
                                                                PlainText(f'column'),
                                                                ]
@@ -287,16 +288,15 @@ class FailureCaseAnalysis(BaseAnalysis):
         output_modules += [SimpleTextBlock(text='Model Failure Analysis',
                                            style=SimpleTextStyle(font_style='bold', size=18))]
         output_modules += [AddBreak(1)]
-        output_modules += [SimpleTextBlock('This section investigates the top examples for which the predicted label '
-                                           'is incorrect while the model is confident about its predictions.'
-                                           )]
-        output_modules += [AddBreak(1)]
-        output_modules += [SimpleTextBlock('For each model, we present the results of this section in two categories: '
-                                           'False Positives and False Negatives. '
-                                           'For each example, we exploit '
-                                           'Fiddler explainability to provide more insight about why the model '
-                                           'has made an incorrect prediction.'
-                                           )]
+        output_modules += [DescriptiveTextBlock('This section investigates the top examples for which the predicted '
+                                                'label is incorrect while the model is confident about its predictions.'
+                                                )]
+        output_modules += [DescriptiveTextBlock('For each model, we present the results of this section in two '
+                                                'categories: '
+                                                'False Positives and False Negatives. '
+                                                'For each example, we exploit Fiddler explainability to provide more '
+                                                'insight about why the model has made an incorrect prediction.'
+                                                )]
         output_modules += [AddBreak(1)]
 
         for model_id in self.models:

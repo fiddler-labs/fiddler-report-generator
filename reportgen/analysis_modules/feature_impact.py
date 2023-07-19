@@ -1,7 +1,7 @@
 from .base import BaseAnalysis
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
                              FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, LinePlot,\
-                             PlainText, BoldText, ItalicText, ObjectTable, AddPageBreak
+                             PlainText, BoldText, ItalicText, ObjectTable, AddPageBreak, DescriptiveTextBlock
 from typing import Optional, List, Sequence, Union
 from fiddler.utils.exceptions import JSONException
 import numpy as np
@@ -39,10 +39,12 @@ class FeatureImpact(BaseAnalysis):
                                            style=SimpleTextStyle(font_style='bold', size=18)
                                            )
                            ]
-        output_modules += [SimpleTextBlock('For each model, the global feature impact for each feature shows the '
-                                           'expected change in model prediction if the feature was absent. The feature '
-                                           'impact value is reported as the percentage of all feature attributions.'
-                                           )]
+        output_modules += [AddBreak(1)]
+        output_modules += [DescriptiveTextBlock('For each model, the global feature impact for each feature shows the '
+                                                'expected change in model prediction if the feature was absent. The '
+                                                'feature impact value is reported as the percentage of all '
+                                                'feature attributions.'
+                                                )]
         output_modules += [AddBreak(1)]
 
         for model in self.models:
@@ -72,7 +74,7 @@ class FeatureImpact(BaseAnalysis):
                                                     ),
                                  feature_impact_chart(feature_impacts, self.top_n)
                                  ]
-                output_modules += [ObjectTable(table_objects, width=3.4)]
+                output_modules += [ObjectTable(table_objects, width=3.2)]
                 output_modules += [AddBreak(2)]
 
             else:

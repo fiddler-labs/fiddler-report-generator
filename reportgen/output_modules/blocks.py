@@ -10,6 +10,7 @@ from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.shared import Pt
 from docx.shared import Inches
 import numpy as np
+from docx.shared import RGBColor
 
 
 class SimpleTextBlock(BaseOutput):
@@ -121,6 +122,37 @@ class FormattedTextBlock(BaseOutput):
 
         for run_obj in self.elements:
             run_obj.render_docx(paragraph)
+
+
+class DescriptiveTextBlock(BaseOutput):
+    def __init__(self, text: str, alignment: str = 'left', fontsize: int = 12):
+        self.text = text
+        self.alignment = alignment
+        self.fontsize = fontsize
+
+    def render_pdf(self):
+        pass
+
+    def render_docx(self, document):
+        paragraph = document.add_paragraph()
+
+        if self.alignment == 'center':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        elif self.alignment == 'right':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        elif self.alignment == 'left':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.LEFT
+        elif self.alignment == 'justify':
+            paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        else:
+            raise ValueError(
+                'Unknown alignment parameter.'
+            )
+
+        run = paragraph.add_run(self.text)
+        run.font.italic = True
+        run.font.color.rgb = RGBColor(128, 128, 128)
+        run.font.size = Pt(self.fontsize)
 
 
 class SimpleImage(BaseOutput):
@@ -292,7 +324,7 @@ class ObjectTable(BaseOutput):
 
 
 class AddBreak(BaseOutput):
-    def __init__(self, lines:Optional[int]=None):
+    def __init__(self, lines: Optional[int] = None):
         self.lines = lines if lines else 1
 
     def render_pdf(self):
