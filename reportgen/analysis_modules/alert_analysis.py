@@ -121,52 +121,56 @@ class AlertsDetails(Alerts):
     def run(self, api) -> List[BaseOutput]:
         output_modules = []
         output_modules += [SimpleTextBlock(text='Alert Rules and Incidents',
-                                           style=SimpleTextStyle(alignment='left',
-                                                                 font_style='bold',
-                                                                 size=18))]
+                                           style=SimpleTextStyle(font_style='bold', size=18))]
+
         output_modules += [AddBreak(2)]
 
         alert_rules_dict = defaultdict(list)
         for rule in self.alert_rules:
             alert_rules_dict[rule.alert_type].append(rule)
 
-        for alert_type in alert_rules_dict.keys():
+        if len(alert_rules_dict) == 0:
+            output_modules += [SimpleTextBlock('There are no alert rules defined for this mode.')]
 
-            output_modules += [FormattedTextBlock([
-                                                   BoldText(f'{alert_type.name} Alerts'),
-                                                  ])
-                               ]
-            output_modules += [AddBreak(1)]
-
-            for rule in alert_rules_dict[alert_type]:
-                output_modules += [FormattedTextBlock([BoldText(f'Rule: '),
-                                                       PlainText(f'{rule.name}')],
-                                                      style=FormattedTextStyle(alignment='center')
-                                                      )
-                                   ]
-                output_modules += [SimpleTextBlock(f'('
-                                                   f'model_id={rule.model_id}, '
-                                                   f'metric={rule.metric.name}, '
-                                                   f'column={rule.column}, '
-                                                   f'warning_threshold={rule.warning_threshold}, '
-                                                   f'critical_threshold={rule.critical_threshold}'
-                                                   f')',
-                                                   style=SimpleTextStyle(alignment='center', size=9)
-                                                   )
+        else:
+            for alert_type in alert_rules_dict.keys():
+                output_modules += [FormattedTextBlock([
+                                                       BoldText(f'{alert_type.name} Alerts'),
+                                                      ])
                                    ]
                 output_modules += [AddBreak(1)]
 
-                alerts_table_cols = ['model_id', 'severity', 'value', 'date']
-                alerts_table_rows = []
-                for row_tuple in self.alerts[rule.alert_rule_uuid][alerts_table_cols].itertuples(index=False, name=None):
-                    alerts_table_rows.append(row_tuple)
+                for rule in alert_rules_dict[alert_type]:
+                    output_modules += [FormattedTextBlock([BoldText(f'Rule: '),
+                                                           PlainText(f'{rule.name}')],
+                                                          style=FormattedTextStyle(alignment='center')
+                                                          )
+                                       ]
+                    output_modules += [SimpleTextBlock(f'('
+                                                       f'model_id={rule.model_id}, '
+                                                       f'metric={rule.metric.name}, '
+                                                       f'column={rule.column}, '
+                                                       f'warning_threshold={rule.warning_threshold}, '
+                                                       f'critical_threshold={rule.critical_threshold}'
+                                                       f')',
+                                                       style=SimpleTextStyle(alignment='center', size=9)
+                                                       )
+                                       ]
+                    output_modules += [AddBreak(1)]
 
-                output_modules += [Table(header=alerts_table_cols,
-                                         records=alerts_table_rows
-                                         )
-                                   ]
+                    if len(self.alerts[rule.alert_rule_uuid]) > 0:
+                        alerts_table_cols = ['model_id', 'severity', 'value', 'date']
+                        alerts_table_rows = []
 
-                output_modules += [AddBreak(2)]
+                        for row_tuple in self.alerts[rule.alert_rule_uuid][alerts_table_cols].itertuples(index=False, name=None):
+                            alerts_table_rows.append(row_tuple)
+
+                        output_modules += [Table(header=alerts_table_cols,
+                                                 records=alerts_table_rows
+                                                 )
+                                           ]
+
+                    output_modules += [AddBreak(2)]
 
         output_modules += [AddBreak(2)]
         return output_modules

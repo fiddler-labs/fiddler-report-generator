@@ -10,7 +10,7 @@ class FormattedText(BaseOutput):
 
 
 class PlainText(FormattedText):
-    def __init__(self, text:str):
+    def __init__(self, text: str):
         self.text = text
 
     def render_pdf(self):
@@ -21,7 +21,7 @@ class PlainText(FormattedText):
 
 
 class BoldText(FormattedText):
-    def __init__(self, text:str):
+    def __init__(self, text: str):
         self.text = text
 
     def render_pdf(self):
@@ -32,7 +32,7 @@ class BoldText(FormattedText):
 
 
 class ItalicText(FormattedText):
-    def __init__(self, text:str):
+    def __init__(self, text: str):
         self.text = text
 
     def render_pdf(self):
@@ -43,7 +43,7 @@ class ItalicText(FormattedText):
 
 
 class URL(FormattedText):
-    def __init__(self, text:str, url:str):
+    def __init__(self, text: str, url: str):
         self.text = text
         self.url = url
 
