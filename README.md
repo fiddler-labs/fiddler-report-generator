@@ -3,6 +3,7 @@
 ## Overview
 The Fiddler Report Generator (FRoG) is a stand-alone Python package that enables Fiddler users to create fully customizable reports for the models deployed on Fiddler. These reports can be downloaded in different formats (e.g. pdf and docx), and shared with teams for periodic reviews. 
 
+
 ## Installation
 Fiddler Report Generator uses the Fiddler Client to communicate with the Fiddler AI Observability platform. You can use the following command to install the latest version of the Fiddler Python Client.
 
