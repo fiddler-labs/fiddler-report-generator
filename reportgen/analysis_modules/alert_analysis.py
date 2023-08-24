@@ -1,6 +1,7 @@
 from .base import BaseAnalysis
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, ImageTable
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table,\
+                             ImageTable, DescriptiveTextBlock
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from typing import Optional, List, Sequence, Union
 from collections import defaultdict
@@ -78,7 +79,7 @@ class Alerts(BaseAnalysis):
 
 class AlertsSummary(Alerts):
     def run(self, api) -> List[BaseOutput]:
-        if self.alerts:
+        if self.alerts_count>0:
             alerts_df = pd.concat(list(self.alerts.values()), ignore_index=True)
             agg_df = alerts_df.groupby('severity').agg(count=('alert_type', 'size'),
                                                        types=('alert_type', lambda x: dict(zip(*np.unique(x, return_counts=True)))),
@@ -130,7 +131,7 @@ class AlertsDetails(Alerts):
             alert_rules_dict[rule.alert_type].append(rule)
 
         if len(alert_rules_dict) == 0:
-            output_modules += [SimpleTextBlock('There are no alert rules defined for this mode.')]
+            output_modules += [DescriptiveTextBlock('No alert rules are defined for this mode.')]
 
         else:
             for alert_type in alert_rules_dict.keys():

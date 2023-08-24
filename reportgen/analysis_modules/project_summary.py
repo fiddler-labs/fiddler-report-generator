@@ -11,6 +11,7 @@ from typing import Optional, List, Sequence, Union
 import warnings
 from datetime import datetime, timedelta
 import pandas as pd
+from tqdm import tqdm
 
 
 class ProjectSummary(BaseAnalysis):
@@ -70,8 +71,10 @@ class ProjectSummary(BaseAnalysis):
                                                                     end_time=self.end_time,
                                                                     analysis_specs=self.performance_analysis)
 
-        for module in submodules.values():
-            module.preflight(api)
+        pbar = tqdm(total=len(submodules.keys()), desc='Running submodule preflights')
+        for module in submodules.keys():
+            submodules[module].preflight(api)
+            pbar.update()
         # -----------------------------------------------------------------------------------
 
         models = api.list_models(self.project_id)
