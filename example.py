@@ -22,18 +22,18 @@ generate_report(fiddler_api=api,
                 author='Bashir R'
                 )
 
-# # ------------------------ example 2 ------------------------
-generate_report(fiddler_api=api,
-                analysis_modules=[ProjectSummary(project_id="lending",
-                                                 start_time_delta='30D',
-                                                 ),
-                                  FeatureImpact(project_id="lending"),
-                                  FailureCaseAnalysis(project_id="lending"),
-                                  ],
-                output_type=OutputTypes.DOCX,
-                output_path='lending',
-                author='Bashir R'
-                )
+# # # ------------------------ example 2 ------------------------
+# generate_report(fiddler_api=api,
+#                 analysis_modules=[ProjectSummary(project_id="lending",
+#                                                  start_time_delta='30D',
+#                                                  ),
+#                                   FeatureImpact(project_id="lending"),
+#                                   FailureCaseAnalysis(project_id="lending"),
+#                                   ],
+#                 output_type=OutputTypes.DOCX,
+#                 output_path='lending',
+#                 author='Bashir R'
+#                 )
 
 # # ------------------------ example 3 ------------------------
 # analysis1 = PerformanceAnalysisSpec(model_id='logreg_all',

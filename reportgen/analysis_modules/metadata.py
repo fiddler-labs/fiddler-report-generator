@@ -1,7 +1,7 @@
 from typing import Optional, List
 from .base import BaseAnalysis
 from ..output_modules import BaseOutput, MetaDataContext, SimpleTextBlock, FormattedTextBlock, \
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, AddPageBreak
+                             FormattedTextStyle, SimpleTextStyle, AddBreak, AddPageBreak, DescriptiveTextBlock
 from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from datetime import datetime, timezone
 
@@ -49,12 +49,10 @@ class MetaData(BaseAnalysis):
                                               )
                            ]
         output_modules += [AddBreak(1)]
-        output_modules += [FormattedTextBlock([PlainText('The following content of this report is generated based on '
+        output_modules += [DescriptiveTextBlock('The following content of this report is generated based on '
                                                          'the specified analysis modules for different projects. ' 
                                                          'The list of analysis modules is customizable and can be '
-                                                         'specified when running Fiddler Report Generator.'),
-                                               ]
-                                              )
+                                                         'specified when running Fiddler Report Generator.')
                            ]
         output_modules += [AddBreak(2)]
 
