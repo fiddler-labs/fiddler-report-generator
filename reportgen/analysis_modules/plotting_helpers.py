@@ -166,9 +166,9 @@ def feature_impact_chart(feature_impacts, top_n = 6):
 
 
 def roc_curve(measurements, binary_threshold):
-    fig, ax = plt.subplots(figsize=(5, 5))
+    fig, ax = plt.subplots(figsize=(9, 6))
     plt.rc('font', size=12)
-    plt.rc('legend', fontsize=10)
+    plt.rc('legend', fontsize=11)
 
     for model_id in measurements:
         for dataset in measurements[model_id]:
@@ -190,13 +190,12 @@ def roc_curve(measurements, binary_threshold):
     ax.yaxis.grid(True)
     ax.xaxis.grid(True)
     ax.set_aspect('equal')
-    ax.legend(bbox_to_anchor=(0, 1.02, 1, 0), loc='lower left', mode='expand')
+    ax.legend(bbox_to_anchor=(1, 0.1, 1, 0.5), loc='lower left', mode='expand')
 
-    plt.xlabel("False Positive Rate", fontsize=13)
-    plt.ylabel("True Positive Rate", fontsize=13)
+    plt.xlabel("False Positive Rate", fontsize=12)
+    plt.ylabel("True Positive Rate", fontsize=12)
 
-    plt.tight_layout()
     tmp_image_file = TempOutputFile()
-    plt.savefig(tmp_image_file.get_path(), bbox_inches='tight', pad_inches=0)
+    plt.savefig(tmp_image_file.get_path(), bbox_inches='tight', pad_inches=0.1)
     plt.close(fig)
     return tmp_image_file

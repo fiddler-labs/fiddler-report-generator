@@ -159,6 +159,6 @@ class ROC(BaseAnalysis):
 
         if metrics:
             tmp_image_file = roc_curve(metrics, binary_threshold)
-            output_modules += [SimpleImage(tmp_image_file, width=3)]
+            output_modules += [SimpleImage(tmp_image_file, width=5)]
 
         return output_modules
