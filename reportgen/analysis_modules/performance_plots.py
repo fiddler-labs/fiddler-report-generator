@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from .plotting_helpers import confusion_matrix, roc_curve
 from .connection_helpers import FrontEndCall
 from docx.shared import RGBColor
+import warnings
 
 
 class BinaryConfusionMatrix(BaseAnalysis):
@@ -153,6 +154,8 @@ class ROC(BaseAnalysis):
                         metrics[model_id][dataset][source['name']]['threshold_indx'] = threshold_indx
 
                     else:
+                        warnings.warn(f'Performance scores could not be fetched from Fiddler backend'
+                                      f'with error {response["error"]}.')
                         output_modules += [DescriptiveTextBlock(f"Performance scores are not available "
                                                                 f"for {model_id} model and {dataset} dataset")
                                            ]
