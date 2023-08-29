@@ -10,36 +10,47 @@ class FormattedText(BaseOutput):
 
 
 class PlainText(FormattedText):
-    def __init__(self, text: str):
+    def __init__(self, text: str, font_color=None):
         self.text = text
+        self.font_color = font_color
 
     def render_pdf(self):
         pass
 
     def render_docx(self, p):
-        p.add_run(self.text)
+        run = p.add_run(self.text)
+        if self.font_color:
+            run.font.color.rgb = self.font_color
 
 
 class BoldText(FormattedText):
-    def __init__(self, text: str):
+    def __init__(self, text: str, font_color=None):
         self.text = text
+        self.font_color = font_color
 
     def render_pdf(self):
         pass
 
     def render_docx(self, p):
-        p.add_run(self.text).font.bold = True
+        run = p.add_run(self.text)
+        run.font.bold = True
+        if self.font_color:
+            run.font.color.rgb = self.font_color
 
 
 class ItalicText(FormattedText):
-    def __init__(self, text: str):
+    def __init__(self, text: str, font_color=None):
         self.text = text
+        self.font_color = font_color
 
     def render_pdf(self):
         pass
 
     def render_docx(self, p):
-        p.add_run(self.text).font.italic = True
+        run = p.add_run(self.text)
+        run.font.italic = True
+        if self.font_color:
+            run.font.color.rgb = self.font_color
 
 
 class URL(FormattedText):

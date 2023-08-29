@@ -50,20 +50,25 @@ class FeatureImpact(BaseAnalysis):
         for model in self.models:
             model_info = api.get_model_info(self.project_id, model)
             dataset_id = model_info.datasets[0]
-            response = api.run_feature_importance(project_id=self.project_id,
-                                                  model_id=model,
-                                                  dataset_id=dataset_id,
-                                                  impact_not_importance=True
-                                                  )
 
             feature_impacts = {}
 
-            if hasattr(response, 'impact_table'):
-                for token in response.impact_table:
-                    feature_impacts[token] = response.impact_table[token]['mean_abs_feature_impact']
+            try:
+                response = api.run_feature_importance(project_id=self.project_id,
+                                                      model_id=model,
+                                                      dataset_id=dataset_id,
+                                                      impact_not_importance=True
+                                                      )
 
-            elif hasattr(response, 'feature_names'):
-                feature_impacts = dict(zip(response.feature_names, response.mean_abs_prediction_change_impact))
+                if hasattr(response, 'impact_table'):
+                    for token in response.impact_table:
+                        feature_impacts[token] = response.impact_table[token]['mean_abs_feature_impact']
+
+                elif hasattr(response, 'feature_names'):
+                    feature_impacts = dict(zip(response.feature_names, response.mean_abs_prediction_change_impact))
+
+            except Exception as e:
+                output_modules += [SimpleTextBlock(str(e))]
 
             if feature_impacts:
                 table_objects = [FormattedTextBlock([BoldText('Model: '),

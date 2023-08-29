@@ -1,4 +1,5 @@
 from typing import List, Type
+from tqdm import tqdm
 from .output_modules import OutputTypes
 from .analysis_modules import BaseAnalysis
 from .analysis_modules import MetaData
@@ -14,8 +15,10 @@ def _run_analyses(
         analysis_module.preflight(fiddler_api)
 
     output_modules = []
+    pbar = tqdm(total=len(analysis_modules), desc='Running analysis modules')
     for analysis_module in analysis_modules:
         output_modules = output_modules + analysis_module.run(fiddler_api)
+        pbar.update()
 
     return output_modules
 

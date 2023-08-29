@@ -55,18 +55,34 @@ class BinaryClassifierMetrics(BaseAnalysis):
                                }
                     response = FrontEndCall(api, endpoint='scores').post(request)
 
-                    table_rows.append(
-                        (
-                            '{}'.format(model_id),
-                            '{}'.format(dataset),
-                            '{}'.format(source['name']),
-                            '{: .2f}'.format(response['data']['accuracy']),
-                            #'{: .2f}'.format(response['data']['precision']),
-                            #'{: .2f}'.format(response['data']['recall']),
-                            '{: .2f}'.format(response['data']['f1_score']),
-                            '{: .2f}'.format(response['data']['auc'])
+                    if response['kind'] == 'NORMAL':
+
+                        table_rows.append(
+                            (
+                                '{}'.format(model_id),
+                                '{}'.format(dataset),
+                                '{}'.format(source['name']),
+                                '{: .2f}'.format(response['data']['accuracy']),
+                                #'{: .2f}'.format(response['data']['precision']),
+                                #'{: .2f}'.format(response['data']['recall']),
+                                '{: .2f}'.format(response['data']['f1_score']),
+                                '{: .2f}'.format(response['data']['auc'])
+                            )
                         )
-                    )
+
+                    else:
+                        table_rows.append(
+                            (
+                                '{}'.format(model_id),
+                                '{}'.format(dataset),
+                                '{}'.format(source['name']),
+                                'Not available',
+                                # '{: .2f}'.format(response['data']['precision']),
+                                # '{: .2f}'.format(response['data']['recall']),
+                                'Not available',
+                                'Not available'
+                            )
+                        )
 
         output_modules = [
                             Table(

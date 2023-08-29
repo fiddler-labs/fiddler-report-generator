@@ -163,3 +163,39 @@ def feature_impact_chart(feature_impacts, top_n = 6):
     plt.savefig(tmp_image_file.get_path(), bbox_inches='tight', pad_inches=0)
     plt.close(fig)
     return tmp_image_file
+
+
+def roc_curve(measurements, binary_threshold):
+    fig, ax = plt.subplots(figsize=(9, 6))
+    plt.rc('font', size=12)
+    plt.rc('legend', fontsize=11)
+
+    for model_id in measurements:
+        for dataset in measurements[model_id]:
+            for source in measurements[model_id][dataset]:
+                if measurements[model_id][dataset][source]:
+                    ax.plot(measurements[model_id][dataset][source]['fpr'],
+                            measurements[model_id][dataset][source]['tpr'],
+                            label='{}, {} (Thr={:.2f})'.format(model_id, source, binary_threshold)
+                            )
+
+                    threshold_indx = measurements[model_id][dataset][source]['threshold_indx']
+                    ax.plot(measurements[model_id][dataset][source]['fpr'][threshold_indx],
+                            measurements[model_id][dataset][source]['tpr'][threshold_indx],
+                            '.',
+                            c='black',
+                            ms=15
+                            )
+
+    ax.yaxis.grid(True)
+    ax.xaxis.grid(True)
+    ax.set_aspect('equal')
+    ax.legend(bbox_to_anchor=(1, 0.1, 1, 0.5), loc='lower left', mode='expand')
+
+    plt.xlabel("False Positive Rate", fontsize=12)
+    plt.ylabel("True Positive Rate", fontsize=12)
+
+    tmp_image_file = TempOutputFile()
+    plt.savefig(tmp_image_file.get_path(), bbox_inches='tight', pad_inches=0.1)
+    plt.close(fig)
+    return tmp_image_file

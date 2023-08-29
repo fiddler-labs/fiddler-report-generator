@@ -1,15 +1,17 @@
 from .base import BaseAnalysis
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
                              FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile,\
-                             PlainText, BoldText, ItalicText, ObjectTable
+                             PlainText, BoldText, ItalicText, ObjectTable, DescriptiveTextBlock
 
 from typing import Optional, List, Sequence, Union
 from collections import defaultdict
 import fiddler as fdl
 import numpy as np
 import matplotlib.pyplot as plt
-from .plotting_helpers import confusion_matrix
+from .plotting_helpers import confusion_matrix, roc_curve
 from .connection_helpers import FrontEndCall
+from docx.shared import RGBColor
+import warnings
 
 
 class BinaryConfusionMatrix(BaseAnalysis):
@@ -68,13 +70,22 @@ class BinaryConfusionMatrix(BaseAnalysis):
                                }
                     response = FrontEndCall(api, endpoint='scores').post(request)
 
-                    CM = np.zeros((2, 2))
-                    CM[0, 0] = response['data']['confusion_matrix']['tp']
-                    CM[0, 1] = response['data']['confusion_matrix']['fn']
-                    CM[1, 0] = response['data']['confusion_matrix']['fp']
-                    CM[1, 1] = response['data']['confusion_matrix']['tn']
+                    if response['kind'] == 'NORMAL':
+                        CM = np.zeros((2, 2))
+                        CM[0, 0] = response['data']['confusion_matrix']['tp']
+                        CM[0, 1] = response['data']['confusion_matrix']['fn']
+                        CM[1, 0] = response['data']['confusion_matrix']['fp']
+                        CM[1, 1] = response['data']['confusion_matrix']['tn']
+                        table_objects.append(confusion_matrix(CM, ['Positive', 'Negative']))
 
-                    table_objects.append(confusion_matrix(CM, ['Positive', 'Negative']))
+                    else:
+                        table_objects.append(
+                                             FormattedTextBlock([ItalicText('Confusion matrix data are not available',
+                                                                            font_color=RGBColor(128, 128, 128)
+                                                                            )
+                                                                 ]
+                                                                )
+                                             )
 
                     output_modules += [ObjectTable(table_objects, width=3)]
                     output_modules += [AddBreak(4)]
@@ -131,48 +142,26 @@ class ROC(BaseAnalysis):
                     }
                     response = FrontEndCall(api, endpoint='scores').post(request)
 
-                    fpr = response['data']['roc_curve']['fpr']
-                    tpr = response['data']['roc_curve']['tpr']
-                    thresholds = response['data']['roc_curve']['thresholds']
-                    res = np.abs(np.array(thresholds) - binary_threshold)
-                    threshold_indx = np.argmin(res)
+                    if response['kind'] == 'NORMAL':
+                        fpr = response['data']['roc_curve']['fpr']
+                        tpr = response['data']['roc_curve']['tpr']
+                        thresholds = response['data']['roc_curve']['thresholds']
+                        res = np.abs(np.array(thresholds) - binary_threshold)
+                        threshold_indx = np.argmin(res)
 
-                    metrics[model_id][dataset][source['name']]['fpr'] = fpr
-                    metrics[model_id][dataset][source['name']]['tpr'] = tpr
-                    metrics[model_id][dataset][source['name']]['threshold_indx'] = threshold_indx
+                        metrics[model_id][dataset][source['name']]['fpr'] = fpr
+                        metrics[model_id][dataset][source['name']]['tpr'] = tpr
+                        metrics[model_id][dataset][source['name']]['threshold_indx'] = threshold_indx
 
-        fig, ax = plt.subplots(figsize=(5, 5))
-        plt.rc('font', size=12)
-        plt.rc('legend', fontsize=10)
+                    else:
+                        warnings.warn(f'Performance scores could not be fetched from Fiddler backend'
+                                      f'with error {response["error"]}.')
+                        output_modules += [DescriptiveTextBlock(f"Performance scores are not available "
+                                                                f"for {model_id} model and {dataset} dataset")
+                                           ]
+
         if metrics:
-            for model_id in metrics:
-                for dataset in metrics[model_id]:
-                    for source in metrics[model_id][dataset]:
+            tmp_image_file = roc_curve(metrics, binary_threshold)
+            output_modules += [SimpleImage(tmp_image_file, width=5)]
 
-                        threshold_indx = metrics[model_id][dataset][source]['threshold_indx']
-                        ax.plot(metrics[model_id][dataset][source]['fpr'],
-                                metrics[model_id][dataset][source]['tpr'],
-                                label='{}, {} (Thr={:.2f})'.format(model_id, source, binary_threshold)
-                                )
-
-                        ax.plot(metrics[model_id][dataset][source]['fpr'][threshold_indx],
-                                metrics[model_id][dataset][source]['tpr'][threshold_indx],
-                                '.',
-                                c='black',
-                                ms=15
-                                )
-
-            ax.yaxis.grid(True)
-            ax.xaxis.grid(True)
-            ax.set_aspect('equal')
-            ax.legend(bbox_to_anchor=(0, 1.02, 1, 0), loc='lower left', mode='expand')
-
-            plt.xlabel("False Positive Rate", fontsize=13)
-            plt.ylabel("True Positive Rate", fontsize=13)
-            plt.tight_layout()
-
-            tmp_image_file = TempOutputFile()
-            plt.savefig(tmp_image_file.get_path())
-            plt.close(fig)
-        output_modules += [SimpleImage(tmp_image_file, width=3)]
         return output_modules
