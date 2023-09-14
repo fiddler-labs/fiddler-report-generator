@@ -19,7 +19,7 @@ class ProjectSummary(BaseAnalysis):
     An analysis module that creates a summary of the .
     """
     def __init__(self,
-                 project_id,
+                 project_id: Optional[str] = None,
                  start_time: Optional[datetime] = None,
                  end_time: Optional[datetime] = None,
                  start_time_delta: Optional[str] = '30D',
@@ -36,7 +36,13 @@ class ProjectSummary(BaseAnalysis):
         self.performance_analysis = performance_analysis
         self.alert_details = alert_details
 
-    def preflight(self, api):
+    def preflight(self, api, project_id):
+        if not self.project_id:
+            if project_id:
+                self.project_id = project_id
+            else:
+                raise ValueError('Project ID is not specified.')
+
         if self.end_time is None:
             self.end_time = datetime.now().date()
 
@@ -73,7 +79,7 @@ class ProjectSummary(BaseAnalysis):
 
         pbar = tqdm(total=len(submodules.keys()), desc='Running submodule preflights')
         for module in submodules.keys():
-            submodules[module].preflight(api)
+            submodules[module].preflight(api, self.project_id)
             pbar.update()
         # -----------------------------------------------------------------------------------
 

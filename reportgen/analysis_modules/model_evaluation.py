@@ -16,7 +16,10 @@ class ModelEvaluation(BaseAnalysis):
     """
        An analysis module that runs different model evaluations based on the model type.
     """
-    def __init__(self, project_id, model_list: Optional[List[str]] = None):
+    def __init__(self,
+                 project_id: Optional[str] = None,
+                 model_list: Optional[List[str]] = None
+                 ):
         """
         :param project_id: Project ID in the Fiddler platform.
         :param model_list: List of model names. If None all models in the project are used.
@@ -24,8 +27,12 @@ class ModelEvaluation(BaseAnalysis):
         self.project_id = project_id
         self.models = model_list
 
-    def preflight(self, api):
-        pass
+    def preflight(self, api, project_id):
+        if not self.project_id:
+            if project_id:
+                self.project_id = project_id
+            else:
+                raise ValueError('Project ID is not specified.')
 
     def _binary_classification_evaluations(self, model_list: List[str], api):
         output_modules = []

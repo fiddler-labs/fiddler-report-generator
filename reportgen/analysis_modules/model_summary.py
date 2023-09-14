@@ -15,14 +15,20 @@ class ModelSummary(BaseAnalysis):
     """
        An analysis module that creates a table of model summaries.
     """
-    def __init__(self, project_id):
+    def __init__(self,
+                 project_id: Optional[str] = None
+                 ):
         """
         :param project_id: Project ID in the Fiddler platform.
         """
         self.project_id = project_id
 
-    def preflight(self, api):
-        pass
+    def preflight(self, api, project_id):
+        if not self.project_id:
+            if project_id:
+                self.project_id = project_id
+            else:
+                raise ValueError('Project ID is not specified.')
 
     def run(self, api) -> List[BaseOutput]:
         """

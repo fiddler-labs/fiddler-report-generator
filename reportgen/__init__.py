@@ -1,4 +1,4 @@
 from .output_modules import OutputTypes
-from .main import generate_report
+from .main import FiddlerReportGenerator
 
-__all__ = ('OutputTypes', 'generate_report')
+__all__ = ('OutputTypes', 'FiddlerReportGenerator')
