@@ -9,22 +9,6 @@ import fiddler as fdl
 import warnings
 
 
-# def _run_analyses(
-#     fiddler_api, analysis_modules: List[BaseAnalysis]
-# ) -> List[Type[BaseOutput]]:
-#
-#     for analysis_module in analysis_modules:
-#         analysis_module.preflight(fiddler_api)
-#
-#     output_modules = []
-#     pbar = tqdm(total=len(analysis_modules), desc='Running analysis modules')
-#     for analysis_module in analysis_modules:
-#         output_modules = output_modules + analysis_module.run(fiddler_api)
-#         pbar.update()
-#
-#     return output_modules
-
-
 class FiddlerReportGenerator:
     """
     The Fiddler report generator main class. An instance of this class can be initiated by passing an instance
