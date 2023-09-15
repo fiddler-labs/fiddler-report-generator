@@ -1,11 +1,8 @@
 import os
-#import fiddler as fdl
 import pandas as pd
 from datetime import datetime, timedelta
 from reportgen import FiddlerReportGenerator, OutputTypes
 from reportgen.analysis_modules import ProjectSummary, PerformanceAnalysisSpec, FailureCaseAnalysis, FeatureImpact
-print(f"Running client version {fdl.__version__}")
-
 
 FRoG = FiddlerReportGenerator(url='http://demo.fiddler.ai',
                               org_id='demo',
@@ -14,12 +11,13 @@ FRoG = FiddlerReportGenerator(url='http://demo.fiddler.ai',
                               )
 
 FRoG.generate_report(project_id='imdb_rnn',
-                     analysis_modules=[ProjectSummary(start_time_delta='30D'), FeatureImpact(), FailureCaseAnalysis()],
+                     analysis_modules=[ProjectSummary(start_time_delta='90D', failed_cases=True)],
                      output_path='imdb'
                      )
 
-
 # ------------------------------- old user interface ----------------------------
+# import fiddler as fdl
+# print(f"Running client version {fdl.__version__}")
 # api = fdl.FiddlerApi(url='http://demo.fiddler.ai', org_id='demo', auth_token=os.getenv('fiddler_api_key'))
 # ------------------------ example 1 ------------------------
 # generate_report(fiddler_api=api,

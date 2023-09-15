@@ -3,6 +3,8 @@ from .dataset_summary import DatasetSummary
 from .model_summary import ModelSummary
 from .alert_analysis import AlertsSummary, AlertsDetails
 from .model_evaluation import ModelEvaluation
+from .feature_impact import FeatureImpact
+from .failure_case_analysis import FailureCaseAnalysis
 from .segment_analysis import PerformanceAnalysis, PerformanceAnalysisSpec
 from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
                              FormattedTextStyle, SimpleTextStyle, AddBreak, AddPageBreak
@@ -16,7 +18,7 @@ from tqdm import tqdm
 
 class ProjectSummary(BaseAnalysis):
     """
-    An analysis module that creates a summary of the .
+    An analysis module that creates a summary report for a project by calling other analysis modules.
     """
     def __init__(self,
                  project_id: Optional[str] = None,
@@ -25,7 +27,11 @@ class ProjectSummary(BaseAnalysis):
                  start_time_delta: Optional[str] = '30D',
                  models: Optional[List[str]] = None,
                  performance_analysis: Optional[List[PerformanceAnalysisSpec]] = None,
-                 alert_details=True
+                 alert_details=True,
+                 feature_impact=True,
+                 failed_cases=False,
+                 impact_top_n=6,
+                 n_failed_cases=3
                  ):
 
         self.project_id = project_id
@@ -35,6 +41,10 @@ class ProjectSummary(BaseAnalysis):
         self.models = models
         self.performance_analysis = performance_analysis
         self.alert_details = alert_details
+        self.feature_impact = feature_impact
+        self.failed_cases = failed_cases
+        self.impact_top_n = impact_top_n
+        self.n_failed_cases = n_failed_cases
 
     def preflight(self, api, project_id):
         if not self.project_id:
@@ -65,11 +75,24 @@ class ProjectSummary(BaseAnalysis):
                                                     start_time=self.start_time,
                                                     end_time=self.end_time
                                                     )
-        submodules['AlertsDetails'] = AlertsDetails(project_id=self.project_id,
-                                                    start_time=self.start_time,
-                                                    end_time=self.end_time
-                                                    )
+
+        if self.alert_details:
+            submodules['AlertsDetails'] = AlertsDetails(project_id=self.project_id,
+                                                        start_time=self.start_time,
+                                                        end_time=self.end_time
+                                                        )
+
         submodules['ModelEvaluation'] = ModelEvaluation(project_id=self.project_id)
+
+        if self.feature_impact:
+            submodules['FeatureImpact'] = FeatureImpact(project_id=self.project_id, top_n=self.impact_top_n)
+
+        if self.failed_cases:
+            submodules['FailureCaseAnalysis'] = FailureCaseAnalysis(project_id=self.project_id,
+                                                                    start_time=self.start_time,
+                                                                    end_time=self.end_time,
+                                                                    n_examples=self.n_failed_cases
+                                                                    )
 
         if self.performance_analysis:
             submodules['PerformanceAnalysis'] = PerformanceAnalysis(project_id=self.project_id,
@@ -117,10 +140,19 @@ class ProjectSummary(BaseAnalysis):
         output_modules += submodules['ModelSummary'].run(api)
         output_modules += [AddPageBreak()]
         output_modules += submodules['AlertsSummary'].run(api)
-        output_modules += submodules['AlertsDetails'].run(api)
+
+        if self.alert_details:
+            output_modules += submodules['AlertsDetails'].run(api)
+
         output_modules += [AddPageBreak()]
         output_modules += submodules['ModelEvaluation'].run(api)
         output_modules += [AddPageBreak()]
+
+        if self.feature_impact:
+            output_modules += submodules['FeatureImpact'].run(api)
+
+        if self.failed_cases:
+            output_modules += submodules['FailureCaseAnalysis'].run(api)
 
         if self.performance_analysis:
             output_modules += [AddPageBreak()]

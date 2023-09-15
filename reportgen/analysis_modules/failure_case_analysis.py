@@ -55,8 +55,8 @@ class FailureCaseAnalysis(BaseAnalysis):
             else:
                 raise ValueError('Project ID is not specified.')
 
-        self.start_time = self.start_time.strftime("%Y-%m-%d") if self.start_time else None
-        self.end_time = self.end_time.strftime("%Y-%m-%d") if self.end_time else None
+        #self.start_time = self.start_time.strftime("%Y-%m-%d") if self.start_time else None
+        #self.end_time = self.end_time.strftime("%Y-%m-%d") if self.end_time else None
 
         if self.models is None:
             self.models = api.list_models(self.project_id)
@@ -273,6 +273,7 @@ class FailureCaseAnalysis(BaseAnalysis):
 
         if len(fp_dataframe) == 0:
             output_modules += [SimpleTextBlock(f'No false positive prediction found in {self.dataset_id} data.')]
+            output_modules += [AddBreak(1)]
         else:
             output_modules += self._get_attributions(fp_dataframe, model_id, model_info, api)
 
@@ -283,6 +284,7 @@ class FailureCaseAnalysis(BaseAnalysis):
 
         if len(fn_dataframe) == 0:
             output_modules += [SimpleTextBlock(f'No false negatives prediction found in {self.dataset_id} data.')]
+            output_modules += [AddBreak(1)]
         else:
             output_modules += self._get_attributions(fn_dataframe, model_id, model_info, api)
 
