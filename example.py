@@ -15,6 +15,11 @@ FRoG.generate_report(project_id='imdb_rnn',
                      output_path='imdb'
                      )
 
+FRoG.generate_report(project_id='lending',
+                     analysis_modules=[ProjectSummary(start_time_delta='90D', failed_cases=True)],
+                     output_path='lending'
+                     )
+
 # ------------------------------- old user interface ----------------------------
 # import fiddler as fdl
 # print(f"Running client version {fdl.__version__}")
