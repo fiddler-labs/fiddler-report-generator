@@ -66,8 +66,8 @@ class Segment:
 class PerformanceAnalysis(BaseAnalysis):
 
     def __init__(self,
-                 project_id: str,
-                 analysis_specs: List[PerformanceAnalysisSpec],
+                 project_id: Optional[str] = None,
+                 analysis_specs: List[PerformanceAnalysisSpec] = [],
                  start_time=None,
                  end_time=None,
                  ):
@@ -78,7 +78,13 @@ class PerformanceAnalysis(BaseAnalysis):
         self.end_time = pd.Timestamp(end_time).ceil(freq='D') if end_time else None
         self.analysis_modules = []
 
-    def preflight(self, api):
+    def preflight(self, api, project_id):
+        if not self.project_id:
+            if project_id:
+                self.project_id = project_id
+            else:
+                raise ValueError('Project ID is not specified.')
+
         df_heads = {}
         for spec in self.analysis_specs:
             segment = None
@@ -157,9 +163,9 @@ class PerformanceAnalysis(BaseAnalysis):
 class PerformanceTimeSeries(BaseAnalysis):
 
     def __init__(self,
-                 project_id: str,
                  model_id: str,
                  metric: str,
+                 project_id: Optional[str] = None,
                  interval_length: Optional[str] = 'D',
                  start_time=None,
                  end_time=None,
@@ -178,7 +184,13 @@ class PerformanceTimeSeries(BaseAnalysis):
         self.dataset_id = dataset_id
         self.show_baseline = show_baseline
 
-    def preflight(self, api):
+    def preflight(self, api, project_id):
+        if not self.project_id:
+            if project_id:
+                self.project_id = project_id
+            else:
+                raise ValueError('Project ID is not specified.')
+
         self.start_time = self.start_time if self.start_time else self._get_start_time_time(api)
         self.end_time = self.end_time if self.end_time else self._get_end_time_time(api)
 

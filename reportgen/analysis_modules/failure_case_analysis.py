@@ -25,7 +25,7 @@ MAX_STRING_LENGTH = 600
 class FailureCaseAnalysis(BaseAnalysis):
 
     def __init__(self,
-                 project_id: str,
+                 project_id: Optional[str] = None,
                  models: Optional[List[str]] = None,
                  dataset_id: str = 'production',
                  start_time: Optional[datetime] = None,
@@ -48,9 +48,15 @@ class FailureCaseAnalysis(BaseAnalysis):
         self.n_tokens = n_tokens
         self.n_permutations = n_permutations
 
-    def preflight(self, api):
-        self.start_time = self.start_time.strftime("%Y-%m-%d") if self.start_time else None
-        self.end_time = self.end_time.strftime("%Y-%m-%d") if self.end_time else None
+    def preflight(self, api, project_id):
+        if not self.project_id:
+            if project_id:
+                self.project_id = project_id
+            else:
+                raise ValueError('Project ID is not specified.')
+
+        #self.start_time = self.start_time.strftime("%Y-%m-%d") if self.start_time else None
+        #self.end_time = self.end_time.strftime("%Y-%m-%d") if self.end_time else None
 
         if self.models is None:
             self.models = api.list_models(self.project_id)
@@ -267,6 +273,7 @@ class FailureCaseAnalysis(BaseAnalysis):
 
         if len(fp_dataframe) == 0:
             output_modules += [SimpleTextBlock(f'No false positive prediction found in {self.dataset_id} data.')]
+            output_modules += [AddBreak(1)]
         else:
             output_modules += self._get_attributions(fp_dataframe, model_id, model_info, api)
 
@@ -277,6 +284,7 @@ class FailureCaseAnalysis(BaseAnalysis):
 
         if len(fn_dataframe) == 0:
             output_modules += [SimpleTextBlock(f'No false negatives prediction found in {self.dataset_id} data.')]
+            output_modules += [AddBreak(1)]
         else:
             output_modules += self._get_attributions(fn_dataframe, model_id, model_info, api)
 

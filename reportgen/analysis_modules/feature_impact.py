@@ -18,7 +18,7 @@ from .plotting_helpers import feature_impact_chart
 class FeatureImpact(BaseAnalysis):
 
     def __init__(self,
-                 project_id: str,
+                 project_id: Optional[str] = None,
                  models: Optional[List[str]] = None,
                  dataset_id: Optional[str] = 'baseline',
                  top_n: int = 6
@@ -28,7 +28,12 @@ class FeatureImpact(BaseAnalysis):
         self.dataset_id = dataset_id
         self.top_n = top_n
 
-    def preflight(self, api):
+    def preflight(self, api, project_id):
+        if not self.project_id:
+            if project_id:
+                self.project_id = project_id
+            else:
+                raise ValueError('Project ID is not specified.')
 
         if self.models is None:
             self.models = api.list_models(self.project_id)

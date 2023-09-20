@@ -19,7 +19,10 @@ class BinaryConfusionMatrix(BaseAnalysis):
        An analysis module that generates a table of confusion matrices for any dataset and data source in a given
        list of models in a project.
     """
-    def __init__(self, project_id, model_list: Optional[List[str]] = None):
+    def __init__(self,
+                 project_id: Optional[str] = None,
+                 model_list: Optional[List[str]] = None
+                 ):
         """
         :param project_id: Project ID in the Fiddler platform.
         :param model_list: List of binary classification model names. If None all binary models in the project are used.
@@ -27,8 +30,12 @@ class BinaryConfusionMatrix(BaseAnalysis):
         self.project_id = project_id
         self.models = model_list
 
-    def preflight(self, api):
-        pass
+    def preflight(self, api, project_id):
+        if not self.project_id:
+            if project_id:
+                self.project_id = project_id
+            else:
+                raise ValueError('Project ID is not specified.')
 
     def run(self, api) -> List[BaseOutput]:
         """
@@ -96,7 +103,10 @@ class ROC(BaseAnalysis):
     """
        An analysis module that plots ROC curves for a given list of binary classification models in a project.
     """
-    def __init__(self, project_id, model_list: Optional[List[str]] = None):
+    def __init__(self,
+                 project_id: Optional[str] = None,
+                 model_list: Optional[List[str]] = None
+                 ):
         """
         :param project_id: Project ID in the Fiddler platform.
         :param model_list: List of binary classification model names. If None all binary models in the project are used.
@@ -104,8 +114,12 @@ class ROC(BaseAnalysis):
         self.project_id = project_id
         self.models = model_list
 
-    def preflight(self, api):
-        pass
+    def preflight(self, api, project_id):
+        if not self.project_id:
+            if project_id:
+                self.project_id = project_id
+            else:
+                raise ValueError('Project ID is not specified.')
 
     def run(self, api) -> List[BaseOutput]:
         """

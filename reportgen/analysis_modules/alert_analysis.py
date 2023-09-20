@@ -36,7 +36,13 @@ class Alerts(BaseAnalysis):
         self.alerts_count = None
         self.alerts = None
 
-    def preflight(self, api):
+    def preflight(self, api, project_id):
+        if not self.project_id:
+            if project_id:
+                self.project_id = project_id
+            else:
+                raise ValueError('Project ID is not specified.')
+
         self.start_time = self.start_time.strftime("%Y-%m-%d") if self.start_time else None
         self.end_time = self.end_time.strftime("%Y-%m-%d") if self.end_time else None
 
@@ -79,7 +85,7 @@ class Alerts(BaseAnalysis):
 
 class AlertsSummary(Alerts):
     def run(self, api) -> List[BaseOutput]:
-        if self.alerts_count>0:
+        if self.alerts_count > 0:
             alerts_df = pd.concat(list(self.alerts.values()), ignore_index=True)
             agg_df = alerts_df.groupby('severity').agg(count=('alert_type', 'size'),
                                                        types=('alert_type', lambda x: dict(zip(*np.unique(x, return_counts=True)))),
