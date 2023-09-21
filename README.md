@@ -17,5 +17,5 @@ Once you downloaded this package, run the following command at the package root 
 ## Using Fiddler Report Generator
 Fiddler Report Generator utilizes a modular design that allows users to fully customize a report by specifying what analysis modules they want to add to a report. After importing `reportgen`, the user can generate a report by calling the `generate_report` function and passing a Fiddler Client object and a list of analysis modules to it. You can create a summary report using the `ProjectSummary` module alone, which provides you with a general overview of your models and datasets for most common use cases.
 
-You can see examples of how to generate a report in the [FRoG QuickStart Notebook](https://colab.research.google.com/drive/15xoPw7WJfUtZ3vgvflAYxNLB2cs_h7ku?usp=sharing).
+You can see examples of how to generate a report in the [FRoG QuickStart Notebook](https://colab.research.google.com/drive/1LzaKMEVGvG5_xMrIfJpSjTFT_hagNV4U?usp=sharing).
 
