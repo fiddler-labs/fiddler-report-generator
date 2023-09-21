@@ -126,7 +126,7 @@ class PerformanceAnalysis(BaseAnalysis):
                                                                )
                                          )
         for module in self.analysis_modules:
-            module.preflight(api)
+            module.preflight(api, self.project_id)
 
     def run(self, api) -> List[BaseOutput]:
         output_modules = []
