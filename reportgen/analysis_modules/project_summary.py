@@ -135,9 +135,9 @@ class ProjectSummary(BaseAnalysis):
                                                ]
                                               )
                            ]
-        output_modules += [AddBreak(4)]
-        output_modules += submodules['DatasetSummary'].run(api)
+        output_modules += [AddBreak(2)]
         output_modules += submodules['ModelSummary'].run(api)
+        output_modules += submodules['DatasetSummary'].run(api)
         output_modules += [AddPageBreak()]
         output_modules += submodules['AlertsSummary'].run(api)
 
