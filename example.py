@@ -11,13 +11,18 @@ FRoG = FiddlerReportGenerator(url='http://demo.fiddler.ai',
                               )
 
 FRoG.generate_report(project_id='imdb_rnn',
-                     analysis_modules=[ProjectSummary(start_time_delta='90D', failed_cases=True)],
+                     analysis_modules=[ProjectSummary(start_time_delta='120D',
+                                                      failed_cases=True,
+                                                      alert_details=False)
+                                       ],
                      output_path='imdb'
                      )
 
-FRoG.generate_report(project_id='lending',
-                     analysis_modules=[ProjectSummary(start_time_delta='90D', failed_cases=True)],
-                     output_path='lending'
+FRoG.generate_report(project_id='lending2',
+                     analysis_modules=[ProjectSummary(start_time_delta='120D',
+                                                      failed_cases=True)
+                                       ],
+                     output_path='lending2'
                      )
 
 # ------------------------------- old user interface ----------------------------

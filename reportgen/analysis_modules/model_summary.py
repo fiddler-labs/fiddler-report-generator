@@ -55,5 +55,5 @@ class ModelSummary(BaseAnalysis):
                                 records=table_rows
                                 )
                            ]
-        output_modules += [AddBreak(4)]
+        output_modules += [AddBreak(1)]
         return output_modules
