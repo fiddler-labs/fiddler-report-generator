@@ -1,15 +1,13 @@
+from collections import defaultdict
+from typing import Optional, List
+
+import fiddler as fdl
+
 from .base import BaseAnalysis
 from .performance_metrics import BinaryClassifierMetrics
 from .performance_plots import BinaryConfusionMatrix, ROC
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile,  AddPageBreak
-from ..output_modules.text_styles import PlainText, BoldText, ItalicText
-from typing import Optional, List, Sequence, Union
-import fiddler as fdl
-import numpy as np
-from collections import defaultdict
-import matplotlib.pyplot as plt
-import os
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleTextStyle, AddBreak, AddPageBreak
+from ..output_modules.text_styles import BoldText
 
 
 class ModelEvaluation(BaseAnalysis):

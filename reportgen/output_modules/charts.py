@@ -1,13 +1,12 @@
-from .base import BaseOutput
-from .tmp_file import TempOutputFile
-from .blocks import SimpleImage
-from typing import Optional, List, Sequence, Union
-
-import numpy as np
 import itertools
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 from dataclasses import dataclass
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from .base import BaseOutput
+from .blocks import SimpleImage
+from .tmp_file import TempOutputFile
 
 
 @dataclass

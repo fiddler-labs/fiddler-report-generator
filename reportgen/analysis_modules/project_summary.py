@@ -1,19 +1,20 @@
-from .base import BaseAnalysis
-from .dataset_summary import DatasetSummary
-from .model_summary import ModelSummary
-from .alert_analysis import AlertsSummary, AlertsDetails
-from .model_evaluation import ModelEvaluation
-from .feature_impact import FeatureImpact
-from .failure_case_analysis import FailureCaseAnalysis
-from .segment_analysis import PerformanceAnalysis, PerformanceAnalysisSpec
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, AddPageBreak
-from ..output_modules.text_styles import PlainText, BoldText, ItalicText
-from typing import Optional, List, Sequence, Union
 import warnings
-from datetime import datetime, timedelta
+from datetime import datetime
+from typing import Optional, List
+
 import pandas as pd
 from tqdm import tqdm
+
+from .alert_analysis import AlertsSummary, AlertsDetails
+from .base import BaseAnalysis
+from .dataset_summary import DatasetSummary
+from .failure_case_analysis import FailureCaseAnalysis
+from .feature_impact import FeatureImpact
+from .model_evaluation import ModelEvaluation
+from .model_summary import ModelSummary
+from .segment_analysis import PerformanceAnalysis, PerformanceAnalysisSpec
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleTextStyle, AddBreak, AddPageBreak
+from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 
 
 class ProjectSummary(BaseAnalysis):

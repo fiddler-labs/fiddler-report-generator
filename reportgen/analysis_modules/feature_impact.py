@@ -1,18 +1,9 @@
-from .base import BaseAnalysis
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, LinePlot,\
-                             PlainText, BoldText, ItalicText, ObjectTable, AddPageBreak, DescriptiveTextBlock
-from typing import Optional, List, Sequence, Union
+from typing import Optional, List
 
-import numpy as np
-import pandas as pd
-import enum
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
-from collections import defaultdict
-from .connection_helpers import FrontEndCall
+from .base import BaseAnalysis
 from .plotting_helpers import feature_impact_chart
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleTextStyle, AddBreak, PlainText, \
+    BoldText, ObjectTable, AddPageBreak, DescriptiveTextBlock
 
 
 class FeatureImpact(BaseAnalysis):

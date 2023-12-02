@@ -1,14 +1,7 @@
-from .base import BaseAnalysis
-from .performance_metrics import BinaryClassifierMetrics
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table
-from ..output_modules.text_styles import PlainText, BoldText, ItalicText
-from typing import Optional, List, Sequence, Union
+from typing import Optional, List
 
-import fiddler as fdl
-import numpy as np
-import matplotlib.pyplot as plt
-import os
+from .base import BaseAnalysis
+from ..output_modules import BaseOutput, SimpleTextBlock, SimpleTextStyle, AddBreak, Table
 
 
 class ModelSummary(BaseAnalysis):

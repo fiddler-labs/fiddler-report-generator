@@ -1,18 +1,15 @@
-from .base import BaseAnalysis
-from .performance_metrics import BinaryClassifierMetrics
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, LinePlot,\
-                             PlainText, BoldText, ItalicText, ObjectTable
-from typing import Optional, List, Sequence, Union
+import enum
+from collections import defaultdict
+from dataclasses import dataclass
+from typing import Optional, List
 
 import numpy as np
 import pandas as pd
-import enum
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
-from collections import defaultdict
+
+from .base import BaseAnalysis
 from .connection_helpers import FrontEndCall
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleTextStyle, AddBreak, LinePlot, \
+    PlainText, BoldText, ObjectTable
 
 
 @enum.unique

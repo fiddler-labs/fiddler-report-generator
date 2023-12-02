@@ -1,16 +1,18 @@
+from typing import Optional, List, Sequence, Union
+
+import numpy as np
+from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_BREAK
+from docx.enum.text import WD_COLOR_INDEX
+from docx.shared import Inches
+from docx.shared import Pt
+from docx.shared import RGBColor
+
 from .base import BaseOutput
 from .styles import SimpleTextStyle, FormattedTextStyle
 from .text_styles import FormattedText
 from .tmp_file import TempOutputFile
-from typing import Optional, List, Sequence, Union, Tuple
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.text import WD_COLOR_INDEX
-from docx.enum.text import WD_BREAK
-from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.shared import Pt
-from docx.shared import Inches
-import numpy as np
-from docx.shared import RGBColor
 
 
 class SimpleTextBlock(BaseOutput):

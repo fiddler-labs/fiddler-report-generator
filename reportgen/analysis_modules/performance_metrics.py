@@ -1,10 +1,10 @@
-from .base import BaseAnalysis
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table
-from ..output_modules.text_styles import PlainText, BoldText, ItalicText
-from typing import Optional, List, Sequence, Union
+from typing import Optional, List
+
 import fiddler as fdl
+
+from .base import BaseAnalysis
 from .connection_helpers import FrontEndCall
+from ..output_modules import BaseOutput, Table
 
 
 class BinaryClassifierMetrics(BaseAnalysis):

@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
 import numpy as np
-import pandas as pd
-from ..output_modules import TempOutputFile
+from matplotlib.lines import Line2D
 from matplotlib.ticker import PercentFormatter
+
+from ..output_modules import TempOutputFile
 
 
 def confusion_matrix(matrix, ticks):

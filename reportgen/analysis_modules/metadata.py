@@ -1,10 +1,10 @@
-from typing import Optional, List
-from .base import BaseAnalysis
-from ..output_modules import BaseOutput, MetaDataContext, SimpleTextBlock, FormattedTextBlock, \
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, AddPageBreak, DescriptiveTextBlock
-from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from datetime import datetime, timezone
+from typing import Optional, List
 
+from .base import BaseAnalysis
+from ..output_modules import BaseOutput, MetaDataContext, FormattedTextBlock, \
+    AddBreak, DescriptiveTextBlock
+from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 
 
 class MetaData(BaseAnalysis):

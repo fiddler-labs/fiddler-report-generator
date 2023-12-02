@@ -1,18 +1,17 @@
-from .base import BaseAnalysis
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table,\
-                             ImageTable, DescriptiveTextBlock
-from ..output_modules.text_styles import PlainText, BoldText, ItalicText
-from typing import Optional, List, Sequence, Union
 from collections import defaultdict
 from datetime import datetime, timezone
-from .plotting_helpers import pie_chart
+from typing import Optional, List, Sequence
+
 import fiddler as fdl
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import os
-import re
+
+from .base import BaseAnalysis
+from .plotting_helpers import pie_chart
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, FormattedTextStyle, SimpleTextStyle, \
+    AddBreak, Table, \
+    ImageTable, DescriptiveTextBlock
+from ..output_modules.text_styles import PlainText, BoldText
 
 
 class Alerts(BaseAnalysis):

@@ -1,17 +1,15 @@
-from .base import BaseAnalysis
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile,\
-                             PlainText, BoldText, ItalicText, ObjectTable, DescriptiveTextBlock
+import warnings
+from typing import Optional, List
 
-from typing import Optional, List, Sequence, Union
-from collections import defaultdict
 import fiddler as fdl
 import numpy as np
-import matplotlib.pyplot as plt
-from .plotting_helpers import confusion_matrix, roc_curve
-from .connection_helpers import FrontEndCall
 from docx.shared import RGBColor
-import warnings
+
+from .base import BaseAnalysis
+from .connection_helpers import FrontEndCall
+from .plotting_helpers import confusion_matrix, roc_curve
+from ..output_modules import BaseOutput, FormattedTextBlock, SimpleImage, \
+    AddBreak, PlainText, BoldText, ItalicText, ObjectTable, DescriptiveTextBlock
 
 
 class BinaryConfusionMatrix(BaseAnalysis):

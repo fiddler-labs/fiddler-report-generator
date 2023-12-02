@@ -1,8 +1,4 @@
 from .base import BaseOutput
-from typing import Optional
-from docx import Document
-import os
-import warnings
 
 
 class MetaDataContext(BaseOutput):
