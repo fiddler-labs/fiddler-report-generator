@@ -48,11 +48,11 @@ class BinaryClassifierMetrics(BaseAnalysis):
 
             #url = f'{api.v1.connection.url}/v2/scores'
             for dataset in model_info.datasets:
-                dataset_obj = api.v2.get_dataset(self.project_id, dataset)
+                dataset_obj = api.get_dataset(self.project_id, dataset)
 
                 for source in dataset_obj.file_list['tree']:
                     request = {
-                               "organization_name": api.v1.org_id,
+                               "organization_name": api.organization_name,
                                "project_name": self.project_id,
                                "model_name": model_id,
                                "data_source": {"dataset_name": dataset,

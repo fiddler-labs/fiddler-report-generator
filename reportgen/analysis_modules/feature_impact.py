@@ -3,7 +3,7 @@ from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, Si
                              FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, LinePlot,\
                              PlainText, BoldText, ItalicText, ObjectTable, AddPageBreak, DescriptiveTextBlock
 from typing import Optional, List, Sequence, Union
-from fiddler.utils.exceptions import JSONException
+
 import numpy as np
 import pandas as pd
 import enum

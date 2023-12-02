@@ -137,7 +137,7 @@ class AlertsDetails(Alerts):
             alert_rules_dict[rule.alert_type].append(rule)
 
         if len(alert_rules_dict) == 0:
-            output_modules += [DescriptiveTextBlock('No alert rules are defined for this mode.')]
+            output_modules += [DescriptiveTextBlock('No alert rules are defined for this model.')]
 
         else:
             for alert_type in alert_rules_dict.keys():

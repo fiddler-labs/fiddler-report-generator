@@ -48,7 +48,7 @@ class DatasetSummary(BaseAnalysis):
         table_rows = []
         for dataset_ID in datasets:
 
-            dataset_obj = api.v2.get_dataset(self.project_id, dataset_ID)
+            dataset_obj = api.get_dataset(self.project_id, dataset_ID)
             for dataset_source in dataset_obj.file_list['tree']:
                 source = dataset_source['name']
 

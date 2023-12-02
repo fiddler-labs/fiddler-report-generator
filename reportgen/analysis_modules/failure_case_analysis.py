@@ -6,7 +6,6 @@ from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, Si
 from typing import Optional, List, Sequence, Union
 
 import fiddler as fdl
-from fiddler.utils.exceptions import JSONException
 import numpy as np
 import pandas as pd
 import enum
@@ -97,7 +96,7 @@ class FailureCaseAnalysis(BaseAnalysis):
             if self.explanation_alg != 'IG' and not any(
                     [input.data_type == fdl.DataType.STRING for input in model_info.inputs]):
                 request = {
-                    "organization_name": api.v1.org_id,
+                    "organization_name": api.organization_name,
                     "project_name": self.project_id,
                     "model_name": model_id,
                     "ref_data_source": {"dataset_name": reference_dataset,
@@ -113,7 +112,7 @@ class FailureCaseAnalysis(BaseAnalysis):
 
             else:
                 request = {
-                    "organization_name": api.v1.org_id,
+                    "organization_name": api.organization_name,
                     "project_name": self.project_id,
                     "model_name": model_id,
                     "explanation_type": self.explanation_alg,

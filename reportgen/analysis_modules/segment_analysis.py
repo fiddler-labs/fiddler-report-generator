@@ -5,7 +5,6 @@ from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, Si
                              PlainText, BoldText, ItalicText, ObjectTable
 from typing import Optional, List, Sequence, Union
 
-from fiddler.utils.exceptions import JSONException
 import numpy as np
 import pandas as pd
 import enum
@@ -279,7 +278,7 @@ class PerformanceTimeSeries(BaseAnalysis):
                            ):
 
         sql_query = self._get_sql_query(dataset, time_interval, segment_predicate)
-        request = {"organization_name": api.v1.org_id,
+        request = {"organization_name": api.organization_name,
                    "project_name": self.project_id,
                    "model_name": self.model_id,
                    "data_source": {"query": sql_query,

@@ -79,7 +79,8 @@ def pie_chart(total_count, sections, section_names):
                                )
         leg_handles = []
         for l in labels:
-            c = next(ax._get_lines.prop_cycler)['color']
+            # c = next(ax._get_lines.prop_cycler)['color']
+            c = ax._get_lines.get_next_color()
             marker = Line2D([0], [0],
                             marker='o',
                             linestyle='none',
