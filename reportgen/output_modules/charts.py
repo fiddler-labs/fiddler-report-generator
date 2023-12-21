@@ -102,11 +102,11 @@ class LinePlot(BaseOutput):
                 self.xticks = ['baseline'] + self.xticks
 
             if isinstance(self.benchmarks, dict):
-                colors = itertools.cycle([line.get_color() for line in ax.get_lines()])
+                color = ax._get_lines.get_next_color()
                 for label, value in self.benchmarks.items():
                     ax.plot(0,
                             value,
-                            color=next(colors),
+                            color=color,
                             marker='^',
                             markersize=14,
                             )

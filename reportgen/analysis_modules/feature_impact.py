@@ -1,3 +1,4 @@
+import fiddler as fdl
 from typing import Optional, List
 
 from .base import BaseAnalysis
@@ -50,12 +51,12 @@ class FeatureImpact(BaseAnalysis):
             feature_impacts = {}
 
             try:
-                response = api.run_feature_importance(project_id=self.project_id,
-                                                      model_id=model,
-                                                      dataset_id=dataset_id,
-                                                      impact_not_importance=True
-                                                      )
-
+                response = api.get_feature_impact(
+                    project_id=self.project_id,
+                    model_id=model,
+                    data_source=fdl.DatasetDataSource(dataset_id=dataset_id, num_samples=200)
+                )
+                
                 if hasattr(response, 'impact_table'):
                     for token in response.impact_table:
                         feature_impacts[token] = response.impact_table[token]['mean_abs_feature_impact']
