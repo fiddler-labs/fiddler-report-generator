@@ -8,4 +8,5 @@ class FrontEndCall:
         self.url = f'{api.url}/{endpoint}'
 
     def post(self, request):
-        return requests.post(self.url, headers=self.api.request_headers, json=request).json()
+        r = requests.post(self.url, headers=self.api.request_headers, json=request)
+        return r.json()
