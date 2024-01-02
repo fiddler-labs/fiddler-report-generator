@@ -1,11 +1,13 @@
-from typing import List, Type, Optional
-from docx import Document
-from docxtpl import DocxTemplate
-from .base import OutputTypes, BaseOutput
-import warnings
 import os
+import warnings
+from typing import List, Type, Optional
+
+from docx import Document
 from docx2pdf import convert
+from docxtpl import DocxTemplate
 from pkg_resources import resource_filename
+
+from .base import OutputTypes, BaseOutput
 
 FIDDLER_DEFAULT_REPORT_NAME = 'fiddler_report'
 DEFAULT_TEMPLATE_FILE = resource_filename('reportgen', 'templates/template.docx')

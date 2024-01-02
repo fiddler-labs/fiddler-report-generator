@@ -1,18 +1,17 @@
-from .base import BaseAnalysis
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table,\
-                             ImageTable, DescriptiveTextBlock
-from ..output_modules.text_styles import PlainText, BoldText, ItalicText
-from typing import Optional, List, Sequence, Union
 from collections import defaultdict
 from datetime import datetime, timezone
-from .plotting_helpers import pie_chart
+from typing import Optional, List, Sequence
+
 import fiddler as fdl
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import os
-import re
+
+from .base import BaseAnalysis
+from .plotting_helpers import pie_chart
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, FormattedTextStyle, SimpleTextStyle, \
+    AddBreak, Table, \
+    ImageTable, DescriptiveTextBlock
+from ..output_modules.text_styles import PlainText, BoldText
 
 
 class Alerts(BaseAnalysis):
@@ -65,11 +64,11 @@ class Alerts(BaseAnalysis):
             alerts_dict = defaultdict(list)
             for a in triggered_alerts:
                 alerts_dict['alert_id'].append(a.triggered_alert_id)
-                alerts_dict['project_id'].append(rule.project_id)
-                alerts_dict['model_id'].append(rule.model_id)
+                alerts_dict['project_id'].append(rule.project_name)
+                alerts_dict['model_id'].append(rule.model_name)
                 alerts_dict['name'].append(rule.name)
-                alerts_dict['alert_type'].append(rule.alert_type.name)
-                alerts_dict['column'].append(rule.column)
+                alerts_dict['alert_type'].append(rule.alert_type_display_name)
+                alerts_dict['column'].append(rule.columns)
                 alerts_dict['severity'].append(a.severity)
                 alerts_dict['value'].append(a.alert_value)
                 alerts_dict['date'].append(datetime.fromtimestamp(a.alert_time_bucket/1000, timezone.utc).date())
@@ -134,15 +133,15 @@ class AlertsDetails(Alerts):
 
         alert_rules_dict = defaultdict(list)
         for rule in self.alert_rules:
-            alert_rules_dict[rule.alert_type].append(rule)
+            alert_rules_dict[rule.alert_type_display_name].append(rule)
 
         if len(alert_rules_dict) == 0:
-            output_modules += [DescriptiveTextBlock('No alert rules are defined for this mode.')]
+            output_modules += [DescriptiveTextBlock('No alert rules are defined for this model.')]
 
         else:
             for alert_type in alert_rules_dict.keys():
                 output_modules += [FormattedTextBlock([
-                                                       BoldText(f'{alert_type.name} Alerts'),
+                                                       BoldText(f'{alert_type} Alerts'),
                                                       ])
                                    ]
                 output_modules += [AddBreak(1)]
@@ -154,9 +153,9 @@ class AlertsDetails(Alerts):
                                                           )
                                        ]
                     output_modules += [SimpleTextBlock(f'('
-                                                       f'model_id={rule.model_id}, '
-                                                       f'metric={rule.metric.name}, '
-                                                       f'column={rule.column}, '
+                                                       f'model_id={rule.model_name}, '
+                                                       f'metric={rule.metric_display_name}, '
+                                                       f'column={rule.columns}, '
                                                        f'warning_threshold={rule.warning_threshold}, '
                                                        f'critical_threshold={rule.critical_threshold}'
                                                        f')',

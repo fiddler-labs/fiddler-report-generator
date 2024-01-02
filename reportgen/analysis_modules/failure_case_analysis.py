@@ -1,22 +1,15 @@
-from .base import BaseAnalysis
-from .performance_metrics import BinaryClassifierMetrics
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, LinePlot,\
-                             PlainText, BoldText, ItalicText, TokenizedTextBlock, DescriptiveTextBlock
-from typing import Optional, List, Sequence, Union
+import warnings
+from datetime import datetime
+from typing import Optional, List
 
 import fiddler as fdl
-from fiddler.utils.exceptions import JSONException
 import numpy as np
 import pandas as pd
-import enum
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
-from collections import defaultdict
+
+from .base import BaseAnalysis
 from .connection_helpers import FrontEndCall
-import warnings
-import json
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleTextStyle, AddBreak, Table, \
+    PlainText, BoldText, ItalicText, TokenizedTextBlock, DescriptiveTextBlock
 
 DEFAULT_N_PERMUTATION = 300
 MAX_STRING_LENGTH = 600
@@ -97,7 +90,7 @@ class FailureCaseAnalysis(BaseAnalysis):
             if self.explanation_alg != 'IG' and not any(
                     [input.data_type == fdl.DataType.STRING for input in model_info.inputs]):
                 request = {
-                    "organization_name": api.v1.org_id,
+                    "organization_name": api.organization_name,
                     "project_name": self.project_id,
                     "model_name": model_id,
                     "ref_data_source": {"dataset_name": reference_dataset,
@@ -113,7 +106,7 @@ class FailureCaseAnalysis(BaseAnalysis):
 
             else:
                 request = {
-                    "organization_name": api.v1.org_id,
+                    "organization_name": api.organization_name,
                     "project_name": self.project_id,
                     "model_name": model_id,
                     "explanation_type": self.explanation_alg,

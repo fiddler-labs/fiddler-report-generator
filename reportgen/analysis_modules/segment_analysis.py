@@ -1,19 +1,15 @@
-from .base import BaseAnalysis
-from .performance_metrics import BinaryClassifierMetrics
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, LinePlot,\
-                             PlainText, BoldText, ItalicText, ObjectTable
-from typing import Optional, List, Sequence, Union
+import enum
+from collections import defaultdict
+from dataclasses import dataclass
+from typing import Optional, List
 
-from fiddler.utils.exceptions import JSONException
 import numpy as np
 import pandas as pd
-import enum
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
-from collections import defaultdict
+
+from .base import BaseAnalysis
 from .connection_helpers import FrontEndCall
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleTextStyle, AddBreak, LinePlot, \
+    PlainText, BoldText, ObjectTable
 
 
 @enum.unique
@@ -279,7 +275,7 @@ class PerformanceTimeSeries(BaseAnalysis):
                            ):
 
         sql_query = self._get_sql_query(dataset, time_interval, segment_predicate)
-        request = {"organization_name": api.v1.org_id,
+        request = {"organization_name": api.organization_name,
                    "project_name": self.project_id,
                    "model_name": self.model_id,
                    "data_source": {"query": sql_query,

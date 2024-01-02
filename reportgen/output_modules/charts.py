@@ -1,13 +1,12 @@
-from .base import BaseOutput
-from .tmp_file import TempOutputFile
-from .blocks import SimpleImage
-from typing import Optional, List, Sequence, Union
-
-import numpy as np
 import itertools
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 from dataclasses import dataclass
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+from .base import BaseOutput
+from .blocks import SimpleImage
+from .tmp_file import TempOutputFile
 
 
 @dataclass
@@ -103,11 +102,11 @@ class LinePlot(BaseOutput):
                 self.xticks = ['baseline'] + self.xticks
 
             if isinstance(self.benchmarks, dict):
-                colors = itertools.cycle([line.get_color() for line in ax.get_lines()])
+                color = ax._get_lines.get_next_color()
                 for label, value in self.benchmarks.items():
                     ax.plot(0,
                             value,
-                            color=next(colors),
+                            color=color,
                             marker='^',
                             markersize=14,
                             )

@@ -1,8 +1,4 @@
 from .base import BaseOutput
-from typing import Optional
-from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.shared import Pt
-from docx.shared import Inches
 
 
 class FormattedText(BaseOutput):

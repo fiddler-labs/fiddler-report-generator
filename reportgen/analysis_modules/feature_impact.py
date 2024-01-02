@@ -1,18 +1,10 @@
+import fiddler as fdl
+from typing import Optional, List
+
 from .base import BaseAnalysis
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table, LinePlot,\
-                             PlainText, BoldText, ItalicText, ObjectTable, AddPageBreak, DescriptiveTextBlock
-from typing import Optional, List, Sequence, Union
-from fiddler.utils.exceptions import JSONException
-import numpy as np
-import pandas as pd
-import enum
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-import matplotlib.pyplot as plt
-from collections import defaultdict
-from .connection_helpers import FrontEndCall
 from .plotting_helpers import feature_impact_chart
+from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleTextStyle, AddBreak, PlainText, \
+    BoldText, ObjectTable, AddPageBreak, DescriptiveTextBlock
 
 
 class FeatureImpact(BaseAnalysis):
@@ -59,12 +51,12 @@ class FeatureImpact(BaseAnalysis):
             feature_impacts = {}
 
             try:
-                response = api.run_feature_importance(project_id=self.project_id,
-                                                      model_id=model,
-                                                      dataset_id=dataset_id,
-                                                      impact_not_importance=True
-                                                      )
-
+                response = api.get_feature_impact(
+                    project_id=self.project_id,
+                    model_id=model,
+                    data_source=fdl.DatasetDataSource(dataset_id=dataset_id, num_samples=200)
+                )
+                
                 if hasattr(response, 'impact_table'):
                     for token in response.impact_table:
                         feature_impacts[token] = response.impact_table[token]['mean_abs_feature_impact']

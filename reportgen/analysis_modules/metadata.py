@@ -1,10 +1,10 @@
-from typing import Optional, List
-from .base import BaseAnalysis
-from ..output_modules import BaseOutput, MetaDataContext, SimpleTextBlock, FormattedTextBlock, \
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, AddPageBreak, DescriptiveTextBlock
-from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 from datetime import datetime, timezone
+from typing import Optional, List
 
+from .base import BaseAnalysis
+from ..output_modules import BaseOutput, MetaDataContext, FormattedTextBlock, \
+    AddBreak, DescriptiveTextBlock
+from ..output_modules.text_styles import PlainText, BoldText, ItalicText
 
 
 class MetaData(BaseAnalysis):
@@ -24,7 +24,7 @@ class MetaData(BaseAnalysis):
         :return: List of output modules.
         """
 
-        org_id = api.v2.organization_name
+        org_id = api.organization_name
 
         date = datetime.now(timezone.utc)
         footer_metadata = f'Generated on {date.strftime("%B %d, %Y at %H:%M UTC")} '
@@ -38,7 +38,9 @@ class MetaData(BaseAnalysis):
         output_modules = [MetaDataContext(context)]
 
         projects = api.list_projects()
-        url = api.v2.url[0:api.v2.url.find('.ai/')+4]
+        
+        # store Fiddler instance TLD  
+        url = api.url[0:api.url.find('.ai/')+4]
 
         output_modules += [FormattedTextBlock([PlainText('This report is generated for the Fiddler deployment at '),
                                                ItalicText('{}. '.format(url)),

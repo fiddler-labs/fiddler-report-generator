@@ -1,9 +1,8 @@
-import fiddler as fdl
 from .base import BaseAnalysis
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile, Table
-from ..output_modules.text_styles import PlainText, BoldText, ItalicText
-from typing import Optional, List, Sequence, Union
+from typing import Optional, List
+
+from .base import BaseAnalysis
+from ..output_modules import BaseOutput, SimpleTextBlock, SimpleTextStyle, AddBreak, Table
 
 
 class DatasetSummary(BaseAnalysis):
@@ -48,7 +47,7 @@ class DatasetSummary(BaseAnalysis):
         table_rows = []
         for dataset_ID in datasets:
 
-            dataset_obj = api.v2.get_dataset(self.project_id, dataset_ID)
+            dataset_obj = api.get_dataset(self.project_id, dataset_ID)
             for dataset_source in dataset_obj.file_list['tree']:
                 source = dataset_source['name']
 

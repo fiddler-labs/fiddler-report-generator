@@ -1,12 +1,14 @@
+import warnings
 from typing import List, Type, Optional
+
+import fiddler as fdl
 from tqdm import tqdm
-from .output_modules import OutputTypes
+
 from .analysis_modules import BaseAnalysis
 from .analysis_modules import MetaData
 from .output_modules import BaseOutput
+from .output_modules import OutputTypes
 from .output_modules import generate_output
-import fiddler as fdl
-import warnings
 
 
 class FiddlerReportGenerator:

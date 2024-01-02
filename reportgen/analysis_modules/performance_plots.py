@@ -1,17 +1,15 @@
-from .base import BaseAnalysis
-from ..output_modules import BaseOutput, SimpleTextBlock, FormattedTextBlock, SimpleImage,\
-                             FormattedTextStyle, SimpleTextStyle, AddBreak, TempOutputFile,\
-                             PlainText, BoldText, ItalicText, ObjectTable, DescriptiveTextBlock
+import warnings
+from typing import Optional, List
 
-from typing import Optional, List, Sequence, Union
-from collections import defaultdict
 import fiddler as fdl
 import numpy as np
-import matplotlib.pyplot as plt
-from .plotting_helpers import confusion_matrix, roc_curve
-from .connection_helpers import FrontEndCall
 from docx.shared import RGBColor
-import warnings
+
+from .base import BaseAnalysis
+from .connection_helpers import FrontEndCall
+from .plotting_helpers import confusion_matrix, roc_curve
+from ..output_modules import BaseOutput, FormattedTextBlock, SimpleImage, \
+    AddBreak, PlainText, BoldText, ItalicText, ObjectTable, DescriptiveTextBlock
 
 
 class BinaryConfusionMatrix(BaseAnalysis):
@@ -52,7 +50,7 @@ class BinaryConfusionMatrix(BaseAnalysis):
             table_objects = []
             model_info = api.get_model_info(self.project_id, model_id)
             for dataset in model_info.datasets:
-                dataset_obj = api.v2.get_dataset(self.project_id, dataset)
+                dataset_obj = api.get_dataset(self.project_id, dataset)
                 for source in dataset_obj.file_list['tree']:
 
                     table_objects.append(
@@ -67,7 +65,7 @@ class BinaryConfusionMatrix(BaseAnalysis):
                                          )
 
                     request = {
-                               "organization_name": api.v1.org_id,
+                               "organization_name": api.organization_name,
                                "project_name": self.project_id,
                                "model_name": model_id,
                                "data_source": {"dataset_name": dataset,
@@ -139,14 +137,14 @@ class ROC(BaseAnalysis):
                 dataset = model_info.datasets[0]
                 metrics[model_id][dataset] = {}
 
-                dataset_obj = api.v2.get_dataset(self.project_id, dataset)
+                dataset_obj = api.get_dataset(self.project_id, dataset)
                 binary_threshold = model_info.binary_classification_threshold
 
                 for source in dataset_obj.file_list['tree']:
                     metrics[model_id][dataset][source['name']] = {}
 
                     request = {
-                        "organization_name": api.v1.org_id,
+                        "organization_name": api.organization_name,
                         "project_name": self.project_id,
                         "model_name": model_id,
                         "data_source": {"dataset_name": dataset,
